@@ -1,6 +1,7 @@
 "use client";
 
 import { IconBuilding } from "@/components/ui";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { HelpWidget } from "./components/HelpWidget";
 import { ProgressBar } from "./components/ProgressBar";
 import { WizardProvider, useWizardState } from "./model/WizardContext";
@@ -34,24 +35,27 @@ function CurrentStep() {
 export function Wizard() {
   return (
     <WizardProvider>
-      <div className="min-h-screen">
-        <header className="border-b border-slate-200 bg-white">
+      <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 transition-colors">
+        <header className="border-b border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors">
           <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-3.5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ph-700 text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm">
               <IconBuilding />
             </span>
             <div>
-              <p className="text-sm font-semibold text-slate-900">KodeCraft PH</p>
-              <p className="text-xs text-slate-400">
+              <p className="text-sm font-semibold text-slate-900 dark:text-zinc-100">KodeCraft PH</p>
+              <p className="text-xs text-slate-400 dark:text-zinc-400">
                 Configuración inicial del conjunto
               </p>
             </div>
-            <span className="ml-auto text-xs text-slate-400">
-              ¿Necesitas ayuda?{" "}
-              <a href="#" className="font-medium text-ph-700 hover:underline">
-                Habla con soporte
-              </a>
-            </span>
+            <div className="ml-auto flex items-center gap-4">
+              <ThemeToggle />
+              <span className="text-xs text-slate-400 dark:text-zinc-400 hidden sm:inline">
+                ¿Necesitas ayuda?{" "}
+                <a href="#" className="font-medium text-slate-800 dark:text-zinc-200 hover:underline">
+                  Habla con soporte
+                </a>
+              </span>
+            </div>
           </div>
         </header>
 

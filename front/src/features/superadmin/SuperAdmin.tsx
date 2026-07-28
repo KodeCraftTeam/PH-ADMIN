@@ -1,272 +1,187 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import {
-  Alert,
-  Badge,
-  Button,
-  Card,
-  IconBuilding,
-  IconCheck,
-  IconX,
-  Input,
-  Select,
-} from "@/components/ui";
+import { Alert, Button, IconBuilding, IconSparkles } from "@/components/ui";
 import {
   PROPERTIES_MOCK,
+  TICKETS_MOCK,
   type PlatformProperty,
-  type PlatformPropertyStatus,
 } from "./model/mocks";
+import { SuperAdminSidebar, type SuperAdminViewMode } from "./components/SuperAdminSidebar";
+import { OverviewView } from "./views/OverviewView";
+import { PropertiesView } from "./views/PropertiesView";
+import { SubscriptionsView } from "./views/SubscriptionsView";
+import { TeamView } from "./views/TeamView";
+import { SupportTicketsView } from "./views/SupportTicketsView";
+import { BroadcastsView } from "./views/BroadcastsView";
+import { SettingsView } from "./views/SettingsView";
 
-function StatusBadge({ status }: { status: PlatformPropertyStatus }) {
-  if (status === "Activo") {
-    return (
-      <Badge tone="green">
-        <IconCheck className="h-3 w-3" /> Activo
-      </Badge>
-    );
-  }
-  if (status === "En onboarding") return <Badge tone="blue">En onboarding</Badge>;
-  return <Badge tone="amber">Invitación enviada</Badge>;
-}
-
-interface AdminForm {
-  name: string;
-  email: string;
-  phone: string;
-  property: string;
-  city: string;
-}
-
-const EMPTY_FORM: AdminForm = {
-  name: "",
-  email: "",
-  phone: "",
-  property: "",
-  city: "Bogotá D.C.",
-};
+import { PropertyDetailModal } from "./components/PropertyDetailModal";
+import { CreateAdminModal } from "./components/CreateAdminModal";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 export function SuperAdmin() {
+  const [currentView, setCurrentView] = useState<SuperAdminViewMode>("overview");
   const [properties, setProperties] = useState<PlatformProperty[]>(PROPERTIES_MOCK);
   const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState<AdminForm>(EMPTY_FORM);
-  const [errors, setErrors] = useState<Partial<Record<keyof AdminForm, string>>>({});
-  const [invitationSent, setInvitationSent] = useState<string | null>(null);
+  const [selectedProperty, setSelectedProperty] = useState<PlatformProperty | null>(null);
+  const [invitationAlert, setInvitationAlert] = useState<string | null>(null);
 
-  const active = properties.filter((c) => c.status === "Activo").length;
-  const inProgress = properties.length - active;
+  // Metrics computation
+  const totalMRR = useMemo(() => {
+    return properties.reduce(
+      (sum, p) => sum + (p.status === "Activo" || p.status === "En onboarding" ? p.mrr : 0),
+      0
+    );
+  }, [properties]);
 
-  function set(field: keyof AdminForm) {
-    return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
-      if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
-    };
+  const activeCount = useMemo(
+    () => properties.filter((p) => p.status === "Activo").length,
+    [properties]
+  );
+  const onboardingCount = useMemo(
+    () => properties.filter((p) => p.status === "En onboarding").length,
+    [properties]
+  );
+  const demoCount = useMemo(
+    () => properties.filter((p) => p.status === "Demo (Prueba)").length,
+    [properties]
+  );
+  const totalUnits = useMemo(
+    () => properties.reduce((sum, p) => sum + (p.units || 0), 0),
+    [properties]
+  );
+
+  const openTicketsCount = useMemo(
+    () => TICKETS_MOCK.filter((t) => t.status !== "Resuelto").length,
+    []
+  );
+
+  function handleCreateAdmin(newProp: PlatformProperty) {
+    setProperties((prev) => [newProp, ...prev]);
+    setInvitationAlert(`Invitación comercial enviada a ${newProp.adminEmail}`);
   }
 
-  function createAdmin() {
-    const next: typeof errors = {};
-    (["name", "email", "property"] as const).forEach((f) => {
-      if (!form[f].trim()) next[f] = "Obligatorio";
-    });
-    if (form.email && !/^\S+@\S+\.\S+$/.test(form.email)) {
-      next.email = "Correo inválido";
-    }
-    setErrors(next);
-    if (Object.keys(next).length > 0) return;
-
-    setProperties((prev) => [
-      {
-        id: `cj${Date.now()}`,
-        name: form.property,
-        city: form.city,
-        units: null,
-        adminName: form.name,
-        adminEmail: form.email,
-        status: "Invitación enviada",
-        createdAt: new Date().toISOString().slice(0, 10),
-      },
-      ...prev,
-    ]);
-    setInvitationSent(form.email);
-    setForm(EMPTY_FORM);
-    setModalOpen(false);
+  function handleResendInvite(email: string) {
+    setInvitationAlert(`Reenvío de correo de invitación realizado con éxito a ${email}`);
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-6 py-3.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ph-800 text-white">
-            <IconBuilding />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-slate-900">KodeCraft PH</p>
-            <p className="text-xs text-slate-400">Super administración</p>
+    <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 font-sans text-slate-900 dark:text-zinc-100 transition-colors flex flex-col">
+      {/* Top Header Bar */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors h-14 w-full flex-shrink-0">
+        <div className="w-full flex h-full items-center justify-between px-4 sm:px-6 md:px-8">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-slate-900/10">
+              <IconBuilding className="h-5 w-5" />
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-base font-bold text-slate-900 dark:text-zinc-100">KodeCraft PH</span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 dark:bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-white dark:text-zinc-900 uppercase tracking-wider">
+                  Super Admin
+                </span>
+              </div>
+            </div>
           </div>
-          <nav className="ml-auto flex items-center gap-4 text-xs">
-            <span className="font-medium text-slate-900">Conjuntos</span>
-            <Link href="/onboarding" className="text-slate-400 hover:text-slate-700">
-              Onboarding (demo)
-            </Link>
-            <Link href="/admin" className="text-slate-400 hover:text-slate-700">
-              Panel admin (demo)
-            </Link>
-          </nav>
+
+          {/* Action Shortcuts & Theme Toggle */}
+          <div className="flex items-center gap-3 text-xs">
+            <Button onClick={() => setModalOpen(true)} className="shadow-xs py-1.5 px-3 text-xs">
+              + Crear Copropiedad
+            </Button>
+
+            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
+
+            <ThemeToggle />
+
+            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-800 hidden md:block"></div>
+
+            <div className="hidden md:flex items-center gap-2">
+              <Link
+                href="/onboarding"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <IconSparkles className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
+                Demo Onboarding
+              </Link>
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Panel Admin
+              </Link>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-slate-900">Conjuntos</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Crea el usuario administrador de cada conjunto; recibirá una invitación
-              para completar el onboarding por su cuenta.
-            </p>
-          </div>
-          <Button onClick={() => setModalOpen(true)}>+ Crear administrador</Button>
-        </div>
+      {/* Main Layout Container: Sidebar + View Content (Seamless Sticky Sidebar) */}
+      <div className="w-full flex flex-1 min-h-[calc(100vh-3.5rem)]">
+        {/* Sidebar */}
+        <SuperAdminSidebar
+          currentView={currentView}
+          onSelectView={setCurrentView}
+          propertiesCount={properties.length}
+          openTicketsCount={openTicketsCount}
+        />
 
-        {invitationSent && (
-          <div className="mt-4">
-            <Alert tone="green" title="Invitación enviada">
-              Se envió un correo a <strong>{invitationSent}</strong> con el enlace
-              para crear su contraseña e iniciar la configuración del conjunto
-              (wizard de 6 pasos). Soporte solo interviene si la validación falla.
+        {/* View Content Area */}
+        <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 overflow-x-hidden">
+          {invitationAlert && (
+            <Alert tone="green" title="Notificación del Sistema">
+              {invitationAlert}
             </Alert>
-          </div>
-        )}
+          )}
 
-        <div className="mt-6 grid grid-cols-3 gap-4">
-          <Card className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Conjuntos activos
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">{active}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              En proceso de onboarding
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">{inProgress}</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Administradores
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">
-              {properties.length}
-            </p>
-          </Card>
-        </div>
+          {currentView === "overview" && (
+            <OverviewView
+              properties={properties}
+              totalMRR={totalMRR}
+              activeCount={activeCount}
+              onboardingCount={onboardingCount}
+              demoCount={demoCount}
+              totalUnits={totalUnits}
+            />
+          )}
 
-        <Card className="mt-6 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-3">Conjunto</th>
-                <th className="px-4 py-3">Ciudad</th>
-                <th className="px-4 py-3 text-right">Unidades</th>
-                <th className="px-4 py-3">Administrador</th>
-                <th className="px-4 py-3">Estado</th>
-                <th className="px-4 py-3">Creado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {properties.map((c) => (
-                <tr key={c.id} className="border-b border-slate-100 last:border-0">
-                  <td className="px-4 py-3 font-medium text-slate-800">{c.name}</td>
-                  <td className="px-4 py-3 text-slate-600">{c.city}</td>
-                  <td className="px-4 py-3 text-right text-slate-600">
-                    {c.units ?? "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="text-slate-700">{c.adminName}</p>
-                    <p className="text-xs text-slate-400">{c.adminEmail}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={c.status} />
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">{c.createdAt}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      </main>
+          {currentView === "properties" && (
+            <PropertiesView
+              properties={properties}
+              onSelectProperty={setSelectedProperty}
+            />
+          )}
 
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">
-                  Crear usuario administrador
-                </h2>
-                <p className="mt-0.5 text-sm text-slate-500">
-                  Recibirá un correo para completar el onboarding de su conjunto.
-                </p>
-              </div>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                aria-label="Cerrar"
-              >
-                <IconX />
-              </button>
-            </div>
+          {currentView === "subscriptions" && (
+            <SubscriptionsView
+              properties={properties}
+              onSelectProperty={setSelectedProperty}
+            />
+          )}
 
-            <div className="mt-5 space-y-4">
-              <Input
-                label="Nombre completo"
-                placeholder="Laura Victoria Sáenz"
-                value={form.name}
-                onChange={set("name")}
-                error={errors.name}
-                required
-              />
-              <Input
-                label="Correo"
-                type="email"
-                placeholder="lsaenz@torresdelparque.co"
-                value={form.email}
-                onChange={set("email")}
-                error={errors.email}
-                required
-              />
-              <Input
-                label="Teléfono"
-                placeholder="310 555 12 34"
-                value={form.phone}
-                onChange={set("phone")}
-              />
-              <Input
-                label="Nombre del conjunto que administrará"
-                placeholder="Conjunto Torres del Parque"
-                value={form.property}
-                onChange={set("property")}
-                error={errors.property}
-                required
-              />
-              <Select label="Ciudad" value={form.city} onChange={set("city")}>
-                <option>Bogotá D.C.</option>
-                <option>Medellín</option>
-                <option>Cali</option>
-                <option>Barranquilla</option>
-                <option>Bucaramanga</option>
-              </Select>
-            </div>
+          {currentView === "team" && <TeamView />}
 
-            <div className="mt-6 flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={createAdmin}>Crear y enviar invitación</Button>
-            </div>
-          </div>
-        </div>
-      )}
+          {currentView === "tickets" && <SupportTicketsView />}
+
+          {currentView === "broadcasts" && <BroadcastsView />}
+
+          {currentView === "settings" && <SettingsView />}
+        </main>
+      </div>
+
+      {/* Modals & Overlays */}
+      <CreateAdminModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onCreate={handleCreateAdmin}
+      />
+
+      <PropertyDetailModal
+        property={selectedProperty}
+        onClose={() => setSelectedProperty(null)}
+        onResendInvite={handleResendInvite}
+      />
     </div>
   );
 }
