@@ -1,0 +1,13 @@
+import { User } from '../../entities/user.entity';
+
+/**
+ * Outbound (driven) port: persistence for the User aggregate.
+ * Implemented by infrastructure (Postgres, in-memory…).
+ */
+export interface UserRepository {
+  save(user: User): Promise<void>;
+  findById(id: string): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
+}
+
+export const USER_REPOSITORY = Symbol('UserRepository');

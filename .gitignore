@@ -6,7 +6,6 @@
 Thumbs.db
 
 # IDE
-.vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -23,4 +22,5 @@ npm-debug.log*
 
 # IA
 
+.vscode/*
 .claude/*
