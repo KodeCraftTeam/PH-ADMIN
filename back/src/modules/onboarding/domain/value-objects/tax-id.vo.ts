@@ -1,3 +1,5 @@
+import { InvalidTaxIdError } from '../errors/invalid-tax-id.error';
+
 /**
  * Value Object: Colombian tax ID (NIT) with check digit.
  * Immutable; validates format on construction.
@@ -8,7 +10,7 @@ export class TaxId {
   static create(value: string): TaxId {
     const clean = value.replace(/[.\s]/g, '');
     if (!/^\d{6,10}-?\d$/.test(clean)) {
-      throw new Error(`Invalid tax ID: ${value}`);
+      throw new InvalidTaxIdError(value);
     }
     return new TaxId(clean);
   }
