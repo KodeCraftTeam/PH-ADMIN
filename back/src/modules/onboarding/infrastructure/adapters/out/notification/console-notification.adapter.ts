@@ -14,6 +14,8 @@ export class ConsoleNotificationAdapter implements NotificationPort {
   }
 
   async alertSupport(propertyId: string, reason: string): Promise<void> {
-    this.logger.warn(`[stub] Support alert — property ${propertyId}: ${reason}`);
+    this.logger.warn(
+      `[stub] Support alert — property ${propertyId}: ${reason}`,
+    );
   }
 }

@@ -1,0 +1,6 @@
+files=$(git diff --cached --name-only --diff-filter=ACM -- 'back/src/*.ts' 'back/src/**/*.ts' 'back/test/*.ts' 'back/test/**/*.ts')
+
+if [ -n "$files" ]; then
+  (cd back && npx prettier --write $(echo "$files" | sed 's|^back/||'))
+  git add $files
+fi
