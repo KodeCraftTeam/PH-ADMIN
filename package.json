@@ -1,12 +1,18 @@
 {
   "name": "ph-admin",
   "private": true,
-  "workspaces": ["front", "back"],
+  "workspaces": [
+    "front"
+  ],
   "scripts": {
     "dev": "npm --prefix front run dev",
     "dev:front": "npm --prefix front run dev",
     "dev:back": "npm --prefix back run start:dev",
     "build:front": "npm --prefix front run build",
-    "build:back": "npm --prefix back run build"
+    "build:back": "npm --prefix back run build",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

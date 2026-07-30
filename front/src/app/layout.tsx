@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "KodeCraft PH — Onboarding",
+  title: "KodeCraft PH — Plataforma de Administración",
   description:
-    "Configuración inicial de tu conjunto en la plataforma de administración de propiedad horizontal",
+    "Configuración inicial y super administración de propiedad horizontal",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es">
-      <body>{children}</body>
+    <html lang="es" suppressHydrationWarning>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

@@ -1,7 +1,9 @@
 import { TaxId } from '../value-objects/tax-id.vo';
+import { InvalidActivationStateError } from '../errors/invalid-activation-state.error';
 
 export type PropertyType = 'RESIDENCIAL' | 'COMERCIAL' | 'MIXTO';
-export type PropertyStatus = 'EN_CONFIGURACION' | 'PENDIENTE_REVISION' | 'ACTIVO';
+export type PropertyStatus =
+  'EN_CONFIGURACION' | 'PENDIENTE_REVISION' | 'ACTIVO';
 
 /**
  * Aggregate root for onboarding: a horizontal property (PH complex)
@@ -21,7 +23,7 @@ export class Property {
 
   activate(): void {
     if (this.status !== 'EN_CONFIGURACION') {
-      throw new Error('Only a property in configuration can be activated');
+      throw new InvalidActivationStateError(this.status);
     }
     this.status = 'ACTIVO';
   }

@@ -1,164 +1,102 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Badge, Card, IconBuilding, IconCheck } from "@/components/ui";
+import { Badge, Button, IconBuilding, IconCheck } from "@/components/ui";
 import { BALANCE_MOCK } from "@/features/onboarding/model/mocks";
-
-const copFormat = new Intl.NumberFormat("es-CO", {
-  style: "currency",
-  currency: "COP",
-  maximumFractionDigits: 0,
-});
-
-const QUICK_ACTIONS = [
-  {
-    title: "Generar facturación",
-    detail: "Cuotas de administración de agosto 2026",
-  },
-  { title: "Enviar comunicado", detail: "Correo o cartelera digital a residentes" },
-  { title: "PQRS", detail: "3 solicitudes sin responder" },
-  { title: "Asambleas y actas", detail: "Próxima asamblea sin programar" },
-];
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { AdminSidebar, type AdminViewMode } from "./components/AdminSidebar";
+import { AdminOverviewView } from "./views/AdminOverviewView";
+import { AdminCarteraView } from "./views/AdminCarteraView";
+import { AdminPqrsView } from "./views/AdminPqrsView";
+import { AdminBroadcastsView } from "./views/AdminBroadcastsView";
+import { ADMIN_PQRS_MOCK } from "./model/adminMocks";
 
 export function AdminDashboard() {
+  const [currentView, setCurrentView] = useState<AdminViewMode>("overview");
   const balance = BALANCE_MOCK;
   const totalBalance = balance.reduce((a, c) => a + c.initialBalance, 0);
   const overdue = balance.filter((c) => c.status === "En mora").length;
   const paymentPlans = balance.filter((c) => c.status === "Acuerdo de pago").length;
+  const pendingPqrsCount = ADMIN_PQRS_MOCK.filter((p) => p.status !== "Resuelto").length;
+
+  function handleQuickAction(actionId: string) {
+    if (actionId === "billing" || actionId === "cartera") setCurrentView("cartera");
+    else if (actionId === "broadcast") setCurrentView("broadcasts");
+    else if (actionId === "pqrs") setCurrentView("pqrs");
+  }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-6 py-3.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ph-800 text-white">
-            <IconBuilding />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-slate-900">
-              Conjunto Residencial Altos del Virrey
-            </p>
-            <p className="text-xs text-slate-400">
-              NIT 901.456.789-2 · Bogotá D.C. · 18 unidades
-            </p>
+    <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 font-sans text-slate-900 dark:text-zinc-100 transition-colors flex flex-col">
+      {/* Header Bar */}
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors h-14 w-full flex-shrink-0">
+        <div className="w-full flex h-full items-center justify-between px-4 sm:px-6 md:px-8">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-slate-900/10">
+              <IconBuilding className="h-5 w-5" />
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-base font-bold text-slate-900 dark:text-zinc-100">Altos del Virrey</span>
+                <Badge tone="green">
+                  <IconCheck className="h-3 w-3" /> Activo
+                </Badge>
+              </div>
+              <p className="text-[10px] text-slate-400 dark:text-zinc-400">
+                NIT 901.456.789-2 · Bogotá D.C. · 18 unidades
+              </p>
+            </div>
           </div>
-          <Badge tone="green">
-            <IconCheck className="h-3 w-3" /> Activo
-          </Badge>
-          <nav className="ml-auto flex items-center gap-4 text-xs">
-            <span className="font-medium text-slate-900">Panel</span>
-            <Link href="/onboarding" className="text-slate-400 hover:text-slate-700">
-              Onboarding (demo)
-            </Link>
-            <Link href="/superadmin" className="text-slate-400 hover:text-slate-700">
-              Super admin (demo)
-            </Link>
-          </nav>
+
+          <div className="flex items-center gap-3 text-xs">
+            <ThemeToggle />
+
+            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
+
+            <nav className="flex items-center gap-3">
+              <Link
+                href="/onboarding"
+                className="text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 font-medium"
+              >
+                Onboarding (demo)
+              </Link>
+              <Link
+                href="/superadmin"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
+              >
+                Super Admin Panel
+              </Link>
+            </nav>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
-        <h1 className="text-xl font-semibold text-slate-900">
-          Hola, Diana Carolina
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Resumen del conjunto con corte al 30 de junio de 2026.
-        </p>
+      {/* Main Layout Container: Sidebar + View Content (Seamless Sticky Sidebar) */}
+      <div className="w-full flex flex-1 min-h-[calc(100vh-3.5rem)]">
+        <AdminSidebar
+          currentView={currentView}
+          onSelectView={setCurrentView}
+          pendingPqrsCount={pendingPqrsCount}
+          overdueCount={overdue}
+        />
 
-        <div className="mt-6 grid grid-cols-4 gap-4">
-          <Card className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Cartera total
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">
-              {copFormat.format(totalBalance)}
-            </p>
-            <p className="mt-0.5 text-xs text-slate-400">7 unidades con saldo</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Recaudo del mes
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-emerald-600">82%</p>
-            <p className="mt-0.5 text-xs text-slate-400">meta: 90%</p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              En mora
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-red-600">{overdue}</p>
-            <p className="mt-0.5 text-xs text-slate-400">
-              + {paymentPlans} con acuerdo de pago
-            </p>
-          </Card>
-          <Card className="p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-              Unidades
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">18</p>
-            <p className="mt-0.5 text-xs text-slate-400">16 apartamentos · 2 locales</p>
-          </Card>
-        </div>
+        <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 overflow-x-hidden">
+          {currentView === "overview" && (
+            <AdminOverviewView
+              totalBalance={totalBalance}
+              overdue={overdue}
+              paymentPlans={paymentPlans}
+              onQuickAction={handleQuickAction}
+            />
+          )}
 
-        <div className="mt-6 grid grid-cols-4 gap-4">
-          {QUICK_ACTIONS.map((a) => (
-            <Card
-              key={a.title}
-              className="cursor-pointer p-4 transition-colors hover:border-slate-300 hover:bg-slate-50"
-            >
-              <p className="text-sm font-semibold text-slate-800">{a.title}</p>
-              <p className="mt-1 text-xs text-slate-500">{a.detail}</p>
-            </Card>
-          ))}
-        </div>
+          {currentView === "cartera" && <AdminCarteraView />}
 
-        <div className="mt-8 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-900">
-            Cartera por unidad
-          </h2>
-          <span className="text-xs text-slate-400">
-            Datos cargados en el onboarding · corte 30 jun 2026
-          </span>
-        </div>
+          {currentView === "pqrs" && <AdminPqrsView />}
 
-        <Card className="mt-3 overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-3">Unidad</th>
-                <th className="px-4 py-3">Propietario</th>
-                <th className="px-4 py-3 text-right">Saldo</th>
-                <th className="px-4 py-3">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {balance.map((c) => (
-                <tr key={c.id} className="border-b border-slate-100 last:border-0">
-                  <td className="px-4 py-2.5 font-medium text-slate-800">
-                    {c.code}
-                  </td>
-                  <td className="px-4 py-2.5 text-slate-600">{c.owner}</td>
-                  <td className="px-4 py-2.5 text-right text-slate-700">
-                    {copFormat.format(c.initialBalance)}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    <Badge
-                      tone={
-                        c.status === "Al día"
-                          ? "green"
-                          : c.status === "En mora"
-                            ? "red"
-                            : "amber"
-                      }
-                    >
-                      {c.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      </main>
+          {currentView === "broadcasts" && <AdminBroadcastsView />}
+        </main>
+      </div>
     </div>
   );
 }

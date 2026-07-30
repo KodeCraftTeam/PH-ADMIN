@@ -1,3 +1,5 @@
+import { CoefficientOutOfRangeError } from '../errors/coefficient-out-of-range.error';
+
 /**
  * Value Object: co-ownership coefficient (percentage).
  * Core business rule: the sum of all coefficients in a property
@@ -8,7 +10,7 @@ export class Coefficient {
 
   static create(percentage: number): Coefficient {
     if (percentage <= 0 || percentage > 100) {
-      throw new Error(`Coefficient out of range: ${percentage}`);
+      throw new CoefficientOutOfRangeError(percentage);
     }
     return new Coefficient(Number(percentage.toFixed(4)));
   }

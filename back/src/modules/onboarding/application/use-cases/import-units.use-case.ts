@@ -10,7 +10,13 @@ import { ImportUnitsDto, ValidationResultDto } from '../dto/import-units.dto';
 @Injectable()
 export class ImportUnitsUseCase {
   async execute(dto: ImportUnitsDto): Promise<ValidationResultDto> {
-    void dto;
-    throw new Error('Not implemented — frontend-only demo');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    return {
+      totalRows: dto.units.length,
+      validRows: dto.units.length,
+      coefficientSum: 0,
+      errors: [],
+    };
   }
 }
