@@ -7,6 +7,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class LoadBalanceUseCase {
   async execute(): Promise<void> {
-    throw new Error('Not implemented — frontend-only demo');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 }
