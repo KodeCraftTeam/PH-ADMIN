@@ -9,11 +9,36 @@ datasource db {
 
 model UserModel {
   @@map("Users")
-  id           String     @id
-  email        String     @unique
-  password     String?    @default("")
-  name         String     
-  role         String?     
-  status       String     
-  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  id                   String                      @id
+  email                String                      @unique
+  password             String?                     @default("")
+  name                 String
+  role                 String?
+  status               String
+  createdAt            DateTime                    @default(now()) @db.Timestamptz(3)
+  administratorProfile AdministratorProfileModel?
+}
+
+model CityModel {
+  @@map("Cities")
+  id                     String                       @id
+  name                   String                       @unique
+  administratorProfiles  AdministratorProfileModel[]
+}
+
+model AdministratorProfileModel {
+  @@map("AdministratorProfiles")
+  id                  String     @id
+  userId              String     @unique
+  user                UserModel  @relation(fields: [userId], references: [id])
+  personType          String
+  nameOrBusinessName  String
+  taxId               String     @unique
+  phoneNumber         String?
+  address             String?
+  cityId              String
+  city                CityModel  @relation(fields: [cityId], references: [id])
+  legalRepresentative String?
+  createdAt           DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime?  @updatedAt
 }

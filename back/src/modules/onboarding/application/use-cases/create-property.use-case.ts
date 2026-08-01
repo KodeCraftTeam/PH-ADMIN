@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { Property } from '../../domain/entities/property.entity';
 import { PROPERTY_REPOSITORY } from '../../domain/ports/out/property.repository';
 import type { PropertyRepository } from '../../domain/ports/out/property.repository';
-import { TaxId } from '../../domain/value-objects/tax-id.vo';
+import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { CreatePropertyDto } from '../dto/create-property.dto';
 
 /**

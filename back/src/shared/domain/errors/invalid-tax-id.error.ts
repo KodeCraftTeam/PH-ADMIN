@@ -1,4 +1,4 @@
-import { DomainError } from '../../../../shared/domain/errors/domain-error';
+import { DomainError } from './domain-error';
 
 export class InvalidTaxIdError extends DomainError {
   constructor(value: string) {

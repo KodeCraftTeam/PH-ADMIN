@@ -43,5 +43,6 @@ import { JwtTokenAdapter } from './infrastructure/adapters/out/token/jwt-token.a
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasherAdapter },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
   ],
+  exports: [CreateUserUseCase],
 })
 export class AuthModule {}

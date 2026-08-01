@@ -1,4 +1,4 @@
-import { TaxId } from '../value-objects/tax-id.vo';
+import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { InvalidActivationStateError } from '../errors/invalid-activation-state.error';
 
 export type PropertyType = 'RESIDENCIAL' | 'COMERCIAL' | 'MIXTO';
