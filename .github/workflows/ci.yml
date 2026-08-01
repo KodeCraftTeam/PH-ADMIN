@@ -26,6 +26,14 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      - name: Generate DBML from database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx dbdocs db2dbml postgres "$DATABASE_URL" -o database.dbml
+      - name: Update dbdocs project
+        env:
+          DBDOCS_TOKEN: ${{ secrets.DBDOCS_TOKEN }}
+        run: npx dbdocs build database.dbml --project PH-ADMIN
 
 concurrency:
   group: ci-${{ github.ref }}
