@@ -1,9 +1,6 @@
 {
   "name": "ph-admin",
   "private": true,
-  "workspaces": [
-    "front"
-  ],
   "scripts": {
     "dev": "npm --prefix front run dev",
     "dev:front": "npm --prefix front run dev",
