@@ -15,6 +15,7 @@ model UserModel {
   name                 String
   role                 String?
   status               String
+  code                 String?
   createdAt            DateTime                    @default(now()) @db.Timestamptz(3)
   administratorProfile AdministratorProfileModel?
 }

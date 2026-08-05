@@ -18,6 +18,7 @@ export class PrismaUserRepository implements UserRepository {
         name: user.name,
         role: user.role,
         status: user.status,
+        code: user.code ?? null,
       },
       update: {
         email: user.email,
@@ -25,6 +26,7 @@ export class PrismaUserRepository implements UserRepository {
         name: user.name,
         role: user.role,
         status: user.status,
+        code: user.code ?? null,
       },
     });
   }

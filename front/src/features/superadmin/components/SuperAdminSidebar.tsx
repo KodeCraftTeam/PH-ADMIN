@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { LogOutIcon } from "lucide-react";
 import {
   IconBuilding,
   IconChart,
@@ -8,6 +9,7 @@ import {
   IconDollar,
   IconSparkles,
 } from "@/components/ui";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export type SuperAdminViewMode =
   | "overview"
@@ -23,6 +25,7 @@ interface Props {
   onSelectView: (view: SuperAdminViewMode) => void;
   propertiesCount: number;
   openTicketsCount: number;
+  userName?: string;
 }
 
 export function SuperAdminSidebar({
@@ -30,7 +33,18 @@ export function SuperAdminSidebar({
   onSelectView,
   propertiesCount,
   openTicketsCount,
+  userName,
 }: Props) {
+  const { logout, loading: loggingOut } = useLogout();
+  const displayName = userName?.trim() || "Usuario";
+  const initials =
+    displayName
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join("")
+      .toUpperCase() || "U";
+      
   const menuItems: {
     id: SuperAdminViewMode;
     label: string;
@@ -158,13 +172,23 @@ export function SuperAdminSidebar({
         <div className="flex items-center justify-between px-1 text-xs">
           <div className="flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-full bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold text-[11px] shadow-xs">
-              SG
+              {initials}
             </div>
             <div>
-              <p className="font-bold text-slate-900 dark:text-zinc-100 text-[11px]">Santiago Gómez</p>
+              <p className="font-bold text-slate-900 dark:text-zinc-100 text-[11px]">{displayName}</p>
               <p className="text-[10px] text-slate-400 dark:text-zinc-500">SuperAdmin Lead</p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={logout}
+            disabled={loggingOut}
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+            className="text-slate-400 hover:text-red-500 dark:text-zinc-500 dark:hover:text-red-400 transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            <LogOutIcon className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </aside>

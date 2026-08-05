@@ -89,6 +89,10 @@ describe('LoginUseCase', () => {
       role: 'SUPER_ADMIN',
     });
 
-    expect(result).toEqual({ accessToken: 'token' });
+    expect(result).toEqual({
+      accessToken: 'token',
+      name: 'Admin',
+      role: 'SUPER_ADMIN',
+    });
   });
 });

@@ -9,6 +9,7 @@ import { LoginDto } from '../dto/login.dto';
 import { InvalidCredentialsError } from '../../domain/errors/invalid-credentials.error';
 import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
 import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { LoginResponse } from '../dto/login-response.dto';
 
 @Injectable()
 export class LoginUseCase {
@@ -20,7 +21,7 @@ export class LoginUseCase {
     @Inject(LOGGER_PORT) private readonly logger: LoggerPort,
   ) {}
 
-  async execute(dto: LoginDto): Promise<{ accessToken: string }> {
+  async execute(dto: LoginDto): Promise<LoginResponse> {
     const user = await this.userRepo.findByEmail(dto.email);
     if (
       !user ||
@@ -38,6 +39,10 @@ export class LoginUseCase {
 
     this.logger.log(`User ${user.id} logged in`, 'LoginUseCase');
 
-    return { accessToken };
+    return {
+      accessToken: accessToken,
+      name: user.name,
+      role: user.role,
+    };
   }
 }

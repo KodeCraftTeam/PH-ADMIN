@@ -1,0 +1,7 @@
+{
+  "jest.rootPath": "back",
+  "jest.autoRun": {
+    "watch": true,
+    "onSave": "test-file"
+  }
+}

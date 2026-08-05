@@ -1,5 +1,5 @@
 export type UserRole = 'SUPER_ADMIN' | 'ADMIN';
-export type UserStatus = 'ACTIVE' | 'INACTIVE';
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'ONBOARDING';
 
 export class User {
   constructor(
@@ -9,5 +9,6 @@ export class User {
     public readonly name: string,
     public readonly role: UserRole,
     public readonly status: UserStatus = 'ACTIVE',
+    public readonly code?: string,
   ) {}
 }

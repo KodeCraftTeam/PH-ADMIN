@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { UserModel as UserRecord } from '@prisma/client';
 import {
   User,
@@ -13,5 +14,6 @@ export function toDomainUser(record: UserRecord): User {
     record.name,
     record.role as UserRole,
     record.status as UserStatus,
+    record.code || undefined,
   );
 }
