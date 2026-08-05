@@ -1,5 +1,10 @@
 import { AdminDashboard } from "@/features/admin/AdminDashboard";
+import { RequireRole } from "@/features/auth/components/RequireRole";
 
 export default function AdminPage() {
-  return <AdminDashboard />;
+  return (
+    <RequireRole role="ADMIN">
+      <AdminDashboard />
+    </RequireRole>
+  );
 }

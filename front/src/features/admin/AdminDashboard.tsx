@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge, Button, IconBuilding, IconCheck } from "@/components/ui";
 import { BALANCE_MOCK } from "@/features/onboarding/model/mocks";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { getSession } from "@/features/auth/model/session";
 import { AdminSidebar, type AdminViewMode } from "./components/AdminSidebar";
 import { AdminOverviewView } from "./views/AdminOverviewView";
 import { AdminCarteraView } from "./views/AdminCarteraView";
@@ -14,6 +15,7 @@ import { ADMIN_PQRS_MOCK } from "./model/adminMocks";
 
 export function AdminDashboard() {
   const [currentView, setCurrentView] = useState<AdminViewMode>("overview");
+  const session = getSession();
   const balance = BALANCE_MOCK;
   const totalBalance = balance.reduce((a, c) => a + c.initialBalance, 0);
   const overdue = balance.filter((c) => c.status === "En mora").length;
@@ -78,6 +80,7 @@ export function AdminDashboard() {
           onSelectView={setCurrentView}
           pendingPqrsCount={pendingPqrsCount}
           overdueCount={overdue}
+          userName={session?.name}
         />
 
         <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 overflow-x-hidden">

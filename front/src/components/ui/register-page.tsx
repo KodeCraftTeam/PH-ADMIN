@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeftIcon,
@@ -19,6 +19,13 @@ import { Button } from "./button";
 import { Input } from "./input";
 import { OtpInput } from "./otp-input";
 import { AuthSeparator, AuthShell, Field, GoogleIcon } from "./auth-shell";
+import { ApiError } from "@/lib/http-client";
+import {
+  completeRegistration,
+  resendRegistrationCode,
+  startRegistration,
+  verifyRegistrationCode,
+} from "@/features/auth/api/register.api";
 
 type Step = "email" | "code" | "profile" | "done";
 
@@ -65,50 +72,50 @@ export function RegisterPage() {
     return () => window.clearInterval(id);
   }, [resendIn]);
 
-  // Los timers de simulación se cancelan si el componente se desmonta.
-  const timers = useRef<number[]>([]);
-  useEffect(
-    () => () => {
-      timers.current.forEach(window.clearTimeout);
-    },
-    []
-  );
-  const simulate = (ms: number, then: () => void) => {
-    setBusy(true);
-    timers.current.push(
-      window.setTimeout(() => {
-        setBusy(false);
-        then();
-      }, ms)
-    );
-  };
 
-  function submitEmail(e: React.FormEvent) {
+  async function submitEmail(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Ingresá un email válido.");
       return;
     }
-    // TODO(front): POST /auth/register/start — envía el código al correo.
-    simulate(900, () => {
+    setBusy(true);
+    try {
+      await startRegistration(email);
       setStep("code");
       setResendIn(RESEND_SECONDS);
-    });
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "No pudimos enviar el código. Intentá de nuevo."
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function submitCode(value: string) {
+  async function submitCode(value: string) {
     setError("");
     if (value.length < CODE_LENGTH) {
       setError(`El código tiene ${CODE_LENGTH} dígitos.`);
       return;
     }
-    // TODO(front): POST /auth/register/verify — valida el código.
-    // Simulado: cualquier código de 6 dígitos avanza.
-    simulate(800, () => setStep("profile"));
+    setBusy(true);
+    try {
+      await verifyRegistrationCode(email, value);
+      setStep("profile");
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Código inválido. Intentá de nuevo."
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function submitProfile(e: React.FormEvent) {
+  async function submitProfile(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     if (!name.trim()) {
@@ -119,16 +126,38 @@ export function RegisterPage() {
       setError("La contraseña necesita al menos 8 caracteres.");
       return;
     }
-    // TODO(front): POST /auth/register/complete — crea la cuenta.
-    simulate(1100, () => setStep("done"));
+    setBusy(true);
+    try {
+      await completeRegistration(email, name, password);
+      setStep("done");
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "No pudimos crear la cuenta. Intentá de nuevo."
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function resend() {
+  async function resend() {
     if (resendIn > 0) return;
     setCode("");
     setError("");
-    // TODO(front): POST /auth/register/resend
-    setResendIn(RESEND_SECONDS);
+    setBusy(true);
+    try {
+      await resendRegistrationCode(email);
+      setResendIn(RESEND_SECONDS);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "No pudimos reenviar el código."
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (

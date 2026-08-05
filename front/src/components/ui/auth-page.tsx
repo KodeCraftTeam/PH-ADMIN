@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AtSignIcon,
   EyeIcon,
@@ -19,15 +20,24 @@ import {
   Field,
   GoogleIcon,
 } from "./auth-shell";
+import { ApiError } from "@/lib/http-client";
+import { login } from "@/features/auth/api/login.api";
+import { setSession } from "@/features/auth/model/session";
+
+const DASHBOARD_BY_ROLE = {
+  ADMIN: "/admin",
+  SUPER_ADMIN: "/superadmin",
+} as const;
 
 export function AuthPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
@@ -37,8 +47,18 @@ export function AuthPage() {
     }
 
     setLoading(true);
-    // TODO(front): conectar a POST /auth/login cuando el cliente API esté listo.
-    window.setTimeout(() => setLoading(false), 900);
+    try {
+      const session = await login(email, password);
+      setSession(session);
+      router.push(DASHBOARD_BY_ROLE[session.role]);
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "No pudimos iniciar sesión. Intentá de nuevo."
+      );
+      setLoading(false);
+    }
   }
 
   return (

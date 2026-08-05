@@ -20,8 +20,10 @@ import { SettingsView } from "./views/SettingsView";
 import { PropertyDetailModal } from "./components/PropertyDetailModal";
 import { CreateAdminModal } from "./components/CreateAdminModal";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { getSession } from "@/features/auth/model/session";
 
 export function SuperAdmin() {
+  const session = getSession();
   const [currentView, setCurrentView] = useState<SuperAdminViewMode>("overview");
   const [properties, setProperties] = useState<PlatformProperty[]>(PROPERTIES_MOCK);
   const [modalOpen, setModalOpen] = useState(false);
@@ -125,6 +127,7 @@ export function SuperAdmin() {
           onSelectView={setCurrentView}
           propertiesCount={properties.length}
           openTicketsCount={openTicketsCount}
+          userName={session?.name}
         />
 
         {/* View Content Area */}
