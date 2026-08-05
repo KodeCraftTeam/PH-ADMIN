@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
-type Direction = "left" | "right" | "up" | "zoom";
+type Direction = "left" | "right" | "up" | "zoom" | "tilt";
 
 /**
  * Llama a `onEnter` la primera vez que el elemento entra en viewport.
@@ -100,6 +100,48 @@ export function Reveal({
         : undefined,
     },
     children
+  );
+}
+
+/** Barra fina arriba de todo que marca cuánto se scrolleó. */
+export function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const max =
+        document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(window.scrollY / max, 1) : 0);
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    update();
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, []);
+
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 h-0.5"
+    >
+      <div
+        className="h-full origin-left transition-transform duration-100 ease-out"
+        style={{
+          transform: `scaleX(${progress})`,
+          backgroundColor: "var(--accent-color)",
+        }}
+      />
+    </div>
   );
 }
 

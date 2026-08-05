@@ -314,6 +314,30 @@ body {
   animation: ph-digit-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* FAQ: <details> nativo, animamos solo la apertura del cuerpo */
+@keyframes ph-faq-open {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+details[open] .ph-faq-body {
+  animation: ph-faq-open 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] .ph-faq-icon {
+  transform: rotate(45deg);
+}
+
 /* ── Reveal al scrollear ──
    El atributo data-ph-reveal lo pone JS al montar. Sin JS, sin
    IntersectionObserver, o con reduced-motion, no hay atributo y
@@ -338,6 +362,11 @@ body {
 [data-ph-reveal="zoom"] {
   transform: scale(0.94);
 }
+/* La captura del panel entra inclinada y se endereza. */
+[data-ph-reveal="tilt"] {
+  transform: perspective(1600px) rotateX(16deg) scale(0.93);
+  transform-origin: center top;
+}
 [data-ph-reveal][data-ph-visible] {
   opacity: 1;
   transform: none;
@@ -356,6 +385,9 @@ body {
   .ph-check-ring,
   .ph-step,
   .ph-digit-filled {
+    animation: none;
+  }
+  details[open] .ph-faq-body {
     animation: none;
   }
   .ph-window {
