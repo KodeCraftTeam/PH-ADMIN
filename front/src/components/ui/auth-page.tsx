@@ -20,7 +20,7 @@ import {
   Field,
   GoogleIcon,
 } from "./auth-shell";
-import { ApiError } from "@/lib/http-client";
+import { ApiError, API_URL } from "@/lib/http-client";
 import { login } from "@/features/auth/api/login.api";
 import { setSession } from "@/features/auth/model/session";
 
@@ -107,7 +107,7 @@ export function AuthPage() {
           size="lg"
           className="h-11 w-full font-normal transition-transform active:scale-[.99]"
           onClick={() => {
-            // TODO(front): conectar OAuth de Google cuando el backend lo exponga.
+            window.location.href = `${API_URL}/auth/google`;
           }}
         >
           <GoogleIcon className="me-2.5 size-4" />
