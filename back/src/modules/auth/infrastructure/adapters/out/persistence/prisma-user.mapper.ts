@@ -10,8 +10,8 @@ export function toDomainUser(record: UserRecord): User {
   return new User(
     record.id,
     record.email,
-    record.password ?? '',
     record.name,
+    record.password,
     record.role as UserRole,
     record.status as UserStatus,
     record.code || undefined,

@@ -1,12 +1,12 @@
 import { Inject } from '@nestjs/common';
-import { CompleteRegisterDto } from '../dto/complete-register';
-import { USER_REPOSITORY } from '../../domain/ports/out/user.repository';
-import type { UserRepository } from '../../domain/ports/out/user.repository';
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error';
-import { PASSWORD_HASHER } from '../../domain/ports/out/password-hasher.port';
-import type { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
-import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { CompleteRegisterDto } from '../../dto/complete-register';
+import { USER_REPOSITORY } from '../../../domain/ports/out/user.repository';
+import type { UserRepository } from '../../../domain/ports/out/user.repository';
+import { UserNotFoundError } from '../../../domain/errors/user-not-found.error';
+import { PASSWORD_HASHER } from '../../../domain/ports/out/password-hasher.port';
+import type { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { LOGGER_PORT } from '../../../../../shared/domain/ports/out/logger.port';
+import type { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
 
 export class CompleteRegisterUseCase {
   constructor(

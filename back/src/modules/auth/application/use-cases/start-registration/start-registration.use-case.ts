@@ -1,16 +1,16 @@
 import { Inject } from '@nestjs/common';
-import { SendEmailDto } from '../dto/send-email.dto';
-import { USER_REPOSITORY } from '../../domain/ports/out/user.repository';
-import type { UserRepository } from '../../domain/ports/out/user.repository';
-import { EmailAlreadyRegisteredError } from '../../domain/errors/email-already-registered.error';
-import { User } from '../../domain/entities/user.entity';
+import { SendEmailDto } from '../../dto/send-email.dto';
+import { USER_REPOSITORY } from '../../../domain/ports/out/user.repository';
+import type { UserRepository } from '../../../domain/ports/out/user.repository';
+import { EmailAlreadyRegisteredError } from '../../../domain/errors/email-already-registered.error';
+import { User } from '../../../domain/entities/user.entity';
 import { randomInt, randomUUID } from 'node:crypto';
-import { PASSWORD_HASHER } from '../../domain/ports/out/password-hasher.port';
-import type { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
-import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
-import { EMAIL_SENDER_PORT } from '../../../../shared/domain/ports/out/email-sender.port';
-import type { EmailSenderPort } from '../../../../shared/domain/ports/out/email-sender.port';
+import { PASSWORD_HASHER } from '../../../domain/ports/out/password-hasher.port';
+import type { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { LOGGER_PORT } from '../../../../../shared/domain/ports/out/logger.port';
+import type { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
+import { EMAIL_SENDER_PORT } from '../../../../../shared/domain/ports/out/email-sender.port';
+import type { EmailSenderPort } from '../../../../../shared/domain/ports/out/email-sender.port';
 import { ConfigService } from '@nestjs/config';
 
 export class StartRegistrationUseCase {

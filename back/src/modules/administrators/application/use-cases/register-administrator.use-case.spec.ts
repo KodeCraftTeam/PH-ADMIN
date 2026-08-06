@@ -1,5 +1,5 @@
 import { RegisterAdministratorUseCase } from './register-administrator.use-case';
-import { CreateUserUseCase } from '../../../auth/application/use-cases/create-user.use-case';
+import { CreateUserUseCase } from '../../../auth/application/use-cases/create-user/create-user.use-case';
 import { AdministratorProfileRepository } from '../../domain/ports/out/administrator-profile.repository';
 import { AdministratorProfile } from '../../domain/entities/administrator-profile.entity';
 import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';

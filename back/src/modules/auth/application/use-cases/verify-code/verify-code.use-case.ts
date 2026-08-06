@@ -1,12 +1,12 @@
-import { SendCodeDto } from '../dto/send-code.dto';
+import { SendCodeDto } from '../../dto/send-code.dto';
 import { Inject } from '@nestjs/common';
-import { USER_REPOSITORY } from '../../domain/ports/out/user.repository';
-import type { UserRepository } from '../../domain/ports/out/user.repository';
-import { PASSWORD_HASHER } from '../../domain/ports/out/password-hasher.port';
-import type { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
-import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
-import { InvalidVerificationCodeError } from '../../domain/errors/invalid-verification-code.error';
+import { USER_REPOSITORY } from '../../../domain/ports/out/user.repository';
+import type { UserRepository } from '../../../domain/ports/out/user.repository';
+import { PASSWORD_HASHER } from '../../../domain/ports/out/password-hasher.port';
+import type { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { LOGGER_PORT } from '../../../../../shared/domain/ports/out/logger.port';
+import type { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
+import { InvalidVerificationCodeError } from '../../../domain/errors/invalid-verification-code.error';
 
 export class VerifyCodeUseCase {
   constructor(

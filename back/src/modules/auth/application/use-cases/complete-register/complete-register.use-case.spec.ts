@@ -1,8 +1,8 @@
-import { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
-import { User } from '../../domain/entities/user.entity';
-import { UserNotFoundError } from '../../domain/errors/user-not-found.error';
-import { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { UserRepository } from '../../domain/ports/out/user.repository';
+import { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
+import { User } from '../../../domain/entities/user.entity';
+import { UserNotFoundError } from '../../../domain/errors/user-not-found.error';
+import { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { UserRepository } from '../../../domain/ports/out/user.repository';
 import { CompleteRegisterUseCase } from './complete-register.use-case';
 
 describe('CompleteRegisterUseCase', () => {

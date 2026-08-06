@@ -1,9 +1,9 @@
-import { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
-import { User } from '../../domain/entities/user.entity';
-import { InvalidCredentialsError } from '../../domain/errors/invalid-credentials.error';
-import { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { TokenPort } from '../../domain/ports/out/token.port';
-import { UserRepository } from '../../domain/ports/out/user.repository';
+import { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
+import { User } from '../../../domain/entities/user.entity';
+import { InvalidCredentialsError } from '../../../domain/errors/invalid-credentials.error';
+import { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { TokenPort } from '../../../domain/ports/out/token.port';
+import { UserRepository } from '../../../domain/ports/out/user.repository';
 import { LoginUseCase } from './login.use-case';
 
 describe('LoginUseCase', () => {
@@ -49,7 +49,7 @@ describe('LoginUseCase', () => {
 
   it('login with invalid password', async () => {
     userRepo.findByEmail.mockResolvedValue(
-      new User('existing-id', 'admin@test.com', 'hash', 'Admin', 'SUPER_ADMIN'),
+      new User('existing-id', 'admin@test.com', 'Admin', 'hash', 'SUPER_ADMIN'),
     );
 
     passwordHasher.compare.mockResolvedValue(false);
@@ -67,7 +67,7 @@ describe('LoginUseCase', () => {
 
   it('login with valid credentials', async () => {
     userRepo.findByEmail.mockResolvedValue(
-      new User('existing-id', 'admin@test.com', 'hash', 'Admin', 'SUPER_ADMIN'),
+      new User('existing-id', 'admin@test.com', 'Admin', 'hash', 'SUPER_ADMIN'),
     );
 
     passwordHasher.compare.mockResolvedValue(true);

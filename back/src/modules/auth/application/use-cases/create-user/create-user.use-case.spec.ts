@@ -1,9 +1,9 @@
 import { CreateUserUseCase } from './create-user.use-case';
-import { UserRepository } from '../../domain/ports/out/user.repository';
-import { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { EmailAlreadyRegisteredError } from '../../domain/errors/email-already-registered.error';
-import { User } from '../../domain/entities/user.entity';
-import { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { UserRepository } from '../../../domain/ports/out/user.repository';
+import { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { EmailAlreadyRegisteredError } from '../../../domain/errors/email-already-registered.error';
+import { User } from '../../../domain/entities/user.entity';
+import { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
 
 describe('CreateUserUseCase', () => {
   let userRepo: jest.Mocked<UserRepository>;
@@ -53,7 +53,7 @@ describe('CreateUserUseCase', () => {
 
   it('throws EmailAlreadyRegisteredError when the email is taken', async () => {
     userRepo.findByEmail.mockResolvedValue(
-      new User('existing-id', 'admin@test.com', 'hash', 'Admin', 'SUPER_ADMIN'),
+      new User('existing-id', 'admin@test.com', 'Admin', 'hash', 'SUPER_ADMIN'),
     );
 
     await expect(

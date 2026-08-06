@@ -5,8 +5,8 @@ export class User {
   constructor(
     public readonly id: string,
     public readonly email: string,
-    public readonly passwordHash: string,
     public readonly name: string,
+    public readonly passwordHash: string | null,
     public readonly role: UserRole,
     public readonly status: UserStatus = 'ACTIVE',
     public readonly code?: string,

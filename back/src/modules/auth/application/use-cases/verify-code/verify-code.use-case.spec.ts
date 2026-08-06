@@ -1,8 +1,8 @@
-import { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
-import { User } from '../../domain/entities/user.entity';
-import { InvalidVerificationCodeError } from '../../domain/errors/invalid-verification-code.error';
-import { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { UserRepository } from '../../domain/ports/out/user.repository';
+import { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
+import { User } from '../../../domain/entities/user.entity';
+import { InvalidVerificationCodeError } from '../../../domain/errors/invalid-verification-code.error';
+import { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { UserRepository } from '../../../domain/ports/out/user.repository';
 import { VerifyCodeUseCase } from './verify-code.use-case';
 
 describe('VerifyCodeUseCase', () => {

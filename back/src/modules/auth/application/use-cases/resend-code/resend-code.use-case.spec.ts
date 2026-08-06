@@ -1,11 +1,11 @@
 import { ConfigService } from '@nestjs/config';
-import { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
-import { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { UserRepository } from '../../domain/ports/out/user.repository';
-import { StartRegistrationUseCase } from './start-registration.use-case';
-import { EmailSenderPort } from '../../../../shared/domain/ports/out/email-sender.port';
-import { User } from '../../domain/entities/user.entity';
-import { EmailAlreadyRegisteredError } from '../../domain/errors/email-already-registered.error';
+import { EmailSenderPort } from '../../../../../shared/domain/ports/out/email-sender.port';
+import { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
+import { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { UserRepository } from '../../../domain/ports/out/user.repository';
+import { ResendCodeUseCase } from './resend-code.use-case';
+import { User } from '../../../domain/entities/user.entity';
+import { UserNotFoundError } from '../../../domain/errors/user-not-found.error';
 import { randomInt } from 'node:crypto';
 
 jest.mock('node:crypto', () => ({
@@ -13,13 +13,13 @@ jest.mock('node:crypto', () => ({
   randomInt: jest.fn(),
 }));
 
-describe('StartRegistrationUseCase', () => {
+describe('ResendCodeUseCase', () => {
   let userRepo: jest.Mocked<UserRepository>;
   let hashCode: jest.Mocked<PasswordHasherPort>;
   let logger: jest.Mocked<LoggerPort>;
   let emailSender: jest.Mocked<EmailSenderPort>;
   let configService: jest.Mocked<ConfigService>;
-  let useCase: StartRegistrationUseCase;
+  let useCase: ResendCodeUseCase;
 
   beforeEach(() => {
     userRepo = {
@@ -43,7 +43,7 @@ describe('StartRegistrationUseCase', () => {
       get: jest.fn().mockReturnValue('SEND_CODE_TEMPLATE_ID'),
     } as unknown as jest.Mocked<ConfigService>;
 
-    useCase = new StartRegistrationUseCase(
+    useCase = new ResendCodeUseCase(
       userRepo,
       hashCode,
       logger,
@@ -52,19 +52,20 @@ describe('StartRegistrationUseCase', () => {
     );
   });
 
-  it('should be throw error if user already exists', async () => {
-    userRepo.findByEmail.mockResolvedValue(
-      new User('existing-id', 'admin@test.com', 'hash', 'Admin', 'SUPER_ADMIN'),
-    );
+  it('should send error if user not found', async () => {
+    userRepo.findByEmail.mockResolvedValue(null);
 
     await expect(useCase.execute({ email: 'admin@test.com' })).rejects.toThrow(
-      EmailAlreadyRegisteredError,
+      UserNotFoundError,
     );
   });
 
   it('should send email with code', async () => {
     (randomInt as jest.Mock).mockReturnValue(123456);
-    userRepo.findByEmail.mockResolvedValue(null);
+
+    userRepo.findByEmail.mockResolvedValue(
+      new User('existing-id', 'admin@test.com', '', '', 'ADMIN', 'PENDING'),
+    );
     hashCode.hash.mockResolvedValue('hashed-code');
 
     await useCase.execute({ email: 'admin@test.com' });

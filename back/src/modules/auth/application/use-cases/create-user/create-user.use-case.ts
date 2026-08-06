@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { User } from '../../domain/entities/user.entity';
-import { USER_REPOSITORY } from '../../domain/ports/out/user.repository';
-import type { UserRepository } from '../../domain/ports/out/user.repository';
-import { PASSWORD_HASHER } from '../../domain/ports/out/password-hasher.port';
-import type { PasswordHasherPort } from '../../domain/ports/out/password-hasher.port';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { EmailAlreadyRegisteredError } from '../../domain/errors/email-already-registered.error';
-import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
-import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { User } from '../../../domain/entities/user.entity';
+import { USER_REPOSITORY } from '../../../domain/ports/out/user.repository';
+import type { UserRepository } from '../../../domain/ports/out/user.repository';
+import { PASSWORD_HASHER } from '../../../domain/ports/out/password-hasher.port';
+import type { PasswordHasherPort } from '../../../domain/ports/out/password-hasher.port';
+import { CreateUserDto } from '../../dto/create-user.dto';
+import { EmailAlreadyRegisteredError } from '../../../domain/errors/email-already-registered.error';
+import { LOGGER_PORT } from '../../../../../shared/domain/ports/out/logger.port';
+import type { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -29,8 +29,8 @@ export class CreateUserUseCase {
     const user = new User(
       randomUUID(),
       dto.email,
-      passwordHash,
       dto.name,
+      passwordHash,
       dto.role,
     );
     await this.userRepo.save(user);

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { CreateUserUseCase } from '../../../auth/application/use-cases/create-user.use-case';
+import { CreateUserUseCase } from '../../../auth/application/use-cases/create-user/create-user.use-case';
 import { AdministratorProfile } from '../../domain/entities/administrator-profile.entity';
 import { ADMINISTRATOR_PROFILE_REPOSITORY } from '../../domain/ports/out/administrator-profile.repository';
 import type { AdministratorProfileRepository } from '../../domain/ports/out/administrator-profile.repository';

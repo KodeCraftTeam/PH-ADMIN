@@ -1,4 +1,4 @@
-import { UserQueryPort } from '../ports/out/user-query.port';
+import { UserQueryPort } from '../../ports/out/user-query.port';
 import { ListUsersUseCase } from './list-users.use-case';
 
 describe('ListUsersUseCase', () => {
