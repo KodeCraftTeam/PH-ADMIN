@@ -136,7 +136,7 @@ export function AdminSidebar({
             </div>
             <div>
               <p className="font-bold text-slate-900 dark:text-zinc-100 text-[11px]">{displayName}</p>
-              <p className="text-[10px] text-slate-400 dark:text-zinc-500">Administradora Directa</p>
+              <p className="text-[10px] text-slate-400 dark:text-zinc-500">Administrador</p>
             </div>
           </div>
           <button
