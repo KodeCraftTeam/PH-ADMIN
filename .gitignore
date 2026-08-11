@@ -1,0 +1,7 @@
+.superpowers/
+docs/superpowers/
+graphify-out/
+.logs/
+
+# Logs locales del frontend
+front-dev.*.log
