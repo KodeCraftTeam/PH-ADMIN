@@ -7,8 +7,12 @@ import { DomainErrorFilter } from './shared/infrastructure/http/domain-error.fil
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  const allowedOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
+    : ['http://localhost:3000', 'http://localhost:3001'];
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true,
   });
   app.use(cookieParser());
