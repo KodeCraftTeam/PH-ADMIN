@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { AuthGuard } from '../../../../../auth/infrastructure/adapters/in/http/guards/jwt-auth.guard';
 import { CreatePropertyDto } from '../../../../application/dto/create-property.dto';
@@ -22,7 +30,7 @@ export class OnboardingController {
   @UseGuards(AuthGuard)
   @Post('properties')
   create(
-    @Body() dto: CreatePropertyDto & { id?: string },
+    @Body() dto: CreatePropertyDto,
     @Req() req: Request & { user: { sub: string } },
   ) {
     return this.createProperty.execute(dto, req.user.sub);

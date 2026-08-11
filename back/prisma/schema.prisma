@@ -16,7 +16,7 @@ model UserModel {
   role                 String?
   status               String
   code                 String?
-  createdAt            DateTime                    @default(now()) @db.Timestamptz(3)
+  createdAt            DateTime                    @default(now()) @map("created_at") @db.Timestamptz(3)
   administratorProfile AdministratorProfileModel?
 }
 
@@ -31,18 +31,18 @@ model CityModel {
 model AdministratorProfileModel {
   @@map("AdministratorProfiles")
   id                       String                        @id
-  userId                   String                        @unique
+  userId                   String                        @unique @map("user_id")
   user                     UserModel                     @relation(fields: [userId], references: [id])
-  personType               String
-  nameOrBusinessName       String
-  taxId                    String                        @unique
-  phoneNumber              String?
+  personType               String                        @map("person_type")
+  nameOrBusinessName       String                        @map("name_or_business_name")
+  taxId                    String                        @unique @map("tax_id")
+  phoneNumber              String?                       @map("phone_number")
   address                  String?
-  cityId                   String
+  cityId                   String                        @map("city_id")
   city                     CityModel                     @relation(fields: [cityId], references: [id])
-  legalRepresentative      String?
-  createdAt                DateTime                      @default(now()) @db.Timestamptz(3)
-  updatedAt                DateTime?                     @updatedAt
+  legalRepresentative      String?                       @map("legal_representative")
+  createdAt                DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime?                     @updatedAt @map("updated_at")
   administratorCommunities AdministratorCommunityModel[]
 }
 
@@ -54,6 +54,7 @@ model CommunityModel {
   address                  String
   cityId                   String                        @map("city_id")
   city                     CityModel                     @relation(fields: [cityId], references: [id])
+  type                     String                        @default("RESIDENCIAL")
   totalUnits               Int                           @map("total_units")
   createdAt                DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt                DateTime?                     @updatedAt @map("updated_at")

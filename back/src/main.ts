@@ -8,11 +8,21 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
-  const rawOrigins = process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001';
-  const allowedOrigins = rawOrigins.split(',').map((o) => o.trim()).filter(Boolean);
+  const rawOrigins =
+    process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:3001';
+  const allowedOrigins = rawOrigins
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
 
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (
+      origin: string | undefined,
+      callback: (
+        err: Error | null,
+        origin?: boolean | string | RegExp | (string | RegExp)[],
+      ) => void,
+    ) => {
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, origin || true);
       }

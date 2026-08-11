@@ -7,7 +7,6 @@ import { Property } from '../../entities/property.entity';
 export interface PropertyRepository {
   save(property: Property, userId?: string): Promise<void>;
   findById(id: string): Promise<Property | null>;
-  findByUserId(userId: string): Promise<Property[]>;
 }
 
 export const PROPERTY_REPOSITORY = Symbol('PropertyRepository');

@@ -5,17 +5,13 @@ export type PropertyType = 'RESIDENCIAL' | 'COMERCIAL' | 'MIXTO';
 export type PropertyStatus =
   'EN_CONFIGURACION' | 'PENDIENTE_REVISION' | 'ACTIVO';
 
-/**
- * Aggregate root for onboarding: a horizontal property (PH complex)
- * going through initial setup.
- */
 export class Property {
   constructor(
     public readonly id: string,
     public readonly name: string,
     public readonly taxId: TaxId,
     public readonly address: string,
-    public readonly city: string,
+    public readonly cityId: string,
     public readonly type: PropertyType,
     public readonly declaredTotalUnits: number,
     private status: PropertyStatus = 'EN_CONFIGURACION',
