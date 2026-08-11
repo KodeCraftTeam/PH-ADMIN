@@ -51,6 +51,6 @@ import { GetCurrentUserUseCase } from './application/use-cases/get-current-user/
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasherAdapter },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
   ],
-  exports: [CreateUserUseCase],
+  exports: [TOKEN_PORT],
 })
 export class AuthModule {}
