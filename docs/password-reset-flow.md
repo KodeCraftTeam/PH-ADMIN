@@ -1,15 +1,9 @@
 # Flujo de recuperación de contraseña
 
-## Objetivo
-
-Definir el contrato entre frontend y backend para recuperar el acceso de usuarios con contraseña y permitir el acceso mediante Google.
-
-## 1. Solicitar recuperación
-
-### Endpoint
+## Endpoint de solicitud
 
 ```http
-POST /api/auth/password/forgot
+POST /api/auth/forgot-password
 Content-Type: application/json
 ```
 
@@ -21,125 +15,86 @@ Content-Type: application/json
 }
 ```
 
-### Respuesta exitosa
+### Éxito
 
-Se recomienda responder siempre `202 Accepted`, aunque el correo no exista o la cuenta use Google.
+El backend responde `201 Created` sin body cuando genera el código de seis dígitos, lo guarda de forma segura y envía el correo.
+
+El frontend cambia al paso `Ingresa el código`, donde el usuario introduce los 6 dígitos recibidos por correo.
+
+En entornos Windows donde Node no confíe en el certificado TLS de la red local,
+inicia el backend con `npm run start:dev` o `npm run start:prod`; ambos comandos
+usan el almacén de certificados del sistema mediante `--use-system-ca`.
+
+## Errores
+
+Los errores de dominio usan este formato:
 
 ```json
 {
-  "message": "Si existe una cuenta asociada, recibirás instrucciones para recuperar el acceso."
+  "error": "GoogleAccountPasswordRecoveryError",
+  "code": "GOOGLE_ACCOUNT_PASSWORD_RECOVERY",
+  "message": "..."
 }
 ```
 
-Esto evita revelar si un correo está registrado o qué proveedor de autenticación utiliza.
+| Status | Code | Comportamiento del frontend |
+|---|---|---|
+| 400 | `BadRequest` | Muestra el mensaje de validación del correo. |
+| 404 | `USER_NOT_FOUND` | Muestra que no se encontró una cuenta con ese correo. |
+| 409 | `GOOGLE_ACCOUNT_PASSWORD_RECOVERY` | Muestra `Continuar con Google`. |
+| 500 | Sin código | Muestra un error genérico. |
+| 503 | `EMAIL_DELIVERY_FAILED` | Muestra que el correo no pudo enviarse y permite intentar de nuevo. |
 
-## 2. Comportamiento del frontend
+El backend actual devuelve `404` y `409`, por lo que revela si el correo existe o si la cuenta fue creada con Google. Si se necesita evitar email enumeration, el backend debe responder de forma genérica.
 
-Cuando el backend responde `202`:
+## Comportamiento del frontend
 
-- Mostrar el estado de confirmación.
-- Mostrar el correo ingresado.
-- Indicar que revise la bandeja de entrada y spam.
-- Mostrar `Volver a iniciar sesión`.
-- Mostrar `Continuar con Google` como alternativa.
-- Mostrar `Usar otro correo`.
-
-El frontend consume el endpoint mediante:
+El frontend consume:
 
 ```ts
 requestPasswordReset(email)
 ```
 
-## 3. Errores
+Cuando recibe `201`:
 
-Todas las respuestas de error deben incluir una propiedad `message`. Se recomienda agregar también `code` para que el frontend pueda reaccionar sin comparar textos.
+- Muestra el paso para introducir el código de 6 dígitos.
+- Permite reenviar el código usando el mismo endpoint.
+- Permite volver a usar otro correo.
 
-### Correo inválido
+Después de validar el código:
 
-```http
-400 Bad Request
-```
+- Muestra los campos de nueva contraseña y confirmación.
+- Envía `email`, `code` y `newPassword` a `POST /api/auth/reset-password`.
+- Muestra `Contraseña actualizada` cuando el backend responde correctamente.
 
-```json
-{
-  "message": "Ingresa un correo válido.",
-  "code": "INVALID_EMAIL"
-}
-```
+Cuando recibe `GOOGLE_ACCOUNT_PASSWORD_RECOVERY`:
 
-### Demasiadas solicitudes
+- Muestra el mensaje de cuenta Google.
+- Muestra el botón `Continuar con Google`.
 
-```http
-429 Too Many Requests
-```
+## OAuth de Google
 
-```json
-{
-  "message": "Espera unos minutos antes de volver a intentarlo.",
-  "code": "RATE_LIMITED"
-}
-```
-
-### Error interno
-
-```http
-500 Internal Server Error
-```
-
-```json
-{
-  "message": "No pudimos procesar la solicitud.",
-  "code": "RESET_REQUEST_FAILED"
-}
-```
-
-No se recomienda responder `404` cuando el correo no existe, porque eso permite descubrir cuentas registradas.
-
-## 4. Continuar con Google
-
-El botón de Google debe iniciar una navegación normal hacia el endpoint OAuth:
+El botón inicia una navegación normal:
 
 ```ts
 window.location.href = `${API_URL}/auth/google`;
 ```
 
-### Endpoint
+### Endpoints
 
 ```http
 GET /api/auth/google
-```
-
-Este endpoint debe responder con un redirect `302` hacia Google.
-
-Después de la autorización, Google debe regresar al backend, y el backend debe redirigir al frontend:
-
-```text
 GET /api/auth/google/callback
-        ↓
-302 http://localhost:3000/admin
 ```
 
-## 5. Reglas de seguridad
+El backend responde con `302` hacia Google y, después de la autorización, redirige al frontend con la cookie de sesión.
 
-- No devolver públicamente si el correo existe.
-- No devolver públicamente si la cuenta usa Google.
-- No enviar contraseñas por correo.
-- Usar tokens de recuperación de un solo uso.
-- Establecer expiración corta para los enlaces.
-- Aplicar rate limiting por correo e IP.
-- Responder mensajes genéricos para correos inexistentes y cuentas de Google.
-
-## 6. Estado actual del frontend
-
-El frontend ya tiene:
-
-- Ruta visual: `/forgot-password`.
-- Función: `requestPasswordReset(email)`.
-- Botón `Continuar con Google`.
-- Manejo de estados de carga, éxito y error.
-
-Archivos relacionados:
+## Archivos relacionados
 
 - `front/src/components/ui/forgot-password-page.tsx`
 - `front/src/features/auth/api/password-reset.api.ts`
-- `front/src/app/forgot-password/page.tsx`
+- `front/src/lib/http-client.ts`
+- `back/src/modules/auth/infrastructure/adapters/in/http/auth.controller.ts`
+- `back/src/shared/infrastructure/http/domain-error.filter.ts`
+- `back/src/shared/domain/errors/email-delivery.error.ts`
+- `contracts/auth.md`

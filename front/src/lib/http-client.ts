@@ -3,9 +3,12 @@ export const API_URL =
 
 export class ApiError extends Error {
   status: number;
-  constructor(message: string, status: number) {
+  code?: string;
+
+  constructor(message: string, status: number, code?: string) {
     super(message);
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -24,7 +27,7 @@ export async function apiRequest<T = void>(
     const message = Array.isArray(body?.message)
       ? body.message[0]
       : (body?.message ?? "Ocurrió un error. Intentá de nuevo.");
-    throw new ApiError(message, res.status);
+    throw new ApiError(message, res.status, body?.code ?? body?.error);
   }
 
   if (res.status === 204) return undefined as T;

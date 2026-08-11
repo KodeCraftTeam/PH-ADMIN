@@ -258,6 +258,8 @@ Setea cookie `token` (JWT, 7 días) y redirige a `${CORS_ORIGIN ?? 'http://local
 
 Ninguna captura explícita — si Google responde error o el intercambio de `code` falla, la excepción sube sin manejar (500 genérico).
 
+Para recuperación de contraseña, un fallo del proveedor de correo responde `503` con `code: EMAIL_DELIVERY_FAILED`.
+
 ---
 
 ## `POST /auth/register`
@@ -337,7 +339,7 @@ Paso 1 del flujo de recuperación de contraseña (3 endpoints, sin token/link �
 |---|---|---|---|
 | email | string | sí | `@IsEmail`, `@IsNotEmpty` |
 
-### Response — éxito (`200`)
+### Response — éxito (`201`)
 
 Sin body. Genera código de 6 dígitos, lo hashea y lo guarda en `user.code`, envía email con plantilla `SEND_RESET_PASSWORD_TEMPLATE_ID`.
 
@@ -345,8 +347,9 @@ Sin body. Genera código de 6 dígitos, lo hashea y lo guarda en `user.code`, en
 
 | Status | Cuándo |
 |---|---|
-| 404 | Email no registrado (`UserNotFoundError`) |
+| 404 | Email no registrado (`UserNotFoundError`, `code: USER_NOT_FOUND`) |
 | 409 | Usuario sin `passwordHash` — cuenta creada vía Google, no tiene contraseña que recuperar (`GoogleAccountPasswordRecoveryError`) |
+| 503 | Fallo del proveedor de correo (`EmailDeliveryError`, `code: EMAIL_DELIVERY_FAILED`) |
 
 ### Notas
 
