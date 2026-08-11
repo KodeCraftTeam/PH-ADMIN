@@ -19,6 +19,7 @@ import { JwtTokenAdapter } from './infrastructure/adapters/out/token/jwt-token.a
 import { CompleteRegisterUseCase } from './application/use-cases/complete-register/complete-register.use-case';
 import { LoginGoogleUseCase } from './application/use-cases/login-google/login-google.use-case';
 import { GetCurrentUserUseCase } from './application/use-cases/get-current-user/get-current-user.use-case';
+import { UpdateUserStatusUseCase } from './application/use-cases/update-user-status/update-user-status.use-case';
 
 @Module({
   imports: [
@@ -46,11 +47,12 @@ import { GetCurrentUserUseCase } from './application/use-cases/get-current-user/
     CompleteRegisterUseCase,
     LoginGoogleUseCase,
     GetCurrentUserUseCase,
+    UpdateUserStatusUseCase,
     { provide: USER_REPOSITORY, useClass: PrismaUserRepository },
     { provide: USER_QUERY_PORT, useClass: PrismaUserQueryRepository },
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasherAdapter },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
   ],
-  exports: [TOKEN_PORT],
+  exports: [TOKEN_PORT, UpdateUserStatusUseCase],
 })
 export class AuthModule {}
