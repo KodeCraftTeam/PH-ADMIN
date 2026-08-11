@@ -185,6 +185,37 @@ Sin body. Identidad tomada de `request.user.sub` (claim `sub` del JWT).
 
 ---
 
+## `PATCH /auth/me/status`
+
+**Use case:** `UpdateUserStatusUseCase` — `application/use-cases/update-user-status/update-user-status.use-case.ts`
+**Auth:** Requiere sesión (`AuthGuard`, lee cookie `token`)
+**Roles permitidos:** cualquier rol autenticado
+
+Cambia el `status` del propio usuario autenticado (`request.user.sub`, no recibe `userId` por body). También se invoca internamente (sin pasar por HTTP) desde `RegisterAdministratorUseCase` en el módulo `administrators` — ver [contracts/administrators.md](administrators.md) — para sacar al usuario de `ONBOARDING` tras registrar su perfil.
+
+### Request
+
+| Campo | Tipo | Requerido | Validación |
+|---|---|---|---|
+| status | `'ACTIVE' \| 'INACTIVE' \| 'PENDING' \| 'ONBOARDING'` | sí | `@IsIn([...])` |
+
+### Response — éxito (`200`)
+
+Sin body.
+
+### Errores
+
+| Status | Cuándo |
+|---|---|
+| 404 | `userId` del token no corresponde a ningún usuario (`NotFoundError`, de `shared/domain/errors`) |
+| — | Sin cookie válida: `AuthGuard` bloquea → `403 Forbidden` genérico |
+
+### Notas
+
+- No valida transiciones de estado (cualquier status autenticado puede pasar a cualquier otro, incluyendo volver a `PENDING` u `ONBOARDING` manualmente).
+
+---
+
 ## `GET /auth/google`
 
 **Use case:** ninguno (lógica inline en el controller — arma URL de OAuth y redirige)
@@ -292,6 +323,93 @@ Sin body.
 
 ---
 
+## `POST /auth/forgot-password`
+
+**Use case:** `ForgotPasswordUseCase` — `application/use-cases/forgot-password/forgot-password.use-case.ts`
+**Auth:** Público
+**Roles permitidos:** — (no aplica)
+
+Paso 1 del flujo de recuperación de contraseña (3 endpoints, sin token/link — mismo patrón de código de 6 dígitos que `register/*`).
+
+### Request
+
+| Campo | Tipo | Requerido | Validación |
+|---|---|---|---|
+| email | string | sí | `@IsEmail`, `@IsNotEmpty` |
+
+### Response — éxito (`200`)
+
+Sin body. Genera código de 6 dígitos, lo hashea y lo guarda en `user.code`, envía email con plantilla `SEND_RESET_PASSWORD_TEMPLATE_ID`.
+
+### Errores
+
+| Status | Cuándo |
+|---|---|
+| 404 | Email no registrado (`UserNotFoundError`) |
+| 409 | Usuario sin `passwordHash` — cuenta creada vía Google, no tiene contraseña que recuperar (`GoogleAccountPasswordRecoveryError`) |
+
+### Notas
+
+- Revela si el email existe o no (404 explícito) y si es cuenta Google (409) — no aplica mitigación de email enumeration.
+
+---
+
+## `POST /auth/reset-password/verify`
+
+**Use case:** `VerifyResetCodeUseCase` — `application/use-cases/verify-reset-code/verify-reset-code.use-case.ts`
+**Auth:** Público
+**Roles permitidos:** — (no aplica)
+
+Paso 2 (opcional para el front): valida el código sin consumirlo, para poder mostrar "código correcto" antes del formulario de nueva contraseña. No muta el usuario — el código sigue siendo válido después de llamar este endpoint.
+
+### Request
+
+| Campo | Tipo | Requerido | Validación |
+|---|---|---|---|
+| email | string | sí | `@IsEmail`, `@IsNotEmpty` |
+| code | string | sí | `@IsNotEmpty` |
+
+### Response — éxito (`200`)
+
+Sin body.
+
+### Errores
+
+| Status | Cuándo |
+|---|---|
+| 401 | Usuario no existe, no tiene código pendiente, o código no coincide (`InvalidVerificationCodeError` — mismo error para los 3 casos) |
+
+---
+
+## `POST /auth/reset-password`
+
+**Use case:** `ResetPasswordUseCase` — `application/use-cases/reset-password/reset-password.use-case.ts`
+**Auth:** Público
+**Roles permitidos:** — (no aplica)
+
+Paso 3 (obligatorio): vuelve a pedir el código — es el único paso que realmente autoriza el cambio, el paso 2 es solo UX. Hashea `newPassword`, la guarda y limpia `user.code`.
+
+### Request
+
+| Campo | Tipo | Requerido | Validación |
+|---|---|---|---|
+| email | string | sí | `@IsEmail`, `@IsNotEmpty` |
+| code | string | sí | `@IsNotEmpty` |
+| newPassword | string | sí | `@IsString`, `@IsNotEmpty` |
+
+### Response — éxito (`200`)
+
+Sin body.
+
+### Errores
+
+| Status | Cuándo |
+|---|---|
+| 401 | Usuario no existe, no tiene código pendiente, o código no coincide (`InvalidVerificationCodeError` — mismo error para los 3 casos) |
+
+---
+
 ## Notas transversales del módulo
 
-Sin pendientes — bugs anteriores (`RolesGuard` devolviendo 400 en vez de 403, `UserNotFoundError` sin `httpStatus`, `GET /auth/me` sin compilar) corregidos.
+- Bugs anteriores (`RolesGuard` devolviendo 400 en vez de 403, `UserNotFoundError` sin `httpStatus`, `GET /auth/me` sin compilar) corregidos.
+- Flujo de recuperación de contraseña son 3 endpoints (`forgot-password` → `reset-password/verify` → `reset-password`), simétrico al de registro (`register/start` → `register/verify` → `register/complete`) pero sin gate de `status` — a diferencia de `VerifyCodeUseCase` (que exige `status === 'PENDING'`), `VerifyResetCodeUseCase`/`ResetPasswordUseCase` no chequean status porque en reset el usuario ya está `ACTIVE`/`ONBOARDING`, nunca `PENDING`.
