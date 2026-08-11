@@ -161,7 +161,7 @@ export function AuthPage() {
 
         <div className="flex justify-end pb-1">
           <Link
-            href="#"
+            href="/forgot-password"
             className="text-muted-foreground hover:text-foreground text-xs transition-colors"
           >
             ¿Olvidaste tu contraseña?
