@@ -4,10 +4,12 @@ import { AdministratorProfile } from '../../domain/entities/administrator-profil
 import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { TaxIdAlreadyRegisteredError } from '../../domain/errors/tax-id-already-registered.error';
 import { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { UpdateUserStatusUseCase } from '../../../auth/application/use-cases/update-user-status/update-user-status.use-case';
 
 describe('RegisterAdministratorUseCase', () => {
   let profileRepo: jest.Mocked<AdministratorProfileRepository>;
   let logger: jest.Mocked<LoggerPort>;
+  let updateUserStatus: jest.Mocked<UpdateUserStatusUseCase>;
   let useCase: RegisterAdministratorUseCase;
 
   beforeEach(() => {
@@ -17,7 +19,14 @@ describe('RegisterAdministratorUseCase', () => {
       findByTaxId: jest.fn(),
     };
     logger = { log: jest.fn(), warn: jest.fn(), error: jest.fn() };
-    useCase = new RegisterAdministratorUseCase(profileRepo, logger);
+    updateUserStatus = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<UpdateUserStatusUseCase>;
+    useCase = new RegisterAdministratorUseCase(
+      profileRepo,
+      logger,
+      updateUserStatus,
+    );
   });
 
   const userId = 'user-1';
