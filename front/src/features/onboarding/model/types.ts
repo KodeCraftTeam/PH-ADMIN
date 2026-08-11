@@ -10,6 +10,7 @@ export interface PropertyData {
   taxId: string;
   address: string;
   city: string;
+  cityId: string;
   type: PropertyType | "";
   totalUnits: string;
   totalTowers: string;

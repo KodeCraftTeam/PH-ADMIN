@@ -8,16 +8,16 @@ import { CreatePropertyDto } from '../dto/create-property.dto';
 import { USER_REPOSITORY } from '../../../auth/domain/ports/out/user.repository';
 import type { UserRepository } from '../../../auth/domain/ports/out/user.repository';
 import { NotFoundError } from '../../../../shared/domain/errors/not-found.error';
-/**
- * Use case (inbound port): step 1 of onboarding.
- * TODO: validate unique tax ID and add real persistence.
- */
+import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
+import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+
 @Injectable()
 export class CreatePropertyUseCase {
   constructor(
     @Inject(PROPERTY_REPOSITORY)
     private readonly propertyRepo: PropertyRepository,
     @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
+    @Inject(LOGGER_PORT) private readonly logger: LoggerPort,
   ) {}
 
   async execute(
@@ -38,6 +38,12 @@ export class CreatePropertyUseCase {
       Number(dto.totalUnits) || 1,
     );
     await this.propertyRepo.save(property, userId);
+
+    this.logger.log(
+      `Property ${property.id} created for user ${userId}`,
+      'CreatePropertyUseCase',
+    );
+
     return { id: property.id };
   }
 }

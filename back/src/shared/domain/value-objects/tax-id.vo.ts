@@ -1,9 +1,5 @@
 import { InvalidTaxIdError } from '../errors/invalid-tax-id.error';
 
-/**
- * Value Object: Colombian tax ID (NIT or cédula) with optional check digit.
- * Immutable; validates format on construction.
- */
 export class TaxId {
   private constructor(public readonly value: string) {}
 

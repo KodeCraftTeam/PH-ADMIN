@@ -20,9 +20,12 @@ export function saveProperty(data: PropertyData & { id?: string }) {
       name: data.name,
       taxId: data.taxId,
       address: data.address,
-      city: data.city,
-      type: data.type || "Residencial",
+      cityId: data.cityId,
+      type: (data.type || "Residencial").toUpperCase(),
       totalUnits: Number(data.totalUnits) || 1,
+      totalTowers: Number(data.totalTowers) || 1,
+      adminName: data.adminName,
+      adminEmail: data.adminEmail,
     }),
   });
 }
