@@ -1,23 +1,13 @@
 import {
-  IsEmail,
   IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
-  MinLength,
 } from 'class-validator';
 import type { PersonType } from '../../domain/entities/administrator-profile.entity';
 
 export class RegisterAdministratorDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email!: string;
-
-  @IsString()
-  @MinLength(8)
-  password!: string;
-
   @IsIn(['NATURAL', 'JURIDICA'])
   personType!: PersonType;
 
