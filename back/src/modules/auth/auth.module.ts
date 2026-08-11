@@ -59,6 +59,6 @@ import { ResetPasswordUseCase } from './application/use-cases/reset-password/res
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasherAdapter },
     { provide: TOKEN_PORT, useClass: JwtTokenAdapter },
   ],
-  exports: [TOKEN_PORT, UpdateUserStatusUseCase, USER_REPOSITORY],
+  exports: [TOKEN_PORT, UpdateUserStatusUseCase],
 })
 export class AuthModule {}

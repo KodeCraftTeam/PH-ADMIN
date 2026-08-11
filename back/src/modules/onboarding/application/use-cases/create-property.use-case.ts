@@ -5,18 +5,19 @@ import { PROPERTY_REPOSITORY } from '../../domain/ports/out/property.repository'
 import type { PropertyRepository } from '../../domain/ports/out/property.repository';
 import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { CreatePropertyDto } from '../dto/create-property.dto';
-import { USER_REPOSITORY } from '../../../auth/domain/ports/out/user.repository';
-import type { UserRepository } from '../../../auth/domain/ports/out/user.repository';
 import { NotFoundError } from '../../../../shared/domain/errors/not-found.error';
 import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
 import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { ADMINISTRATOR_PROFILE_REPOSITORY } from '../../../administrators/domain/ports/out/administrator-profile.repository';
+import type { AdministratorProfileRepository } from '../../../administrators/domain/ports/out/administrator-profile.repository';
 
 @Injectable()
 export class CreatePropertyUseCase {
   constructor(
     @Inject(PROPERTY_REPOSITORY)
     private readonly propertyRepo: PropertyRepository,
-    @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
+    @Inject(ADMINISTRATOR_PROFILE_REPOSITORY)
+    private readonly profileRepo: AdministratorProfileRepository,
     @Inject(LOGGER_PORT) private readonly logger: LoggerPort,
   ) {}
 
@@ -24,9 +25,9 @@ export class CreatePropertyUseCase {
     dto: CreatePropertyDto,
     userId: string,
   ): Promise<{ id: string }> {
-    const user = await this.userRepo.findById(userId);
+    const administratorProfile = await this.profileRepo.findByUserId(userId);
 
-    if (!user) throw new NotFoundError('User', userId);
+    if (!administratorProfile) throw new NotFoundError('User', userId);
 
     const property = new Property(
       randomUUID(),

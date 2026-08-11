@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { AdministratorsModule } from '../administrators/administrators.module';
 import { ActivatePropertyUseCase } from './application/use-cases/activate-property.use-case';
 import { LoadBalanceUseCase } from './application/use-cases/load-balance.use-case';
 import { CreatePropertyUseCase } from './application/use-cases/create-property.use-case';
@@ -14,7 +15,7 @@ import { PrismaCommunityRepository } from './infrastructure/adapters/out/persist
 import { PrismaPropertyQueryRepository } from './infrastructure/adapters/out/persistence/repositories/prisma-property-query.repository';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, AdministratorsModule],
   controllers: [OnboardingController],
   providers: [
     CreatePropertyUseCase,

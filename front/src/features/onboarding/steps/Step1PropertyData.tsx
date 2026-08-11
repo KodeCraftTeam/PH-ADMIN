@@ -127,8 +127,8 @@ export function Step1PropertyData() {
           >
             <option value="">Seleccione…</option>
             <option value="Residencial">Residencial</option>
-            <option value="Comercial">Comercial</option>
-            <option value="Mixto">Mixto</option>
+            {/* <option value="Comercial">Comercial</option>
+            <option value="Mixto">Mixto</option> */}
           </Select>
           <div className="grid grid-cols-2 gap-5">
             <Input
