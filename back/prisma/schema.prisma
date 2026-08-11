@@ -25,21 +25,48 @@ model CityModel {
   id                     String                       @id
   name                   String                       @unique
   administratorProfiles  AdministratorProfileModel[]
+  communities            CommunityModel[]
 }
 
 model AdministratorProfileModel {
   @@map("AdministratorProfiles")
-  id                  String     @id
-  userId              String     @unique
-  user                UserModel  @relation(fields: [userId], references: [id])
-  personType          String
-  nameOrBusinessName  String
-  taxId               String     @unique
-  phoneNumber         String?
-  address             String?
-  cityId              String
-  city                CityModel  @relation(fields: [cityId], references: [id])
-  legalRepresentative String?
-  createdAt           DateTime   @default(now()) @db.Timestamptz(3)
-  updatedAt           DateTime?  @updatedAt
+  id                       String                        @id
+  userId                   String                        @unique
+  user                     UserModel                     @relation(fields: [userId], references: [id])
+  personType               String
+  nameOrBusinessName       String
+  taxId                    String                        @unique
+  phoneNumber              String?
+  address                  String?
+  cityId                   String
+  city                     CityModel                     @relation(fields: [cityId], references: [id])
+  legalRepresentative      String?
+  createdAt                DateTime                      @default(now()) @db.Timestamptz(3)
+  updatedAt                DateTime?                     @updatedAt
+  administratorCommunities AdministratorCommunityModel[]
+}
+
+model CommunityModel {
+  @@map("communities")
+  id                       String                        @id @default(uuid())
+  name                     String
+  taxId                    String                        @map("tax_id")
+  address                  String
+  cityId                   String                        @map("city_id")
+  city                     CityModel                     @relation(fields: [cityId], references: [id])
+  totalUnits               Int                           @map("total_units")
+  createdAt                DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                DateTime?                     @updatedAt @map("updated_at")
+  administratorCommunities AdministratorCommunityModel[]
+}
+
+model AdministratorCommunityModel {
+  @@map("administrator_community")
+  id              String                    @id @default(uuid())
+  administratorId String                    @map("administrator_id")
+  administrator   AdministratorProfileModel @relation(fields: [administratorId], references: [id])
+  communityId     String                    @map("community_id")
+  community       CommunityModel            @relation(fields: [communityId], references: [id])
+
+  @@unique([administratorId, communityId])
 }

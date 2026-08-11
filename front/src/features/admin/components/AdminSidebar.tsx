@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import Link from "next/link";
 import { LogOutIcon } from "lucide-react";
 import { IconBuilding, IconChart, IconDollar, IconUsers } from "@/components/ui";
 import { useLogout } from "@/features/auth/hooks/useLogout";
@@ -90,16 +91,8 @@ export function AdminSidebar({
         <nav className="space-y-1">
           {menuItems.map((item) => {
             const isActive = currentView === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onSelectView(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer group relative ${
-                  isActive
-                    ? "bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
-                    : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-900 dark:hover:text-zinc-100"
-                }`}
-              >
+            const content = (
+              <>
                 {isActive && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-emerald-500 rounded-r-full"></span>
                 )}
@@ -118,6 +111,26 @@ export function AdminSidebar({
                     {item.badge}
                   </span>
                 )}
+              </>
+            );
+
+            const className = `w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer group relative ${
+              isActive
+                ? "bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                : "text-slate-600 dark:text-zinc-400 hover:bg-slate-100/80 dark:hover:bg-zinc-800/60 hover:text-slate-900 dark:hover:text-zinc-100"
+            }`;
+
+            if (item.id === "properties") {
+              return (
+                <Link key={item.id} href="/admin/copropiedades" className={className}>
+                  {content}
+                </Link>
+              );
+            }
+
+            return (
+              <button key={item.id} onClick={() => onSelectView(item.id)} className={className}>
+                {content}
               </button>
             );
           })}

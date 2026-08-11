@@ -5,6 +5,7 @@ import { Card, Input, Select } from "@/components/ui";
 import { StepFooter } from "../components/StepFooter";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
 import type { PropertyData } from "../model/types";
+import { saveProperty } from "../api/onboarding.api";
 
 const REQUIRED_FIELDS: Array<{ field: keyof PropertyData; name: string }> = [
   { field: "name", name: "Nombre del conjunto" },
@@ -32,7 +33,7 @@ export function Step1PropertyData() {
     };
   }
 
-  function validate(): boolean {
+  function handleAdvance(): boolean {
     const next: typeof errors = {};
     for (const { field } of REQUIRED_FIELDS) {
       if (!property[field].trim()) next[field] = "Este campo es obligatorio";
@@ -41,7 +42,16 @@ export function Step1PropertyData() {
       next.adminEmail = "Correo inválido";
     }
     setErrors(next);
-    return Object.keys(next).length === 0;
+    const isValid = Object.keys(next).length === 0;
+
+    if (isValid) {
+      // Async persist to DB
+      saveProperty(property).catch((err) => {
+        console.error("Error guardando borrador de copropiedad en BD:", err);
+      });
+    }
+
+    return isValid;
   }
 
   return (
@@ -140,7 +150,7 @@ export function Step1PropertyData() {
         </div>
       </Card>
 
-      <StepFooter onAdvance={validate} />
+      <StepFooter onAdvance={handleAdvance} />
     </div>
   );
 }

@@ -17,17 +17,18 @@ export class CreatePropertyUseCase {
     private readonly propertyRepo: PropertyRepository,
   ) {}
 
-  async execute(dto: CreatePropertyDto): Promise<{ id: string }> {
+  async execute(dto: CreatePropertyDto & { id?: string }, userId: string): Promise<{ id: string }> {
+    const id = dto.id || randomUUID();
     const property = new Property(
-      randomUUID(),
+      id,
       dto.name,
       TaxId.create(dto.taxId),
       dto.address,
       dto.city,
-      dto.type,
-      dto.totalUnits,
+      dto.type || 'RESIDENCIAL',
+      Number(dto.totalUnits) || 1,
     );
-    await this.propertyRepo.save(property);
+    await this.propertyRepo.save(property, userId);
     return { id: property.id };
   }
 }

@@ -5,8 +5,9 @@ import { Property } from '../../entities/property.entity';
  * Implemented by infrastructure (Postgres, in-memory…).
  */
 export interface PropertyRepository {
-  save(property: Property): Promise<void>;
+  save(property: Property, userId?: string): Promise<void>;
   findById(id: string): Promise<Property | null>;
+  findByUserId(userId: string): Promise<Property[]>;
 }
 
 export const PROPERTY_REPOSITORY = Symbol('PropertyRepository');
