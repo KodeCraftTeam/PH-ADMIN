@@ -1,5 +1,7 @@
-export class UserNotFoundError extends Error {
+import { DomainError } from '../../../../shared/domain/errors/domain-error';
+
+export class UserNotFoundError extends DomainError {
   constructor(email: string) {
-    super(`User with email ${email} not found`);
+    super(`User with email ${email} not found`, 404);
   }
 }

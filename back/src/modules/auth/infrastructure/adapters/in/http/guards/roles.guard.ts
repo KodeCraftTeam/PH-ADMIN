@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
-  BadRequestException,
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -25,7 +25,7 @@ export class RolesGuard implements CanActivate {
     const hasPermission = requiredRoles.some((role) => user.role === role);
 
     if (!hasPermission)
-      throw new BadRequestException('user do not have permisions');
+      throw new ForbiddenException('user do not have permisions');
 
     return true;
   }

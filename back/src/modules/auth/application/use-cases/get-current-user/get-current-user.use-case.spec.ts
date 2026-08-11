@@ -16,15 +16,48 @@ describe('GetCurrentUserUseCase', () => {
     useCase = new GetCurrentUserUseCase(userRepo);
   });
 
-  it('returns name and role for an existing user', async () => {
+  it('returns name and role for an existing user with register complete', async () => {
     userRepo.findById.mockResolvedValue(
-      new User('user-id', 'admin@test.com', 'Admin', 'hash', 'ADMIN'),
+      new User(
+        'user-id',
+        'admin@test.com',
+        'Admin',
+        'hash',
+        'ADMIN',
+        'PENDING',
+      ),
     );
 
     const result = await useCase.execute('user-id');
 
     expect(userRepo.findById).toHaveBeenCalledWith('user-id');
-    expect(result).toEqual({ name: 'Admin', role: 'ADMIN' });
+    expect(result).toEqual({
+      name: 'Admin',
+      role: 'ADMIN',
+      needsOnBoarding: false,
+    });
+  });
+
+  it('returns name and role for an existing user left register complete', async () => {
+    userRepo.findById.mockResolvedValue(
+      new User(
+        'user-id',
+        'admin@test.com',
+        'Admin',
+        'hash',
+        'ADMIN',
+        'ONBOARDING',
+      ),
+    );
+
+    const result = await useCase.execute('user-id');
+
+    expect(userRepo.findById).toHaveBeenCalledWith('user-id');
+    expect(result).toEqual({
+      name: 'Admin',
+      role: 'ADMIN',
+      needsOnBoarding: true,
+    });
   });
 
   it('throws InvalidCredentialsError when the user no longer exists', async () => {
