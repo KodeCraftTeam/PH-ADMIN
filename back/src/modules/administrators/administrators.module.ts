@@ -19,5 +19,6 @@ import { PrismaAdministratorProfileRepository } from './infrastructure/adapters/
       useClass: PrismaAdministratorProfileRepository,
     },
   ],
+  exports: [ADMINISTRATOR_PROFILE_REPOSITORY],
 })
 export class AdministratorsModule {}

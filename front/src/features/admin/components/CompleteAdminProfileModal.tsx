@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Alert, Badge, Button, IconBuilding, IconCheck, IconX, Input, Select } from "@/components/ui";
+import { Alert, Badge, Button, IconBuilding, IconCheck, Input, Select } from "@/components/ui";
 import { getCities, registerAdministrator, type CityItem } from "../api/administrators.api";
+import { getSession } from "@/features/auth/model/session";
 
 interface Props {
   isOpen: boolean;
-  onClose?: () => void;
   onSuccess: () => void;
 }
 
@@ -21,7 +21,7 @@ const FALLBACK_CITIES: CityItem[] = [
   { id: "17001", name: "Manizales" },
 ];
 
-export function CompleteAdminProfileModal({ isOpen, onClose, onSuccess }: Props) {
+export function CompleteAdminProfileModal({ isOpen, onSuccess }: Props) {
   const [personType, setPersonType] = useState<"NATURAL" | "JURIDICA">("NATURAL");
   const [nameOrBusinessName, setNameOrBusinessName] = useState("");
   const [taxId, setTaxId] = useState("");
@@ -35,6 +35,12 @@ export function CompleteAdminProfileModal({ isOpen, onClose, onSuccess }: Props)
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [completedSuccessfully, setCompletedSuccessfully] = useState(false);
+  const [wasOpen, setWasOpen] = useState(isOpen);
+
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
+    if (isOpen) setNameOrBusinessName(getSession()?.name ?? "");
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -92,7 +98,6 @@ export function CompleteAdminProfileModal({ isOpen, onClose, onSuccess }: Props)
       setCompletedSuccessfully(true);
       setTimeout(() => {
         onSuccess();
-        onClose?.();
       }, 1200);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "No se pudo completar el registro del perfil. Por favor verifica los datos e intenta de nuevo.";
@@ -130,16 +135,6 @@ export function CompleteAdminProfileModal({ isOpen, onClose, onSuccess }: Props)
                 </p>
               </div>
             </div>
-            {onClose && (
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Cerrar modal"
-                className="shrink-0 rounded-lg p-2 text-slate-300 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-              >
-                <IconX className="h-5 w-5" />
-              </button>
-            )}
           </div>
         </div>
 
@@ -164,7 +159,11 @@ export function CompleteAdminProfileModal({ isOpen, onClose, onSuccess }: Props)
                     <button
                       key={type}
                       type="button"
-                      onClick={() => { setPersonType(type); setFieldErrors({}); }}
+                      onClick={() => {
+                        setPersonType(type);
+                        setFieldErrors({});
+                        setNameOrBusinessName(type === "NATURAL" ? getSession()?.name ?? "" : "");
+                      }}
                       aria-pressed={selected}
                       className={`flex min-h-10 items-center justify-center gap-2 rounded-lg px-2 py-2.5 text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)] sm:px-3 ${selected ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200/70 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700" : "text-slate-600 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-zinc-200"}`}
                     >
@@ -226,7 +225,6 @@ export function CompleteAdminProfileModal({ isOpen, onClose, onSuccess }: Props)
             </div>
 
             <div className="mt-1 flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-end sm:gap-3">
-              {onClose && <Button type="button" variant="secondary" onClick={onClose} disabled={submitting} className="w-full sm:w-auto">Cancelar</Button>}
               <Button type="submit" disabled={submitting} className="w-full min-w-[160px] sm:w-auto">
                 {submitting ? <span className="flex items-center justify-center gap-2"><span className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />Guardando...</span> : "Guardar y Continuar"}
               </Button>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Badge, Button, IconBuilding, IconCheck, IconUser, IconChevronRight } from "@/components/ui";
+import { Badge, IconBuilding, IconCheck, IconUser } from "@/components/ui";
 import { BALANCE_MOCK } from "@/features/onboarding/model/mocks";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { getSession, setSession } from "@/features/auth/model/session";
@@ -22,7 +22,6 @@ export function AdminDashboard() {
   const [activeProperty, setActiveProperty] = useState<ManagedProperty>(ADMIN_MANAGED_PROPERTIES[0]);
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [profileCompleted, setProfileCompleted] = useState(false);
   const session = getSession();
   const balance = BALANCE_MOCK;
   const totalBalance = balance.reduce((a, c) => a + c.initialBalance, 0);
@@ -47,7 +46,7 @@ export function AdminDashboard() {
           setShowCompleteModal(true);
         }
       });
-  }, []);
+  }, [session?.needsOnBoarding]);
 
   function handleSelectProperty(prop: ManagedProperty) {
     setActiveProperty(prop);
@@ -239,11 +238,7 @@ export function AdminDashboard() {
       {/* Modal para completar registro del Administrador */}
       <CompleteAdminProfileModal
         isOpen={showCompleteModal}
-        onClose={() => setShowCompleteModal(false)}
-        onSuccess={() => {
-          setProfileCompleted(true);
-          setShowCompleteModal(false);
-        }}
+        onSuccess={() => setShowCompleteModal(false)}
       />
     </div>
   );
