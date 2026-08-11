@@ -1,36 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PROPERTY_REPOSITORY } from '../../domain/ports/out/property.repository';
-import type { PropertyRepository } from '../../domain/ports/out/property.repository';
-
-export interface PropertyListItemResponse {
-  id: string;
-  name: string;
-  taxId: string;
-  address: string;
-  city: string;
-  type: string;
-  totalUnits: number;
-  status: string;
-}
+import { PROPERTY_QUERY_PORT } from '../ports/out/property-query.port';
+import type { PropertyQueryPort } from '../ports/out/property-query.port';
+import { PropertyListItemReadModel } from '../read-models/property-list-item.read-model';
 
 @Injectable()
 export class GetAdministratorPropertiesUseCase {
   constructor(
-    @Inject(PROPERTY_REPOSITORY)
-    private readonly propertyRepo: PropertyRepository,
+    @Inject(PROPERTY_QUERY_PORT)
+    private readonly propertyQuery: PropertyQueryPort,
   ) {}
 
-  async execute(userId: string): Promise<PropertyListItemResponse[]> {
-    const properties = await this.propertyRepo.findByUserId(userId);
-    return properties.map((p) => ({
-      id: p.id,
-      name: p.name,
-      taxId: p.taxId.value,
-      address: p.address,
-      city: p.city,
-      type: p.type,
-      totalUnits: p.declaredTotalUnits,
-      status: p.currentStatus,
-    }));
+  execute(userId: string): Promise<PropertyListItemReadModel[]> {
+    return this.propertyQuery.listByAdministratorUserId(userId);
   }
 }

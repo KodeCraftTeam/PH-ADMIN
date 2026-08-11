@@ -6,10 +6,12 @@ import { CreatePropertyUseCase } from './application/use-cases/create-property.u
 import { ImportUnitsUseCase } from './application/use-cases/import-units.use-case';
 import { GetAdministratorPropertiesUseCase } from './application/use-cases/get-administrator-properties.use-case';
 import { PROPERTY_REPOSITORY } from './domain/ports/out/property.repository';
+import { PROPERTY_QUERY_PORT } from './application/ports/out/property-query.port';
 import { NOTIFICATION_PORT } from './domain/ports/out/notification.port';
 import { OnboardingController } from './infrastructure/adapters/in/http/onboarding.controller';
 import { ConsoleNotificationAdapter } from './infrastructure/adapters/out/notification/console-notification.adapter';
 import { PrismaCommunityRepository } from './infrastructure/adapters/out/persistence/prisma/repositories/prisma-community.repository';
+import { PrismaPropertyQueryRepository } from './infrastructure/adapters/out/persistence/prisma/repositories/prisma-property-query.repository';
 
 @Module({
   imports: [AuthModule],
@@ -21,6 +23,7 @@ import { PrismaCommunityRepository } from './infrastructure/adapters/out/persist
     LoadBalanceUseCase,
     ActivatePropertyUseCase,
     { provide: PROPERTY_REPOSITORY, useClass: PrismaCommunityRepository },
+    { provide: PROPERTY_QUERY_PORT, useClass: PrismaPropertyQueryRepository },
     { provide: NOTIFICATION_PORT, useClass: ConsoleNotificationAdapter },
   ],
 })
