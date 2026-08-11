@@ -1,35 +1,36 @@
 import { RegisterAdministratorUseCase } from './register-administrator.use-case';
-import { CreateUserUseCase } from '../../../auth/application/use-cases/create-user/create-user.use-case';
 import { AdministratorProfileRepository } from '../../domain/ports/out/administrator-profile.repository';
 import { AdministratorProfile } from '../../domain/entities/administrator-profile.entity';
 import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { TaxIdAlreadyRegisteredError } from '../../domain/errors/tax-id-already-registered.error';
 import { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { UpdateUserStatusUseCase } from '../../../auth/application/use-cases/update-user-status/update-user-status.use-case';
 
 describe('RegisterAdministratorUseCase', () => {
-  let createUser: jest.Mocked<Pick<CreateUserUseCase, 'execute'>>;
   let profileRepo: jest.Mocked<AdministratorProfileRepository>;
   let logger: jest.Mocked<LoggerPort>;
+  let updateUserStatus: jest.Mocked<UpdateUserStatusUseCase>;
   let useCase: RegisterAdministratorUseCase;
 
   beforeEach(() => {
-    createUser = { execute: jest.fn() };
     profileRepo = {
       save: jest.fn(),
       findByUserId: jest.fn(),
       findByTaxId: jest.fn(),
     };
     logger = { log: jest.fn(), warn: jest.fn(), error: jest.fn() };
+    updateUserStatus = {
+      execute: jest.fn(),
+    } as unknown as jest.Mocked<UpdateUserStatusUseCase>;
     useCase = new RegisterAdministratorUseCase(
-      createUser as unknown as CreateUserUseCase,
       profileRepo,
       logger,
+      updateUserStatus,
     );
   });
 
+  const userId = 'user-1';
   const dto = {
-    email: 'admin@ph.com',
-    password: 'secret123',
     personType: 'NATURAL' as const,
     nameOrBusinessName: 'Juan Perez',
     taxId: '123456789',
@@ -39,20 +40,13 @@ describe('RegisterAdministratorUseCase', () => {
     legalRepresentative: undefined,
   };
 
-  it('creates the user and saves the profile', async () => {
+  it('saves the profile for the authenticated user', async () => {
     profileRepo.findByTaxId.mockResolvedValue(null);
-    createUser.execute.mockResolvedValue({ id: 'user-1' });
 
-    const result = await useCase.execute(dto);
+    const result = await useCase.execute(userId, dto);
 
-    expect(createUser.execute).toHaveBeenCalledWith({
-      email: dto.email,
-      password: dto.password,
-      name: dto.nameOrBusinessName,
-      role: 'ADMIN',
-    });
     expect(profileRepo.save).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 'user-1', cityId: dto.cityId }),
+      expect.objectContaining({ userId, cityId: dto.cityId }),
     );
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     expect(result).toEqual({ id: expect.any(String) });
@@ -70,10 +64,9 @@ describe('RegisterAdministratorUseCase', () => {
       ),
     );
 
-    await expect(useCase.execute(dto)).rejects.toThrow(
+    await expect(useCase.execute(userId, dto)).rejects.toThrow(
       TaxIdAlreadyRegisteredError,
     );
-    expect(createUser.execute).not.toHaveBeenCalled();
     expect(profileRepo.save).not.toHaveBeenCalled();
   });
 });

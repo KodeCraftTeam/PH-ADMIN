@@ -3,6 +3,7 @@ export type UserRole = "ADMIN" | "SUPER_ADMIN";
 export interface Session {
   name: string;
   role: UserRole;
+  needsOnBoarding?: boolean;
 }
 
 const STORAGE_KEY = "ph_session";

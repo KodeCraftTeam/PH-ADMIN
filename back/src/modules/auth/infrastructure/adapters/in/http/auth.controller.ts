@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Query,
   Req,
@@ -29,6 +30,8 @@ import { CompleteRegisterUseCase } from '../../../../application/use-cases/compl
 import { LoginResponse } from '../../../../application/dto/login-response.dto';
 import { LoginGoogleUseCase } from '../../../../application/use-cases/login-google/login-google.use-case';
 import { GetCurrentUserUseCase } from '../../../../application/use-cases/get-current-user/get-current-user.use-case';
+import { UpdateUserStatusDto } from '../../../../application/dto/update-user-status.dto';
+import { UpdateUserStatusUseCase } from '../../../../application/use-cases/update-user-status/update-user-status.use-case';
 
 @Controller('auth')
 export class AuthController {
@@ -42,6 +45,7 @@ export class AuthController {
     private readonly completeRegistration: CompleteRegisterUseCase,
     private readonly loginGoogleUseCase: LoginGoogleUseCase,
     private readonly getCurrentUser: GetCurrentUserUseCase,
+    private readonly updateUserStatus: UpdateUserStatusUseCase,
   ) {}
 
   @Post('register/start')
@@ -68,7 +72,7 @@ export class AuthController {
   async authenticate(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<LoginResponse | void> {
+  ) {
     const data = await this.login.execute(dto);
 
     response.cookie('token', data.accessToken, {
@@ -76,10 +80,10 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
 
-    response.send({
+    return {
       name: data.name,
       role: data.role,
-    });
+    };
   }
 
   @Post('logout')
@@ -91,6 +95,15 @@ export class AuthController {
   @Get('me')
   me(@Req() request: Request & { user: { sub: string } }) {
     return this.getCurrentUser.execute(request.user.sub);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('me/status')
+  updateMyStatus(
+    @Req() request: Request & { user: { sub: string } },
+    @Body() dto: UpdateUserStatusDto,
+  ) {
+    return this.updateUserStatus.execute(request.user.sub, dto);
   }
 
   private cookieOptions(): CookieOptions {
