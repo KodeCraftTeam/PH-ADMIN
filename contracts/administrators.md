@@ -7,7 +7,7 @@
 
 **Use case:** `RegisterAdministratorUseCase` — `application/use-cases/register-administrator.use-case.ts`
 **Auth:** Requiere sesión (`AuthGuard`, lee cookie `token`)
-**Roles permitidos:** cualquier rol autenticado
+**Roles permitidos:** `ADMIN`
 
 Paso de onboarding posterior al registro/login (`POST /auth/register/*`, `POST /auth/login`, o Google). El `userId` sale del claim `sub` del JWT (`request.user.sub`), no del body — este endpoint completa el perfil de administrador para el usuario ya autenticado, no crea un `User` nuevo.
 

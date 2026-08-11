@@ -68,7 +68,7 @@ export class AuthController {
   async authenticate(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<LoginResponse | void> {
+  ) {
     const data = await this.login.execute(dto);
 
     response.cookie('token', data.accessToken, {
@@ -76,10 +76,10 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
 
-    response.send({
+    return {
       name: data.name,
       role: data.role,
-    });
+    };
   }
 
   @Post('logout')

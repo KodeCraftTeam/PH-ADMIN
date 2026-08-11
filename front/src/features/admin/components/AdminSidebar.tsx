@@ -5,7 +5,9 @@ import { LogOutIcon } from "lucide-react";
 import { IconBuilding, IconChart, IconDollar, IconUsers } from "@/components/ui";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 
-export type AdminViewMode = "overview" | "cartera" | "pqrs" | "broadcasts";
+import { ManagedProperty } from "../model/adminPropertiesMock";
+
+export type AdminViewMode = "properties" | "overview" | "cartera" | "pqrs" | "broadcasts";
 
 interface Props {
   currentView: AdminViewMode;
@@ -13,6 +15,7 @@ interface Props {
   pendingPqrsCount: number;
   overdueCount: number;
   userName?: string;
+  activeProperty?: ManagedProperty;
 }
 
 export function AdminSidebar({
@@ -21,6 +24,7 @@ export function AdminSidebar({
   pendingPqrsCount,
   overdueCount,
   userName,
+  activeProperty,
 }: Props) {
   const { logout, loading: loggingOut } = useLogout();
   const displayName = userName?.trim() || "Usuario";
@@ -37,6 +41,11 @@ export function AdminSidebar({
     badge?: string | number;
     icon: (props: { className?: string }) => ReactNode;
   }[] = [
+    {
+      id: "properties",
+      label: "Mis Copropiedades",
+      icon: (p) => <IconBuilding className={p.className} />,
+    },
     {
       id: "overview",
       label: "Visión General",
@@ -116,18 +125,31 @@ export function AdminSidebar({
       </div>
 
       <div className="p-4 border-t border-slate-100 dark:border-zinc-800/80 space-y-3 mt-auto bg-white/50 dark:bg-zinc-900/50">
-        <div className="rounded-xl border border-slate-200/60 dark:border-zinc-800/60 bg-slate-50/80 dark:bg-zinc-800/30 p-3 backdrop-blur-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <div>
-              <p className="text-[11px] font-bold text-slate-800 dark:text-zinc-200">Altos del Virrey</p>
-              <p className="text-[10px] text-slate-400 dark:text-zinc-500">18 Unidades • Plan Enterprise</p>
+        <button
+          type="button"
+          onClick={() => onSelectView("properties")}
+          className="w-full text-left rounded-xl border border-slate-200/60 dark:border-zinc-800/60 bg-slate-50/80 dark:bg-zinc-800/30 p-3 backdrop-blur-xs hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <div>
+                <p className="text-[11px] font-bold text-slate-800 dark:text-zinc-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  {activeProperty?.name || "Altos del Virrey"}
+                </p>
+                <p className="text-[10px] text-slate-400 dark:text-zinc-500">
+                  {activeProperty ? `${activeProperty.unitsCount} Uds • Plan ${activeProperty.plan}` : "18 Unidades • Plan Enterprise"}
+                </p>
+              </div>
             </div>
+            <span className="text-[10px] font-semibold text-slate-400 dark:text-zinc-500 group-hover:text-slate-700 dark:group-hover:text-zinc-300">
+              Cambiar ⚙️
+            </span>
           </div>
-        </div>
+        </button>
 
         <div className="flex items-center justify-between px-1 text-xs">
           <div className="flex items-center gap-2.5">
