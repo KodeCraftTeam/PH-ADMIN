@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, Input, Select } from "@/components/ui";
 import { StepFooter } from "../components/StepFooter";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
 import type { PropertyData } from "../model/types";
 import { saveProperty } from "../api/onboarding.api";
+import { getCities, type CityItem } from "@/features/admin/api/administrators.api";
 
 const REQUIRED_FIELDS: Array<{ field: keyof PropertyData; name: string }> = [
   { field: "name", name: "Nombre del conjunto" },
   { field: "taxId", name: "NIT" },
   { field: "address", name: "Dirección" },
-  { field: "city", name: "Ciudad" },
+  { field: "cityId", name: "Ciudad" },
   { field: "type", name: "Tipo de conjunto" },
   { field: "totalUnits", name: "Número total de unidades" },
   { field: "totalTowers", name: "Número de torres/bloques" },
@@ -25,12 +26,27 @@ export function Step1PropertyData() {
   const [errors, setErrors] = useState<Partial<Record<keyof PropertyData, string>>>(
     {}
   );
+  const [cities, setCities] = useState<CityItem[]>([]);
+
+  useEffect(() => {
+    getCities()
+      .then(setCities)
+      .catch((err) => console.error("Error cargando ciudades:", err));
+  }, []);
 
   function set(field: keyof PropertyData) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       dispatch({ type: "SET_PROPERTY", field, value: e.target.value });
       if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
+  }
+
+  function setCity(e: React.ChangeEvent<HTMLSelectElement>) {
+    const cityId = e.target.value;
+    const cityName = cities.find((c) => c.id === cityId)?.name ?? "";
+    dispatch({ type: "SET_PROPERTY", field: "cityId", value: cityId });
+    dispatch({ type: "SET_PROPERTY", field: "city", value: cityName });
+    if (errors.cityId) setErrors((prev) => ({ ...prev, cityId: undefined }));
   }
 
   function handleAdvance(): boolean {
@@ -88,14 +104,20 @@ export function Step1PropertyData() {
             error={errors.address}
             required
           />
-          <Input
+          <Select
             label="Ciudad"
-            placeholder="Bogotá D.C."
-            value={property.city}
-            onChange={set("city")}
-            error={errors.city}
+            value={property.cityId}
+            onChange={setCity}
+            error={errors.cityId}
             required
-          />
+          >
+            <option value="">Seleccione…</option>
+            {cities.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </Select>
           <Select
             label="Tipo de conjunto"
             value={property.type}

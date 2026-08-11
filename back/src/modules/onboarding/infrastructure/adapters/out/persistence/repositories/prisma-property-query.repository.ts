@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PropertyQueryPort } from '../../../../../../application/ports/out/property-query.port';
-import { PropertyListItemReadModel } from '../../../../../../application/read-models/property-list-item.read-model';
-import { PrismaService } from '../../../../../../../../shared/infrastructure/prisma/prisma.service';
-import { PropertyType } from '../../../../../../domain/entities/property.entity';
+import { PropertyQueryPort } from '../../../../../application/ports/out/property-query.port';
+import { PropertyListItemReadModel } from '../../../../../application/read-models/property-list-item.read-model';
+import { PrismaService } from '../../../../../../../shared/infrastructure/prisma/prisma.service';
+import { PropertyType } from '../../../../../domain/entities/property.entity';
 
 @Injectable()
 export class PrismaPropertyQueryRepository implements PropertyQueryPort {

@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   Property,
   PropertyType,
-} from '../../../../../../domain/entities/property.entity';
-import { PropertyRepository } from '../../../../../../domain/ports/out/property.repository';
-import { PrismaService } from '../../../../../../../../shared/infrastructure/prisma/prisma.service';
-import { TaxId } from '../../../../../../../../shared/domain/value-objects/tax-id.vo';
+} from '../../../../../domain/entities/property.entity';
+import { PropertyRepository } from '../../../../../domain/ports/out/property.repository';
+import { PrismaService } from '../../../../../../../shared/infrastructure/prisma/prisma.service';
+import { TaxId } from '../../../../../../../shared/domain/value-objects/tax-id.vo';
 import { randomUUID } from 'node:crypto';
-import { NotFoundError } from '../../../../../../../../shared/domain/errors/not-found.error';
+import { NotFoundError } from '../../../../../../../shared/domain/errors/not-found.error';
 
 @Injectable()
 export class PrismaCommunityRepository implements PropertyRepository {

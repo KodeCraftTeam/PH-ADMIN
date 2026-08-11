@@ -10,8 +10,8 @@ import { PROPERTY_QUERY_PORT } from './application/ports/out/property-query.port
 import { NOTIFICATION_PORT } from './domain/ports/out/notification.port';
 import { OnboardingController } from './infrastructure/adapters/in/http/onboarding.controller';
 import { ConsoleNotificationAdapter } from './infrastructure/adapters/out/notification/console-notification.adapter';
-import { PrismaCommunityRepository } from './infrastructure/adapters/out/persistence/prisma/repositories/prisma-community.repository';
-import { PrismaPropertyQueryRepository } from './infrastructure/adapters/out/persistence/prisma/repositories/prisma-property-query.repository';
+import { PrismaCommunityRepository } from './infrastructure/adapters/out/persistence/repositories/prisma-community.repository';
+import { PrismaPropertyQueryRepository } from './infrastructure/adapters/out/persistence/repositories/prisma-property-query.repository';
 
 @Module({
   imports: [AuthModule],
