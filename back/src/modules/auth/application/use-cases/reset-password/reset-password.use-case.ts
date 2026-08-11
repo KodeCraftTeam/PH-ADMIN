@@ -1,5 +1,5 @@
-import { SendCodeDto } from '../../dto/send-code.dto';
-import { Inject } from '@nestjs/common';
+import { ResetPasswordDto } from '../../dto/reset-password.dto';
+import { Inject, Injectable } from '@nestjs/common';
 import { USER_REPOSITORY } from '../../../domain/ports/out/user.repository';
 import type { UserRepository } from '../../../domain/ports/out/user.repository';
 import { PASSWORD_HASHER } from '../../../domain/ports/out/password-hasher.port';
@@ -8,7 +8,8 @@ import { LOGGER_PORT } from '../../../../../shared/domain/ports/out/logger.port'
 import type { LoggerPort } from '../../../../../shared/domain/ports/out/logger.port';
 import { InvalidVerificationCodeError } from '../../../domain/errors/invalid-verification-code.error';
 
-export class VerifyCodeUseCase {
+@Injectable()
+export class ResetPasswordUseCase {
   constructor(
     @Inject(USER_REPOSITORY) private readonly userRepo: UserRepository,
     @Inject(PASSWORD_HASHER)
@@ -16,14 +17,14 @@ export class VerifyCodeUseCase {
     @Inject(LOGGER_PORT) private readonly logger: LoggerPort,
   ) {}
 
-  async execute(dto: SendCodeDto) {
+  async execute(dto: ResetPasswordDto) {
     const existing = await this.userRepo.findByEmail(dto.email);
 
     if (!existing) {
       throw new InvalidVerificationCodeError();
     }
 
-    if (existing.status !== 'PENDING' || existing.code === undefined) {
+    if (existing.code === undefined) {
       throw new InvalidVerificationCodeError();
     }
 
@@ -33,11 +34,17 @@ export class VerifyCodeUseCase {
       throw new InvalidVerificationCodeError();
     }
 
+    const passwordHash = await this.hasher.hash(dto.newPassword);
+
     await this.userRepo.save({
       ...existing,
+      passwordHash,
       code: undefined,
     });
 
-    this.logger.log(`Code verify: ${dto.email}`, 'VerifyCodeUseCase');
+    this.logger.log(
+      `User ${existing.id} reset password`,
+      'ResetPasswordUseCase',
+    );
   }
 }

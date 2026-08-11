@@ -20,6 +20,9 @@ import { CompleteRegisterUseCase } from './application/use-cases/complete-regist
 import { LoginGoogleUseCase } from './application/use-cases/login-google/login-google.use-case';
 import { GetCurrentUserUseCase } from './application/use-cases/get-current-user/get-current-user.use-case';
 import { UpdateUserStatusUseCase } from './application/use-cases/update-user-status/update-user-status.use-case';
+import { ForgotPasswordUseCase } from './application/use-cases/forgot-password/forgot-password.use-case';
+import { VerifyResetCodeUseCase } from './application/use-cases/verify-reset-code/verify-reset-code.use-case';
+import { ResetPasswordUseCase } from './application/use-cases/reset-password/reset-password.use-case';
 
 @Module({
   imports: [
@@ -48,6 +51,9 @@ import { UpdateUserStatusUseCase } from './application/use-cases/update-user-sta
     LoginGoogleUseCase,
     GetCurrentUserUseCase,
     UpdateUserStatusUseCase,
+    ForgotPasswordUseCase,
+    VerifyResetCodeUseCase,
+    ResetPasswordUseCase,
     { provide: USER_REPOSITORY, useClass: PrismaUserRepository },
     { provide: USER_QUERY_PORT, useClass: PrismaUserQueryRepository },
     { provide: PASSWORD_HASHER, useClass: BcryptPasswordHasherAdapter },

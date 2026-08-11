@@ -27,11 +27,15 @@ import { SendCodeDto } from '../../../../application/dto/send-code.dto';
 import { VerifyCodeUseCase } from '../../../../application/use-cases/verify-code/verify-code.use-case';
 import { CompleteRegisterDto } from '../../../../application/dto/complete-register';
 import { CompleteRegisterUseCase } from '../../../../application/use-cases/complete-register/complete-register.use-case';
-import { LoginResponse } from '../../../../application/dto/login-response.dto';
 import { LoginGoogleUseCase } from '../../../../application/use-cases/login-google/login-google.use-case';
 import { GetCurrentUserUseCase } from '../../../../application/use-cases/get-current-user/get-current-user.use-case';
 import { UpdateUserStatusDto } from '../../../../application/dto/update-user-status.dto';
 import { UpdateUserStatusUseCase } from '../../../../application/use-cases/update-user-status/update-user-status.use-case';
+import { ForgotPasswordDto } from '../../../../application/dto/forgot-password.dto';
+import { ForgotPasswordUseCase } from '../../../../application/use-cases/forgot-password/forgot-password.use-case';
+import { VerifyResetCodeUseCase } from '../../../../application/use-cases/verify-reset-code/verify-reset-code.use-case';
+import { ResetPasswordUseCase } from '../../../../application/use-cases/reset-password/reset-password.use-case';
+import { ResetPasswordDto } from '../../../../application/dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -46,6 +50,9 @@ export class AuthController {
     private readonly loginGoogleUseCase: LoginGoogleUseCase,
     private readonly getCurrentUser: GetCurrentUserUseCase,
     private readonly updateUserStatus: UpdateUserStatusUseCase,
+    private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
+    private readonly verifyResetCode: VerifyResetCodeUseCase,
+    private readonly resetPassword: ResetPasswordUseCase,
   ) {}
 
   @Post('register/start')
@@ -167,5 +174,20 @@ export class AuthController {
   @Get('users')
   list() {
     return this.listUsers.execute();
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.forgotPasswordUseCase.execute(dto);
+  }
+
+  @Post('reset-password/verify')
+  verifyResetPasswordCode(@Body() dto: SendCodeDto) {
+    return this.verifyResetCode.execute(dto);
+  }
+
+  @Post('reset-password')
+  resetPasswordEndpoint(@Body() dto: ResetPasswordDto) {
+    return this.resetPassword.execute(dto);
   }
 }
