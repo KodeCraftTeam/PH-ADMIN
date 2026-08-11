@@ -8,6 +8,7 @@ import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { RegisterAdministratorDto } from '../dto/register-administrator.dto';
 import { LOGGER_PORT } from '../../../../shared/domain/ports/out/logger.port';
 import type { LoggerPort } from '../../../../shared/domain/ports/out/logger.port';
+import { UpdateUserStatusUseCase } from '../../../auth/application/use-cases/update-user-status/update-user-status.use-case';
 
 @Injectable()
 export class RegisterAdministratorUseCase {
@@ -15,6 +16,7 @@ export class RegisterAdministratorUseCase {
     @Inject(ADMINISTRATOR_PROFILE_REPOSITORY)
     private readonly profileRepo: AdministratorProfileRepository,
     @Inject(LOGGER_PORT) private readonly logger: LoggerPort,
+    private readonly updateUserStatus: UpdateUserStatusUseCase,
   ) {}
 
   async execute(
@@ -39,6 +41,7 @@ export class RegisterAdministratorUseCase {
       dto.legalRepresentative,
     );
     await this.profileRepo.save(profile);
+    await this.updateUserStatus.execute(userId, { status: 'ACTIVE' });
 
     this.logger.log(
       `Administrator profile ${profile.id} registered for user ${userId}`,
