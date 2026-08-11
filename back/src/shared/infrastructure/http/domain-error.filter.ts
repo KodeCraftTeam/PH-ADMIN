@@ -6,8 +6,10 @@ import { DomainError } from '../../domain/errors/domain-error';
 export class DomainErrorFilter implements ExceptionFilter {
   catch(error: DomainError, host: ArgumentsHost) {
     const response = host.switchToHttp().getResponse<Response>();
-    response
-      .status(error.httpStatus)
-      .json({ error: error.name, message: error.message });
+    response.status(error.httpStatus).json({
+      error: error.name,
+      code: error.code ?? error.name,
+      message: error.message,
+    });
   }
 }

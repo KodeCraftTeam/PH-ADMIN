@@ -5,6 +5,7 @@ import {
   EmailSenderPort,
   SendTemplateEmailParams,
 } from '../../domain/ports/out/email-sender.port';
+import { EmailDeliveryError } from '../../domain/errors/email-delivery.error';
 
 @Injectable()
 export class ResendEmailAdapter implements EmailSenderPort {
@@ -37,7 +38,7 @@ export class ResendEmailAdapter implements EmailSenderPort {
       this.logger.error(
         `Fallo al enviar email con template ${templateId}: ${error.message}`,
       );
-      throw new Error(`Error enviando email: ${error.message}`);
+      throw new EmailDeliveryError();
     }
   }
 }
