@@ -35,18 +35,18 @@ export function TeamView() {
 
             <div className="divide-y divide-slate-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
               {members.map((m) => (
-                <div key={m.id} className="p-4 flex items-center justify-between hover:bg-slate-50/80 dark:hover:bg-zinc-800/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold flex items-center justify-center text-xs">
+                <div key={m.id} className="p-4 flex flex-wrap items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-zinc-800/50 transition-colors">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="h-9 w-9 shrink-0 rounded-full bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold flex items-center justify-center text-xs">
                       {m.name.split(" ").map(n => n[0]).join("")}
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-900 dark:text-zinc-100">{m.name}</p>
-                      <p className="text-xs text-slate-400 dark:text-zinc-500">{m.email}</p>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-slate-900 dark:text-zinc-100">{m.name}</p>
+                      <p className="truncate text-xs text-slate-400 dark:text-zinc-500">{m.email}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs">
+                  <div className="flex shrink-0 items-center gap-4 text-xs">
                     <div className="text-right">
                       <span className="font-semibold text-slate-800 dark:text-zinc-200">{m.role}</span>
                       <p className="text-[10px] text-slate-400 dark:text-zinc-500">{m.propertiesManaged} copropiedades asignadas</p>

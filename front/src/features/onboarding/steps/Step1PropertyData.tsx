@@ -78,8 +78,8 @@ export function Step1PropertyData() {
         comunicados.
       </p>
 
-      <Card className="mt-6 p-6">
-        <div className="grid grid-cols-2 gap-5">
+      <Card className="mt-6 p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <Input
             label="Nombre del conjunto"
             placeholder="Conjunto Residencial Altos del Virrey"

@@ -37,7 +37,7 @@ export function Wizard() {
     <WizardProvider>
       <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 transition-colors">
         <header className="border-b border-slate-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors">
-          <div className="mx-auto flex max-w-5xl items-center gap-3 px-6 py-3.5">
+          <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 sm:px-6 py-3.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm">
               <IconBuilding />
             </span>
@@ -61,7 +61,7 @@ export function Wizard() {
 
         <ProgressBar />
 
-        <main className="mx-auto max-w-5xl px-6 py-8">
+        <main className="mx-auto max-w-5xl px-4 sm:px-6 py-6 sm:py-8">
           <CurrentStep />
         </main>
 

@@ -24,7 +24,7 @@ export function Step4Validation() {
       </p>
 
       {/* Summary */}
-      <div className="mt-5 grid grid-cols-3 gap-4">
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
             Unidades válidas
@@ -85,8 +85,8 @@ export function Step4Validation() {
       )}
 
       <Card className="mt-4 overflow-hidden">
-        <div className="max-h-96 overflow-y-auto">
-          <table className="w-full text-sm">
+        <div className="max-h-96 overflow-auto">
+          <table className="w-full min-w-160 text-sm">
             <thead className="sticky top-0">
               <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                 <th className="w-24 px-4 py-2.5">Estado</th>

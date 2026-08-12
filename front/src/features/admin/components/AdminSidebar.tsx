@@ -17,6 +17,8 @@ interface Props {
   overdueCount: number;
   userName?: string;
   activeProperty?: ManagedProperty;
+  isMobileOpen: boolean;
+  onCloseMobile: () => void;
 }
 
 export function AdminSidebar({
@@ -26,6 +28,8 @@ export function AdminSidebar({
   overdueCount,
   userName,
   activeProperty,
+  isMobileOpen,
+  onCloseMobile,
 }: Props) {
   const { logout, loading: loggingOut } = useLogout();
   const displayName = userName?.trim() || "Usuario";
@@ -80,7 +84,19 @@ export function AdminSidebar({
   ];
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-slate-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md flex flex-col justify-between h-[calc(100vh-3.5rem)] sticky top-14 self-start overflow-y-auto z-30 transition-all">
+    <>
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 top-14 z-40 bg-slate-950/50 backdrop-blur-xs md:hidden"
+          onClick={onCloseMobile}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 top-14 z-40 w-72 -translate-x-full border-r border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 backdrop-blur-md flex flex-col justify-between h-[calc(100vh-3.5rem)] overflow-y-auto transition-transform duration-200 md:sticky md:z-30 md:w-64 md:translate-x-0 md:bg-white/95 md:dark:bg-zinc-900/95 md:self-start ${
+          isMobileOpen ? "translate-x-0" : ""
+        }`}
+      >
       <div className="p-4 space-y-4">
         <div className="px-2 py-1">
           <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
@@ -122,14 +138,21 @@ export function AdminSidebar({
 
             if (item.id === "properties") {
               return (
-                <Link key={item.id} href="/admin/copropiedades" className={className}>
+                <Link key={item.id} href="/admin/copropiedades" onClick={onCloseMobile} className={className}>
                   {content}
                 </Link>
               );
             }
 
             return (
-              <button key={item.id} onClick={() => onSelectView(item.id)} className={className}>
+              <button
+                key={item.id}
+                onClick={() => {
+                  onSelectView(item.id);
+                  onCloseMobile();
+                }}
+                className={className}
+              >
                 {content}
               </button>
             );
@@ -140,7 +163,10 @@ export function AdminSidebar({
       <div className="p-4 border-t border-slate-100 dark:border-zinc-800/80 space-y-3 mt-auto bg-white/50 dark:bg-zinc-900/50">
         <button
           type="button"
-          onClick={() => onSelectView("properties")}
+          onClick={() => {
+            onSelectView("properties");
+            onCloseMobile();
+          }}
           className="w-full text-left rounded-xl border border-slate-200/60 dark:border-zinc-800/60 bg-slate-50/80 dark:bg-zinc-800/30 p-3 backdrop-blur-xs hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer group"
         >
           <div className="flex items-center justify-between">
@@ -186,6 +212,7 @@ export function AdminSidebar({
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

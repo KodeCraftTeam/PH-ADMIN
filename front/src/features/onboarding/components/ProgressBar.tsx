@@ -17,7 +17,7 @@ export function ProgressBar() {
 
   return (
     <div className="w-full border-b border-slate-200 bg-white">
-      <div className="mx-auto max-w-5xl px-6 py-4">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-4">
         <ol className="flex items-center">
           {STEPS.map((name, i) => {
             const number = i + 1;
@@ -28,7 +28,7 @@ export function ProgressBar() {
                 <div className="flex items-center gap-2.5">
                   <span
                     className={cn(
-                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold transition-colors",
+                      "flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-colors",
                       completed && "bg-ph-600 text-white",
                       current && "bg-ph-700 text-white ring-4 ring-ph-100",
                       !completed &&
@@ -54,7 +54,7 @@ export function ProgressBar() {
                 {number < STEPS.length && (
                   <div
                     className={cn(
-                      "mx-3 h-px flex-1",
+                      "mx-1.5 sm:mx-3 h-px flex-1",
                       completed ? "bg-ph-500" : "bg-slate-200"
                     )}
                   />
