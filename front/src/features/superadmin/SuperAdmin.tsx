@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
-import { Alert, Button, IconBuilding, IconSparkles } from "@/components/ui";
+import { Alert, Button, IconBuilding } from "@/components/ui";
 import {
   PROPERTIES_MOCK,
   TICKETS_MOCK,
@@ -97,24 +96,6 @@ export function SuperAdmin() {
             <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
 
             <ThemeToggle />
-
-            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-800 hidden md:block"></div>
-
-            <div className="hidden md:flex items-center gap-2">
-              <Link
-                href="/onboarding"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
-              >
-                <IconSparkles className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
-                Demo Onboarding
-              </Link>
-              <Link
-                href="/admin"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
-              >
-                Panel Admin
-              </Link>
-            </div>
           </div>
         </div>
       </header>

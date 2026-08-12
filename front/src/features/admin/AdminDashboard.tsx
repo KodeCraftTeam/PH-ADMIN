@@ -183,18 +183,6 @@ export function AdminDashboard() {
                 <IconUser className="h-3.5 w-3.5" />
                 Completar Perfil
               </button>
-              <Link
-                href="/onboarding"
-                className="text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 font-medium hidden sm:inline"
-              >
-                Onboarding
-              </Link>
-              <Link
-                href="/superadmin"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors"
-              >
-                Super Admin Panel
-              </Link>
             </nav>
           </div>
         </div>
