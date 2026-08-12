@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Menu } from "lucide-react";
 import { Alert, Button, IconBuilding } from "@/components/ui";
 import {
   PROPERTIES_MOCK,
@@ -28,6 +29,7 @@ export function SuperAdmin() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<PlatformProperty | null>(null);
   const [invitationAlert, setInvitationAlert] = useState<string | null>(null);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // Metrics computation
   const totalMRR = useMemo(() => {
@@ -72,15 +74,23 @@ export function SuperAdmin() {
     <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 font-sans text-slate-900 dark:text-zinc-100 transition-colors flex flex-col">
       {/* Top Header Bar */}
       <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors h-14 w-full flex-shrink-0">
-        <div className="w-full flex h-full items-center justify-between px-4 sm:px-6 md:px-8">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-slate-900/10">
+        <div className="w-full flex h-full items-center justify-between gap-2 px-3 sm:px-6 md:px-8">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setShowMobileSidebar(true)}
+              aria-label="Abrir menú"
+              className="shrink-0 rounded-lg p-2 -ml-1 text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors cursor-pointer md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <span className="hidden sm:flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-slate-900/10">
               <IconBuilding className="h-5 w-5" />
             </span>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-base font-bold text-slate-900 dark:text-zinc-100">KodeCraft PH</span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-900 dark:bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-white dark:text-zinc-900 uppercase tracking-wider">
+                <span className="truncate text-sm sm:text-base font-bold text-slate-900 dark:text-zinc-100">KodeCraft PH</span>
+                <span className="hidden sm:inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-900 dark:bg-zinc-100 px-2 py-0.5 text-[10px] font-bold text-white dark:text-zinc-900 uppercase tracking-wider">
                   Super Admin
                 </span>
               </div>
@@ -88,12 +98,13 @@ export function SuperAdmin() {
           </div>
 
           {/* Action Shortcuts & Theme Toggle */}
-          <div className="flex items-center gap-3 text-xs">
-            <Button onClick={() => setModalOpen(true)} className="shadow-xs py-1.5 px-3 text-xs">
-              + Crear Copropiedad
+          <div className="flex items-center gap-1.5 sm:gap-3 text-xs shrink-0">
+            <Button onClick={() => setModalOpen(true)} className="shadow-xs py-1.5 px-2.5 sm:px-3 text-xs">
+              <span className="sm:hidden">+</span>
+              <span className="hidden sm:inline">+ Crear Copropiedad</span>
             </Button>
 
-            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
+            <div className="hidden sm:block h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
 
             <ThemeToggle />
           </div>
@@ -104,6 +115,8 @@ export function SuperAdmin() {
       <div className="w-full flex flex-1 min-h-[calc(100vh-3.5rem)]">
         {/* Sidebar */}
         <SuperAdminSidebar
+          isMobileOpen={showMobileSidebar}
+          onCloseMobile={() => setShowMobileSidebar(false)}
           currentView={currentView}
           onSelectView={setCurrentView}
           propertiesCount={properties.length}

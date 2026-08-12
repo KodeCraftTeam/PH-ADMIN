@@ -87,8 +87,8 @@ export function CreateAdminModal({ isOpen, onClose, onCreate }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-zinc-950/80 p-4 backdrop-blur-xs animate-pop-in">
-      <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-slate-100 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-zinc-950/80 p-3 sm:p-4 backdrop-blur-xs animate-pop-in">
+      <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-zinc-900 p-4 sm:p-6 shadow-2xl border border-slate-100 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
         <div className="flex items-start justify-between border-b border-slate-100 dark:border-zinc-800 pb-4">
           <div>
@@ -118,7 +118,7 @@ export function CreateAdminModal({ isOpen, onClose, onCreate }: Props) {
             required
           />
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
               label="Correo Electrónico Directo"
               type="email"
@@ -136,7 +136,7 @@ export function CreateAdminModal({ isOpen, onClose, onCreate }: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
               label="Nombre del Conjunto / Edificio"
               placeholder="Conjunto Torres del Parque"
@@ -156,7 +156,7 @@ export function CreateAdminModal({ isOpen, onClose, onCreate }: Props) {
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Select label="Plan Comercial Asignado" value={form.plan} onChange={set("plan")}>
               <option value="Starter">Starter (Hasta 60 uds - $550k COP)</option>
               <option value="Pro">Pro (Hasta 150 uds - $1.1M COP)</option>
@@ -189,7 +189,7 @@ export function CreateAdminModal({ isOpen, onClose, onCreate }: Props) {
         </div>
 
         {/* Modal Buttons */}
-        <div className="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
+        <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-100 dark:border-zinc-800">
           <Button variant="secondary" onClick={onClose}>
             Cancelar
           </Button>

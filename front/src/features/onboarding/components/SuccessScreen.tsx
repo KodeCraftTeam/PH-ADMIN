@@ -62,7 +62,7 @@ export function SuccessScreen() {
         {units.length} unidades configuradas. Los propietarios recibirán su
         invitación a la plataforma en los próximos minutos.
       </p>
-      <div className="mt-8 flex gap-3">
+      <div className="mt-8 flex w-full max-w-xs flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row">
         <Button onClick={() => router.push("/admin")}>
           Ir al panel de administración
         </Button>

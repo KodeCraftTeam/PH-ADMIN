@@ -250,7 +250,8 @@ export function AdminPropertiesHubView({ onSelectProperty }: Props) {
       {/* Table Mode Display */}
       {!loading && filteredProperties.length > 0 && viewMode === "table" && (
         <div className="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-xs">
-          <table className="w-full text-left text-xs">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-140 text-left text-xs">
             <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-500 font-semibold border-b border-slate-200 dark:border-zinc-800">
               <tr>
                 <th className="py-3.5 px-4">Copropiedad</th>
@@ -280,6 +281,7 @@ export function AdminPropertiesHubView({ onSelectProperty }: Props) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

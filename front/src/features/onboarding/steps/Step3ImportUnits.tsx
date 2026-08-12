@@ -80,11 +80,11 @@ export function Step3ImportUnits() {
         </div>
       ) : (
         <>
-          <Card className="mt-5 flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-3">
+          <Card className="mt-5 flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3">
               <span className="text-xl">📄</span>
-              <div>
-                <p className="text-sm font-medium text-slate-800">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-slate-800">
                   unidades_altos_virrey.xlsx
                 </p>
                 <p className="text-xs text-slate-400">
@@ -104,8 +104,8 @@ export function Step3ImportUnits() {
           </Card>
 
           <Card className="mt-4 overflow-hidden">
-            <div className="max-h-80 overflow-y-auto">
-              <table className="w-full text-sm">
+            <div className="max-h-80 overflow-auto">
+              <table className="w-full min-w-180 text-sm">
                 <thead className="sticky top-0">
                   <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     <th className="px-4 py-2.5">Unidad</th>

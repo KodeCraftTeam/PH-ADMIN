@@ -44,7 +44,8 @@ export function Step2Structure() {
       )}
 
       <Card className="mt-5 overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-160 text-sm">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3">Torre / bloque</th>
@@ -112,6 +113,7 @@ export function Step2Structure() {
             ))}
           </tbody>
         </table>
+        </div>
 
         <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-3">
           <Button

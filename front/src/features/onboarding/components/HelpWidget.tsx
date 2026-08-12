@@ -61,9 +61,9 @@ export function HelpWidget() {
   const help = HELP_BY_STEP[step] ?? HELP_BY_STEP[1];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
       {open && (
-        <div className="w-80 rounded-xl border border-zinc-200 bg-white p-5 shadow-xl shadow-zinc-900/10">
+        <div className="w-[calc(100vw-2rem)] max-w-80 rounded-xl border border-zinc-200 bg-white p-5 shadow-xl shadow-zinc-900/10">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">

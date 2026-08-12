@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Menu } from "lucide-react";
 import { Badge, IconBuilding, IconCheck, IconUser } from "@/components/ui";
 import { BALANCE_MOCK } from "@/features/onboarding/model/mocks";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -22,6 +23,7 @@ export function AdminDashboard() {
   const [activeProperty, setActiveProperty] = useState<ManagedProperty>(ADMIN_MANAGED_PROPERTIES[0]);
   const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const session = getSession();
   const balance = BALANCE_MOCK;
   const totalBalance = balance.reduce((a, c) => a + c.initialBalance, 0);
@@ -64,40 +66,50 @@ export function AdminDashboard() {
     <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 font-sans text-slate-900 dark:text-zinc-100 transition-colors flex flex-col">
       {/* Header Bar */}
       <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors h-14 w-full flex-shrink-0">
-        <div className="w-full flex h-full items-center justify-between px-4 sm:px-6 md:px-8">
-          
+        <div className="w-full flex h-full items-center justify-between gap-2 px-3 sm:px-6 md:px-8">
+          <button
+            type="button"
+            onClick={() => setShowMobileSidebar(true)}
+            aria-label="Abrir menú"
+            className="shrink-0 rounded-lg p-2 text-slate-600 hover:bg-slate-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition-colors cursor-pointer md:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+
           {/* Header Property Selector Dropdown */}
-          <div className="relative">
+          <div className="relative min-w-0 flex-1 md:flex-initial">
             <button
               type="button"
               onClick={() => setShowPropertyDropdown((prev) => !prev)}
-              className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer group text-left"
+              className="flex w-full min-w-0 items-center gap-2 sm:gap-3 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer group text-left"
             >
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-slate-900/10 shrink-0">
                 <IconBuilding className="h-5 w-5" />
               </span>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm md:text-base font-bold text-slate-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="truncate text-sm md:text-base font-bold text-slate-900 dark:text-zinc-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
                     {activeProperty.name}
                   </span>
-                  <Badge
-                    tone={
-                      activeProperty.status === "Activo"
-                        ? "green"
-                        : activeProperty.status === "En Onboarding"
-                        ? "amber"
-                        : "red"
-                    }
-                  >
-                    {activeProperty.status === "Activo" && <IconCheck className="h-3 w-3" />}
-                    {activeProperty.status}
-                  </Badge>
-                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-slate-400">
+                  <span className="hidden sm:inline-flex shrink-0">
+                    <Badge
+                      tone={
+                        activeProperty.status === "Activo"
+                          ? "green"
+                          : activeProperty.status === "En Onboarding"
+                          ? "amber"
+                          : "red"
+                      }
+                    >
+                      {activeProperty.status === "Activo" && <IconCheck className="h-3 w-3" />}
+                      {activeProperty.status}
+                    </Badge>
+                  </span>
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-slate-400 shrink-0">
                     <path fillRule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <p className="text-[10px] text-slate-400 dark:text-zinc-400">
+                <p className="hidden sm:block truncate text-[10px] text-slate-400 dark:text-zinc-400">
                   NIT {activeProperty.nit} · {activeProperty.city} · {activeProperty.unitsCount} unidades
                 </p>
               </div>
@@ -105,7 +117,7 @@ export function AdminDashboard() {
 
             {/* Property Switcher Menu Dropdown */}
             {showPropertyDropdown && (
-              <div className="absolute top-full left-0 mt-2 w-80 rounded-2xl bg-white dark:bg-zinc-900 p-3 shadow-2xl border border-slate-200 dark:border-zinc-800 z-50 animate-pop-in">
+              <div className="absolute top-full left-0 mt-2 w-[calc(100vw-1.5rem)] max-w-80 rounded-2xl bg-white dark:bg-zinc-900 p-3 shadow-2xl border border-slate-200 dark:border-zinc-800 z-50 animate-pop-in">
                 <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 dark:border-zinc-800 mb-2">
                   <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                     Mis Copropiedades
@@ -162,26 +174,26 @@ export function AdminDashboard() {
             )}
           </div>
 
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-1.5 sm:gap-3 text-xs shrink-0">
             <ThemeToggle />
 
-            <div className="h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
+            <div className="hidden sm:block h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
 
-            <nav className="flex items-center gap-3">
+            <nav className="flex items-center gap-1.5 sm:gap-3">
               <button
                 type="button"
                 onClick={() => setCurrentView("properties")}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 dark:bg-zinc-800 px-2 sm:px-2.5 py-1.5 font-semibold text-slate-700 dark:text-zinc-300 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-all cursor-pointer"
               >
-                🏢 Ver Proyectos
+                🏢<span className="hidden sm:inline">&nbsp;Ver Proyectos</span>
               </button>
               <button
                 type="button"
                 onClick={() => setShowCompleteModal(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 px-2.5 py-1.5 font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 px-2 sm:px-2.5 py-1.5 font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer"
               >
                 <IconUser className="h-3.5 w-3.5" />
-                Completar Perfil
+                <span className="hidden sm:inline">Completar Perfil</span>
               </button>
             </nav>
           </div>
@@ -191,6 +203,8 @@ export function AdminDashboard() {
       {/* Main Layout Container: Sidebar + View Content (Seamless Sticky Sidebar) */}
       <div className="w-full flex flex-1 min-h-[calc(100vh-3.5rem)]">
         <AdminSidebar
+          isMobileOpen={showMobileSidebar}
+          onCloseMobile={() => setShowMobileSidebar(false)}
           currentView={currentView}
           onSelectView={setCurrentView}
           pendingPqrsCount={pendingPqrsCount}

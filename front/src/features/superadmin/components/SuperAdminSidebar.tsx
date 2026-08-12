@@ -26,6 +26,8 @@ interface Props {
   propertiesCount: number;
   openTicketsCount: number;
   userName?: string;
+  isMobileOpen: boolean;
+  onCloseMobile: () => void;
 }
 
 export function SuperAdminSidebar({
@@ -34,6 +36,8 @@ export function SuperAdminSidebar({
   propertiesCount,
   openTicketsCount,
   userName,
+  isMobileOpen,
+  onCloseMobile,
 }: Props) {
   const { logout, loading: loggingOut } = useLogout();
   const displayName = userName?.trim() || "Usuario";
@@ -108,7 +112,19 @@ export function SuperAdminSidebar({
   ];
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-slate-200/80 dark:border-zinc-800/80 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md flex flex-col justify-between h-[calc(100vh-3.5rem)] sticky top-14 self-start overflow-y-auto z-30 transition-all">
+    <>
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 top-14 z-40 bg-slate-950/50 backdrop-blur-xs md:hidden"
+          onClick={onCloseMobile}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 top-14 z-40 w-72 -translate-x-full border-r border-slate-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 backdrop-blur-md flex flex-col justify-between h-[calc(100vh-3.5rem)] overflow-y-auto transition-transform duration-200 md:sticky md:z-30 md:w-64 md:translate-x-0 md:bg-white/95 md:dark:bg-zinc-900/95 md:self-start ${
+          isMobileOpen ? "translate-x-0" : ""
+        }`}
+      >
       {/* Navigation Menu */}
       <div className="p-4 space-y-4">
         <div className="px-2 py-1 flex items-center justify-between">
@@ -123,7 +139,10 @@ export function SuperAdminSidebar({
             return (
               <button
                 key={item.id}
-                onClick={() => onSelectView(item.id)}
+                onClick={() => {
+                  onSelectView(item.id);
+                  onCloseMobile();
+                }}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer group relative ${
                   isActive
                     ? "bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
@@ -191,6 +210,7 @@ export function SuperAdminSidebar({
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

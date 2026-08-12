@@ -32,8 +32,8 @@ export function PropertyDetailModal({ property, onClose, onResendInvite }: Props
       : "gray";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-zinc-950/80 p-4 backdrop-blur-xs animate-pop-in">
-      <div className="w-full max-w-xl rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-slate-100 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 dark:bg-zinc-950/80 p-3 sm:p-4 backdrop-blur-xs animate-pop-in">
+      <div className="w-full max-w-xl rounded-2xl bg-white dark:bg-zinc-900 p-4 sm:p-6 shadow-2xl border border-slate-100 dark:border-zinc-800 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-slate-100 dark:border-zinc-800 pb-4">
           <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export function PropertyDetailModal({ property, onClose, onResendInvite }: Props
         </div>
 
         {/* Commercial Overview Cards */}
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="rounded-xl border border-slate-200/80 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-800/40 p-3.5">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-400">
               Estado Comercial
@@ -86,7 +86,7 @@ export function PropertyDetailModal({ property, onClose, onResendInvite }: Props
           <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-400 mb-3">
             Datos del Administrador Asignado
           </h3>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div>
               <p className="text-xs text-slate-400 dark:text-zinc-500">Nombre completo</p>
               <p className="font-semibold text-slate-800 dark:text-zinc-200">{property.adminName}</p>

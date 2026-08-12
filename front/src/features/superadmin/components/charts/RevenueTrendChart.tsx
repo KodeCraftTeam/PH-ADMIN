@@ -52,9 +52,9 @@ export function RevenueTrendChart() {
   return (
     <Card className="p-5 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
       <div>
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-zinc-800 pb-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-zinc-800 pb-3">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-400">
                 Tendencia de Ingresos MRR
               </span>
@@ -67,7 +67,7 @@ export function RevenueTrendChart() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-zinc-400">
+          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-zinc-400">
             <div className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
               <span>Facturado</span>

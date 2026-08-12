@@ -49,7 +49,7 @@ export function Step5InitialBalance() {
             Puedes subir el archivo de cartera o generarlo automáticamente a partir de
             las unidades ya importadas y editar los valores en pantalla.
           </p>
-          <div className="mt-5 flex gap-3">
+          <div className="mt-5 flex flex-col sm:flex-row gap-3">
             <Button onClick={() => dispatch({ type: "LOAD_BALANCE" })}>
               Generar desde unidades importadas
             </Button>
@@ -63,7 +63,7 @@ export function Step5InitialBalance() {
         </Card>
       ) : (
         <>
-          <div className="mt-5 grid grid-cols-3 gap-4">
+          <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card className="p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Unidades con saldo
@@ -93,8 +93,8 @@ export function Step5InitialBalance() {
           </div>
 
           <Card className="mt-4 overflow-hidden">
-            <div className="max-h-96 overflow-y-auto">
-              <table className="w-full text-sm">
+            <div className="max-h-96 overflow-auto">
+              <table className="w-full min-w-180 text-sm">
                 <thead className="sticky top-0">
                   <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     <th className="px-4 py-2.5">Unidad</th>
