@@ -2,6 +2,6 @@ import { DomainError } from '../../../../shared/domain/errors/domain-error';
 
 export class TaxIdAlreadyRegisteredError extends DomainError {
   constructor(taxId: string) {
-    super(`Tax ID already registered: ${taxId}`, 409);
+    super(`El NIT ${taxId} ya está registrado`, 409);
   }
 }

@@ -7,8 +7,7 @@ import { IconBuilding, IconChart, IconDollar, IconUsers } from "@/components/ui"
 import { useLogout } from "@/features/auth/hooks/useLogout";
 
 import { ManagedProperty } from "../model/adminPropertiesMock";
-
-export type AdminViewMode = "properties" | "overview" | "cartera" | "pqrs" | "broadcasts";
+import { AdminViewMode } from "../model/types";
 
 interface Props {
   currentView: AdminViewMode;

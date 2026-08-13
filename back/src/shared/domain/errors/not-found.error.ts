@@ -2,6 +2,6 @@ import { DomainError } from './domain-error';
 
 export class NotFoundError extends DomainError {
   constructor(entity: string, id: string) {
-    super(`${entity} with id "${id}" not found`, 404);
+    super(`No se ha encontrado el ${entity} con el ID ${id}`, 404);
   }
 }
