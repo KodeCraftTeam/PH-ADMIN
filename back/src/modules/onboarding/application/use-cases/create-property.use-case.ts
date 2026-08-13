@@ -27,7 +27,8 @@ export class CreatePropertyUseCase {
   ): Promise<{ id: string }> {
     const administratorProfile = await this.profileRepo.findByUserId(userId);
 
-    if (!administratorProfile) throw new NotFoundError('User', userId);
+    if (!administratorProfile)
+      throw new NotFoundError('Administrator profile', userId);
 
     const property = new Property(
       randomUUID(),
