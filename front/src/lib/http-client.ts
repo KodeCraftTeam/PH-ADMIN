@@ -12,6 +12,13 @@ export class ApiError extends Error {
   }
 }
 
+type UnauthorizedHandler = (code?: string) => void;
+let onUnauthorized: UnauthorizedHandler | null = null;
+
+export function setUnauthorizedHandler(handler: UnauthorizedHandler) {
+  onUnauthorized = handler;
+}
+
 export async function apiRequest<T = void>(
   path: string,
   init?: RequestInit
@@ -27,7 +34,11 @@ export async function apiRequest<T = void>(
     const message = Array.isArray(body?.message)
       ? body.message[0]
       : (body?.message ?? "Ocurrió un error. Intentá de nuevo.");
-    throw new ApiError(message, res.status, body?.code ?? body?.error);
+    const code = body?.code ?? body?.error;
+
+    if (res.status === 401) onUnauthorized?.(code);
+
+    throw new ApiError(message, res.status, code);
   }
 
   if (res.status === 204) return undefined as T;
