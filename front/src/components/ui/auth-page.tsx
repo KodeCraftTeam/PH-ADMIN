@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   AtSignIcon,
   EyeIcon,
@@ -31,11 +31,22 @@ const DASHBOARD_BY_ROLE = {
 
 export function AuthPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  
+  const [error, setError] = useState(() => {
+    switch (searchParams.get("reason")) {
+      case "expired":
+        return "Tu sesión expiró. Volvé a iniciar sesión.";
+      case "unauthorized":
+        return "Iniciá sesión para continuar.";
+      default:
+        return "";
+    }
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
