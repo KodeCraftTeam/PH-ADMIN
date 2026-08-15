@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { LoginResponse } from '../../dto/login-response.dto';
 import { USER_REPOSITORY } from '../../../domain/ports/out/user.repository';
@@ -13,10 +13,12 @@ import { ConfigService } from '@nestjs/config';
 type GoogleTokenResponse = {
   access_token: string;
   expires_in: number;
-  id_token: string;
-  refresh_token: string;
-  scope: string;
-  token_type: string;
+  id_token?: string;
+  refresh_token?: string;
+  scope?: string;
+  token_type?: string;
+  error?: string;
+  error_description?: string;
 };
 
 type GoogleIdTokenPayload = {
@@ -42,6 +44,16 @@ export class LoginGoogleUseCase {
   }
 
   async execute(code: string): Promise<LoginResponse> {
+    if (!this.clientId || !this.clientSecret || !this.redirectUri) {
+      this.logger.error(
+        'Google OAuth credentials missing in env',
+        'LoginGoogleUseCase',
+      );
+      throw new UnauthorizedException(
+        'Configuración de Google OAuth incompleta en el servidor.',
+      );
+    }
+
     const params = new URLSearchParams({
       code,
       client_id: this.clientId,
@@ -60,11 +72,27 @@ export class LoginGoogleUseCase {
 
     const responseGoogle = (await response.json()) as GoogleTokenResponse;
 
+    if (!response.ok || !responseGoogle.id_token) {
+      const errorMsg =
+        responseGoogle.error_description ||
+        responseGoogle.error ||
+        'id_token no recibido de Google';
+      this.logger.error(
+        `Error en intercambio de token con Google: ${errorMsg}`,
+        'LoginGoogleUseCase',
+      );
+      throw new UnauthorizedException(
+        `Error al autenticar con Google: ${errorMsg}`,
+      );
+    }
+
+    const tokenParts = responseGoogle.id_token.split('.');
+    if (tokenParts.length < 2) {
+      throw new UnauthorizedException('Formato de id_token de Google inválido.');
+    }
+
     const payloadToken = JSON.parse(
-      Buffer.from(
-        responseGoogle.id_token.split('.')[1],
-        'base64url',
-      ).toString(),
+      Buffer.from(tokenParts[1], 'base64url').toString(),
     ) as GoogleIdTokenPayload;
 
     let user = await this.userRepo.findByEmail(payloadToken.email);
