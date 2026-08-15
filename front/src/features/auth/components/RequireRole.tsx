@@ -2,14 +2,9 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { getSession, setSession, clearSession, type UserRole } from "../model/session";
+import { getSession, setSession, clearSession, DASHBOARD_BY_ROLE, type UserRole } from "../model/session";
 import { getMe } from "../api/me.api";
 import { setUnauthorizedHandler } from "@/lib/http-client";
-
-const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
-  ADMIN: "/admin",
-  SUPER_ADMIN: "/superadmin",
-};
 
 export function RequireRole({
   role,

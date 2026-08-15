@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { RequireRole } from "@/features/auth/components/RequireRole";
 import { Badge, Button, Card, IconBuilding, IconCheck, IconSearch, IconChevronRight } from "@/components/ui";
 import { getAdministratorProperties, type PropertyListItem } from "@/features/onboarding/api/onboarding.api";
 
@@ -173,9 +172,5 @@ function CopropiedadesPageContent() {
 }
 
 export default function AdminCopropiedadesPage() {
-  return (
-    <RequireRole role="ADMIN">
-      <CopropiedadesPageContent />
-    </RequireRole>
-  );
+  return <CopropiedadesPageContent />;
 }
