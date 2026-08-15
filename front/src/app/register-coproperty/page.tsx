@@ -1,10 +1,10 @@
-import { AdminDashboard } from "@/features/admin/AdminDashboard";
+import { Wizard } from "@/features/onboarding/Wizard";
 import { RequireRole } from "@/features/auth/components/RequireRole";
 
-export default function OnboardingAdminPage() {
+export default function RegisterCopropertyPage() {
   return (
     <RequireRole role="ADMIN">
-      <AdminDashboard />
+      <Wizard />
     </RequireRole>
   );
 }

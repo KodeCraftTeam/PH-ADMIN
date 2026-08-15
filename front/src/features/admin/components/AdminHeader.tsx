@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Menu } from "lucide-react";
-import { Badge, IconBuilding, IconCheck, IconUser } from "@/components/ui";
+import { Badge, IconBuilding, IconCheck } from "@/components/ui";
 import {
   ADMIN_MANAGED_PROPERTIES,
   type ManagedProperty,
@@ -14,7 +14,6 @@ interface Props {
   onCloseMobile: () => void;
   activeProperty?: ManagedProperty;
   onSelectProperty?: (property: ManagedProperty) => void;
-  onShowCompleteModal: () => void;
   propertiesList?: ManagedProperty[];
 }
 
@@ -22,7 +21,6 @@ export function AdminHeader({
   onCloseMobile,
   activeProperty,
   onSelectProperty,
-  onShowCompleteModal,
   propertiesList = ADMIN_MANAGED_PROPERTIES,
 }: Props) {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -63,7 +61,7 @@ export function AdminHeader({
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {/* Botón directo de regreso a Mis Copropiedades */}
           <Link
-            href="/copropiedades"
+            href="/admin"
             title="Volver a Mis Copropiedades"
             aria-label="Volver a Mis Copropiedades"
             className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700/80 transition-all shadow-xs cursor-pointer group shrink-0"
@@ -123,7 +121,7 @@ export function AdminHeader({
                     Mis Copropiedades
                   </span>
                   <Link
-                    href="/copropiedades"
+                    href="/admin"
                     onClick={() => setShowDropdown(false)}
                     className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
                   >
@@ -181,19 +179,6 @@ export function AdminHeader({
         {/* Right side: Theme toggle and profile action */}
         <div className="flex items-center gap-2 sm:gap-3 text-xs shrink-0">
           <ThemeToggle />
-
-          <div className="hidden sm:block h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
-
-          <nav className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onShowCompleteModal}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 px-2 sm:px-2.5 py-1.5 font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition-all cursor-pointer"
-            >
-              <IconUser className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Completar Perfil</span>
-            </button>
-          </nav>
         </div>
       </div>
     </header>

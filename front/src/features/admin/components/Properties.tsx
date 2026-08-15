@@ -1,17 +1,38 @@
-"use client";
-
-import { useEffect, useState } from "react";
+'use client';
+import { Badge, Button, Card, IconBuilding, IconCheck, IconChevronRight, IconSearch } from "@/components/ui";
+import { getAdministratorProperties, PropertyListItem } from "@/features/onboarding/api/onboarding.api";
 import Link from "next/link";
-import { RequireRole } from "@/features/auth/components/RequireRole";
-import { Badge, Button, Card, IconBuilding, IconCheck, IconSearch, IconChevronRight } from "@/components/ui";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { getAdministratorProperties, type PropertyListItem } from "@/features/onboarding/api/onboarding.api";
+import { useEffect, useState } from "react";
+import { PropertiesShell } from "./PropertiesShell";
+import { getMe } from "@/features/auth/api/me.api";
+import { CompleteAdminProfileModal } from "./CompleteAdminProfileModal";
+import { getSession, Session, setSession } from "@/features/auth/model/session";
 
-function CopropiedadesPageContent() {
+export default function Properties() {
   const [properties, setProperties] = useState<PropertyListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const session: Session | null = getSession();
+
+  useEffect(() => {
+    getMe()
+      .then((user) => {
+        if (user) {
+          setSession({ name: user.name, role: user.role, needsOnBoarding: user.needsOnBoarding });
+          if (user.needsOnBoarding) {
+            setShowCompleteModal(true);
+          }
+        }
+      })
+      .catch(() => {
+        if (session?.needsOnBoarding) {
+          setShowCompleteModal(true);
+        }
+      });
+  }, [session?.needsOnBoarding]);
 
   useEffect(() => {
     getAdministratorProperties()
@@ -36,33 +57,9 @@ function CopropiedadesPageContent() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 font-sans text-slate-900 dark:text-zinc-100 transition-colors flex flex-col">
-      {/* Fixed Sticky Top Header */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors h-14 w-full flex-shrink-0">
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 md:px-8">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-md shadow-slate-900/10 shrink-0">
-              <IconBuilding className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-sm font-bold text-slate-900 dark:text-zinc-100">
-                KodeCraft PH
-              </p>
-              <p className="text-[10px] text-slate-400 dark:text-zinc-500">
-                Portal de Administración
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="flex-1 p-4 sm:p-6 md:p-8">
-        <div className="max-w-6xl mx-auto space-y-6">
+    <PropertiesShell>
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="space-y-6">
           {/* Top Banner / Hero Header */}
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-slate-800 to-zinc-900 p-6 md:p-8 text-white shadow-xl border border-slate-800">
             <div className="absolute top-0 right-0 -mt-10 -mr-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
@@ -83,7 +80,7 @@ function CopropiedadesPageContent() {
               </div>
 
               <div className="flex items-center gap-3 shrink-0">
-                <Link href="/registro-copropiedad">
+                <Link href="/register-coproperty">
                   <Button className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-2.5 shadow-lg shadow-emerald-500/20 border-0 cursor-pointer">
                     + Registrar Nueva Copropiedad
                   </Button>
@@ -115,8 +112,8 @@ function CopropiedadesPageContent() {
             </div>
           </div>
 
-          {/* Control Bar: Search */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-xs">
+          {/* Control Bar: Search & View Options */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-xs">
             <div className="relative flex-1 max-w-md w-full">
               <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
@@ -127,8 +124,36 @@ function CopropiedadesPageContent() {
                 className="w-full pl-10 pr-4 py-2 text-xs rounded-lg border border-slate-300 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
-            <div className="text-xs font-semibold text-slate-500">
-              Total en BD: <span className="text-slate-900 dark:text-zinc-100 font-bold">{properties.length}</span>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="text-xs font-semibold text-slate-500">
+                Total en BD: <span className="text-slate-900 dark:text-zinc-100 font-bold">{properties.length}</span>
+              </div>
+
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-lg text-xs">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                    viewMode === "grid"
+                      ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-xs"
+                      : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
+                  }`}
+                >
+                  Tarjetas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("table")}
+                  className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                    viewMode === "table"
+                      ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-xs"
+                      : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
+                  }`}
+                >
+                  Lista
+                </button>
+              </div>
             </div>
           </div>
 
@@ -159,7 +184,7 @@ function CopropiedadesPageContent() {
                 Registra tu primera copropiedad para comenzar a administrarla en el panel.
               </p>
               <div className="mt-6">
-                <Link href="/registro-copropiedad">
+                <Link href="/register-coproperty">
                   <Button className="bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs">
                     + Registrar Nueva Copropiedad
                   </Button>
@@ -169,7 +194,7 @@ function CopropiedadesPageContent() {
           )}
 
           {/* Grid Display */}
-          {!loading && !error && filtered.length > 0 && (
+          {!loading && !error && filtered.length > 0 && viewMode === "grid" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {filtered.map((prop) => (
                 <Card
@@ -212,7 +237,7 @@ function CopropiedadesPageContent() {
 
                   <div className="pt-3 flex items-center justify-between">
                     <span className="text-[10px] text-slate-400">ID: {prop.id.substring(0, 8)}...</span>
-                    <Link href="/admin">
+                    <Link href={`/admin/${prop.id}`}>
                       <Button variant="secondary" className="text-xs font-semibold py-1.5 px-3 cursor-pointer">
                         Administrar <IconChevronRight className="h-3 w-3 ml-1" />
                       </Button>
@@ -222,16 +247,63 @@ function CopropiedadesPageContent() {
               ))}
             </div>
           )}
-        </div>
-      </main>
-    </div>
-  );
-}
 
-export default function CopropiedadesPage() {
-  return (
-    <RequireRole role="ADMIN">
-      <CopropiedadesPageContent />
-    </RequireRole>
+          {/* Table Display */}
+          {!loading && !error && filtered.length > 0 && viewMode === "table" && (
+            <div className="rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-xs">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-140 text-left text-xs">
+                  <thead className="bg-slate-50 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 font-semibold border-b border-slate-200 dark:border-zinc-800">
+                    <tr>
+                      <th className="py-3.5 px-4">Copropiedad</th>
+                      <th className="py-3.5 px-4">Ciudad / NIT</th>
+                      <th className="py-3.5 px-4">Unidades</th>
+                      <th className="py-3.5 px-4">Dirección</th>
+                      <th className="py-3.5 px-4">Estado</th>
+                      <th className="py-3.5 px-4 text-right">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-zinc-800">
+                    {filtered.map((prop) => (
+                      <tr key={prop.id} className="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40">
+                        <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-zinc-100">
+                          {prop.name}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-500 dark:text-zinc-400">
+                          {prop.city} · {prop.taxId}
+                        </td>
+                        <td className="py-3.5 px-4 font-medium text-slate-700 dark:text-zinc-200">{prop.totalUnits} uds</td>
+                        <td className="py-3.5 px-4 text-slate-500 dark:text-zinc-400">{prop.address}</td>
+                        <td className="py-3.5 px-4">
+                          <Badge tone={prop.status === "ACTIVO" ? "green" : "amber"}>
+                            {prop.status === "ACTIVO" && <IconCheck className="h-3 w-3 mr-1 inline" />}
+                            {prop.status}
+                          </Badge>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <Link href={`/admin/${prop.id}`}>
+                            <Button variant="secondary" className="text-xs font-semibold py-1.5 px-3 cursor-pointer">
+                              Administrar <IconChevronRight className="h-3 w-3 ml-1" />
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+
+    <CompleteAdminProfileModal
+      isOpen={showCompleteModal}
+      onSuccess={() => setShowCompleteModal(false)}
+    />
+    </PropertiesShell>
+
+
   );
 }

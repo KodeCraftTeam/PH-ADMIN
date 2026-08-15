@@ -43,7 +43,7 @@ export function Wizard() {
           <div className="mx-auto flex h-full max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <Link
-                href="/copropiedades"
+                href="/admin"
                 title="Volver a Mis Copropiedades"
                 aria-label="Volver a Mis Copropiedades"
                 className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200/80 dark:border-zinc-700/80 transition-all shadow-xs cursor-pointer group shrink-0"

@@ -1,7 +1,7 @@
 # Contrato API — Auth
 
 > Generado desde `back/src/modules/auth/`. Regenerar con la skill `api-contracts` si cambian rutas, DTOs o errores.
-> Base path: `/auth`. Cookie de sesión: `token` (httpOnly, `secure` en prod, `sameSite=none` en prod / `lax` en dev).
+> Base path: `/auth`. Cookie de sesión: `token` (httpOnly, `secure` en prod, `sameSite=none` en prod / `lax` en dev, seteada por `AuthController.cookieOptions()`).
 
 ## `POST /auth/register/start`
 
@@ -181,7 +181,7 @@ Sin body. Identidad tomada de `request.user.sub` (claim `sub` del JWT).
 | Status | Cuándo |
 |---|---|
 | 401 | `userId` del token no corresponde a ningún usuario (`InvalidCredentialsError`) |
-| — | Sin cookie válida: `AuthGuard` devuelve `canActivate() = false` → Nest responde `403 Forbidden` genérico (no pasa por `DomainErrorFilter`) |
+| 401 | Sin cookie `token`, o token inválido/expirado (`AuthGuard` lanza `UnauthorizedException` con `code: TOKEN_MISSING \| TOKEN_EXPIRED \| TOKEN_INVALID`, no pasa por `DomainErrorFilter`) |
 
 ---
 
@@ -208,7 +208,7 @@ Sin body.
 | Status | Cuándo |
 |---|---|
 | 404 | `userId` del token no corresponde a ningún usuario (`NotFoundError`, de `shared/domain/errors`) |
-| — | Sin cookie válida: `AuthGuard` bloquea → `403 Forbidden` genérico |
+| 401 | Sin cookie `token`, o token inválido/expirado (`AuthGuard`, `UnauthorizedException`) |
 
 ### Notas
 
@@ -228,7 +228,7 @@ Sin body.
 
 ### Response — éxito (`302`)
 
-Redirect a `https://accounts.google.com/o/oauth2/v2/auth?...` con `client_id`, `redirect_uri`, `scope=openid email profile`, `response_type=code`.
+Redirect a `https://accounts.google.com/o/oauth2/v2/auth?...` con `client_id`, `redirect_uri`, `scope=openid email profile`, `response_type=code` (leídos de `process.env.GOOGLE_CLIENT_ID` / `GOOGLE_REDIRECT_URI` directo en el controller, no vía `ConfigService`).
 
 ### Errores
 
@@ -252,13 +252,18 @@ Redirect a `https://accounts.google.com/o/oauth2/v2/auth?...` con `client_id`, `
 
 ### Response — éxito (`302`)
 
-Setea cookie `token` (JWT, 7 días) y redirige a `${CORS_ORIGIN ?? 'http://localhost:3000'}/admin`. Si el email de Google no existe como usuario, lo crea automáticamente con `role: 'ADMIN'`, `status: 'ONBOARDING'`, sin password.
+Setea cookie `token` (JWT, 7 días) y redirige a `${CORS_ORIGIN.split(',')[0] ?? 'http://localhost:3000'}${targetPath}`, donde `targetPath` es `/superadmin` si `role === 'SUPER_ADMIN'` o `/admin` en cualquier otro caso. Si el email de Google no existe como usuario, lo crea automáticamente con `role: 'ADMIN'`, `status: 'ONBOARDING'`, sin password (`passwordHash: null`).
 
 ### Errores
 
-Ninguna captura explícita — si Google responde error o el intercambio de `code` falla, la excepción sube sin manejar (500 genérico).
+El use case captura explícitamente y lanza `UnauthorizedException` de Nest (401, **no** `DomainError` — no pasa por `DomainErrorFilter` pero cae en el mismo status code por default de Nest):
 
-Para recuperación de contraseña, un fallo del proveedor de correo responde `503` con `code: EMAIL_DELIVERY_FAILED`.
+| Status | Cuándo |
+|---|---|
+| 401 | Faltan `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` o `GOOGLE_REDIRECT_URI` en config del servidor |
+| 401 | Google respondió error en el intercambio de `code`, o no devolvió `id_token` |
+| 401 | `id_token` recibido de Google tiene formato inválido (menos de 2 partes al hacer split por `.`) |
+| 500 | Cualquier otro fallo no capturado (ej. red, JSON inválido) sube sin manejar |
 
 ---
 
@@ -289,7 +294,7 @@ Para recuperación de contraseña, un fallo del proveedor de correo responde `50
 |---|---|
 | 409 | Email ya registrado (`EmailAlreadyRegisteredError`) |
 | 403 | Usuario autenticado sin rol `SUPER_ADMIN` (`RolesGuard`, `ForbiddenException`) |
-| 403 | Sin sesión válida (`AuthGuard` bloquea, Nest responde 403 genérico) |
+| 401 | Sin cookie `token` válida (`AuthGuard`, `UnauthorizedException`) |
 
 ---
 
@@ -321,7 +326,7 @@ Sin body.
 | Status | Cuándo |
 |---|---|
 | 403 | Rol insuficiente (`RolesGuard`, `ForbiddenException`) |
-| 403 | Sin sesión válida |
+| 401 | Sin sesión válida (`AuthGuard`, `UnauthorizedException`) |
 
 ---
 
@@ -339,7 +344,7 @@ Paso 1 del flujo de recuperación de contraseña (3 endpoints, sin token/link �
 |---|---|---|---|
 | email | string | sí | `@IsEmail`, `@IsNotEmpty` |
 
-### Response — éxito (`201`)
+### Response — éxito (`200`)
 
 Sin body. Genera código de 6 dígitos, lo hashea y lo guarda en `user.code`, envía email con plantilla `SEND_RESET_PASSWORD_TEMPLATE_ID`.
 
@@ -348,8 +353,8 @@ Sin body. Genera código de 6 dígitos, lo hashea y lo guarda en `user.code`, en
 | Status | Cuándo |
 |---|---|
 | 404 | Email no registrado (`UserNotFoundError`, `code: USER_NOT_FOUND`) |
-| 409 | Usuario sin `passwordHash` — cuenta creada vía Google, no tiene contraseña que recuperar (`GoogleAccountPasswordRecoveryError`) |
-| 503 | Fallo del proveedor de correo (`EmailDeliveryError`, `code: EMAIL_DELIVERY_FAILED`) |
+| 409 | Usuario sin `passwordHash` — cuenta creada vía Google, no tiene contraseña que recuperar (`GoogleAccountPasswordRecoveryError`, `code: GOOGLE_ACCOUNT_PASSWORD_RECOVERY`) |
+| 503 | Fallo del proveedor de correo (`EmailDeliveryError`, `shared/domain/errors`, `code: EMAIL_DELIVERY_FAILED`) — no se lanza explícitamente desde este use case hoy, pero el `EmailSenderPort`/adapter puede propagarlo |
 
 ### Notas
 
@@ -414,5 +419,7 @@ Sin body.
 
 ## Notas transversales del módulo
 
-- Bugs anteriores (`RolesGuard` devolviendo 400 en vez de 403, `UserNotFoundError` sin `httpStatus`, `GET /auth/me` sin compilar) corregidos.
+- `AuthGuard` (`infrastructure/adapters/in/http/guards/jwt-auth.guard.ts`) lee la cookie `token` (no header `Authorization`); si falta o es inválida lanza `UnauthorizedException` (401) con un `code` en el body (`TOKEN_MISSING` / `TOKEN_EXPIRED` / `TOKEN_INVALID`) — **no** el genérico `403 Forbidden` que documentaban versiones previas de este contrato.
+- `RolesGuard` sigue devolviendo `403 Forbidden` cuando el usuario autenticado no tiene el rol requerido, y `false` (sin roles definidos) si el handler no tiene `@Roles(...)`.
+- `LoginGoogleUseCase` lanza `UnauthorizedException` de Nest directamente en vez de un `DomainError` propio — se desvía del patrón de manejo de errores documentado en `back/AGENTS.md` (application no debería conocer excepciones de Nest), pero el resultado HTTP (401) es el mismo que si fuera `DomainError`.
 - Flujo de recuperación de contraseña son 3 endpoints (`forgot-password` → `reset-password/verify` → `reset-password`), simétrico al de registro (`register/start` → `register/verify` → `register/complete`) pero sin gate de `status` — a diferencia de `VerifyCodeUseCase` (que exige `status === 'PENDING'`), `VerifyResetCodeUseCase`/`ResetPasswordUseCase` no chequean status porque en reset el usuario ya está `ACTIVE`/`ONBOARDING`, nunca `PENDING`.

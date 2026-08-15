@@ -10,7 +10,7 @@ const copFormat = new Intl.NumberFormat("es-CO", {
   maximumFractionDigits: 0,
 });
 
-export function AdminCarteraView() {
+export function AdminBillingView() {
   const [balance, setBalance] = useState(BALANCE_MOCK);
   const [filterStatus, setFilterStatus] = useState<string>("Todos");
   const [searchTerm, setSearchTerm] = useState("");

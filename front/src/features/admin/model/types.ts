@@ -1,1 +1,1 @@
-export type AdminViewMode = "properties" | "overview" | "cartera" | "pqrs" | "broadcasts";
+export type AdminViewMode = "properties" | "overview" | "billing" | "pqrs" | "broadcasts";

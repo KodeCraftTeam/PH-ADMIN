@@ -1,5 +1,5 @@
-import { AdminDashboard } from "@/features/admin/AdminDashboard";
+import Properties from "@/features/admin/components/Properties";
 
 export default function AdminPage() {
-  return <AdminDashboard />;
+  return <Properties />;
 }

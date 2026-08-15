@@ -5,3 +5,5 @@ graphify-out/
 
 # Logs locales del frontend
 front-dev.*.log
+
+.graphifyignore

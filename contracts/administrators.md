@@ -6,7 +6,7 @@
 ## `POST /administrators/register`
 
 **Use case:** `RegisterAdministratorUseCase` — `application/use-cases/register-administrator.use-case.ts`
-**Auth:** Requiere sesión (`AuthGuard`, lee cookie `token`)
+**Auth:** Requiere rol (`AuthGuard` + `RolesGuard`, lee cookie `token`)
 **Roles permitidos:** `ADMIN`
 
 Paso de onboarding posterior al registro/login (`POST /auth/register/*`, `POST /auth/login`, o Google). El `userId` sale del claim `sub` del JWT (`request.user.sub`), no del body — este endpoint completa el perfil de administrador para el usuario ya autenticado, no crea un `User` nuevo.
@@ -38,16 +38,19 @@ Efecto secundario: llama `UpdateUserStatusUseCase.execute(userId, { status: 'ACT
 | 409 | Ya existe un perfil de administrador con ese `taxId` (`TaxIdAlreadyRegisteredError`) |
 | 400 | `taxId` no matchea el formato esperado (`InvalidTaxIdError`) |
 | 404 | (improbable) el `userId` del JWT ya no existe en `auth` al momento de actualizar status (`NotFoundError`) |
-| 403 | Sin cookie `token` válida (`AuthGuard` bloquea, Nest responde 403 genérico) |
+| 403 | Usuario autenticado sin rol `ADMIN` (`RolesGuard`, `ForbiddenException`) |
+| 401 | Sin cookie `token` válida (`AuthGuard`, `UnauthorizedException` con `code: TOKEN_MISSING \| TOKEN_EXPIRED \| TOKEN_INVALID`) |
 
 ### Notas
 
-- No valida si el `userId` ya tiene un perfil de administrador (`AdministratorProfileRepository.findByUserId` existe en el port pero este use case no lo llama) — un mismo usuario podría terminar con más de un `AdministratorProfile` si repite la llamada con `taxId` distintos.
+- No valida si el `userId` ya tiene un perfil de administrador (`AdministratorProfileRepository.findByUserId` existe en el port y **sí es usado** por `onboarding/CreatePropertyUseCase` para resolver el perfil del solicitante, pero este use case de registro no lo llama antes de guardar) — un mismo usuario podría terminar con más de un `AdministratorProfile` si repite la llamada con `taxId` distintos.
 - `cityId` no se valida contra el catálogo real de ciudades (`GET /cities`) en este use case — solo se exige formato UUID.
 - Acopla `administrators` a `auth` vía import directo de `UpdateUserStatusUseCase` (Caso C de `AGENTS.md`, "acoplamiento aceptable") — decisión consciente en vez de evento de dominio, por ser una consecuencia 1:1 obligatoria sin otros consumidores.
+- Persistencia real vía `PrismaAdministratorProfileRepository` (no in-memory).
 
 ---
 
 ## Notas transversales del módulo
 
-- Único endpoint del módulo. Requiere sesión — completa el perfil de un usuario que ya se registró/logueó en `auth`.
+- Único endpoint del módulo. Requiere sesión con rol `ADMIN` — completa el perfil de un usuario que ya se registró/logueó en `auth`.
+- `AdministratorProfileRepository` (`ADMINISTRATOR_PROFILE_REPOSITORY`) se exporta desde `AdministratorsModule` y es consumido directamente por `onboarding` (`CreatePropertyUseCase`) para resolver el perfil asociado al usuario autenticado — ver [contracts/onboarding.md](onboarding.md).

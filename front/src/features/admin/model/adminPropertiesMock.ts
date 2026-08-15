@@ -7,9 +7,9 @@ export interface ManagedProperty {
   unitsCount: number;
   status: "Activo" | "En Onboarding" | "En Mora" | "Configuración";
   plan: "Starter" | "Pro" | "Enterprise";
-  pendingBalance: number; // Cartera pendiente
-  recaudoPercentage: number; // % recaudo mes actual
-  overdueUnits: number; // Cantidad unidades en mora
+  pendingBalance: number; // Pending balance
+  collectionPercentage: number; // % collected this month
+  overdueUnits: number; // Number of overdue units
   pendingPqrs: number;
   lastBackupDate: string;
   imageAccent: string; // Tailwind color string for subtle gradient badge
@@ -26,7 +26,7 @@ export const ADMIN_MANAGED_PROPERTIES: ManagedProperty[] = [
     status: "Activo",
     plan: "Enterprise",
     pendingBalance: 4034000,
-    recaudoPercentage: 82,
+    collectionPercentage: 82,
     overdueUnits: 5,
     pendingPqrs: 2,
     lastBackupDate: "Hoy 08:30 AM",
@@ -42,7 +42,7 @@ export const ADMIN_MANAGED_PROPERTIES: ManagedProperty[] = [
     status: "Activo",
     plan: "Pro",
     pendingBalance: 12450000,
-    recaudoPercentage: 94,
+    collectionPercentage: 94,
     overdueUnits: 8,
     pendingPqrs: 4,
     lastBackupDate: "Ayer 06:15 PM",
@@ -58,7 +58,7 @@ export const ADMIN_MANAGED_PROPERTIES: ManagedProperty[] = [
     status: "En Onboarding",
     plan: "Starter",
     pendingBalance: 1200000,
-    recaudoPercentage: 68,
+    collectionPercentage: 68,
     overdueUnits: 1,
     pendingPqrs: 1,
     lastBackupDate: "Hace 2 días",
@@ -74,7 +74,7 @@ export const ADMIN_MANAGED_PROPERTIES: ManagedProperty[] = [
     status: "Activo",
     plan: "Pro",
     pendingBalance: 3800000,
-    recaudoPercentage: 91,
+    collectionPercentage: 91,
     overdueUnits: 3,
     pendingPqrs: 0,
     lastBackupDate: "Hoy 10:00 AM",

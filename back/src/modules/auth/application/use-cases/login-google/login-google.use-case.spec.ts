@@ -62,6 +62,7 @@ describe('LoginGoogleUseCase', () => {
 
   it('logs in existing user without creating a new one', async () => {
     fetchMock.mockResolvedValue({
+      ok: true,
       json: () =>
         Promise.resolve({
           id_token: fakeIdToken({
@@ -102,6 +103,7 @@ describe('LoginGoogleUseCase', () => {
 
   it('creates a new user when none exists for the google email', async () => {
     fetchMock.mockResolvedValue({
+      ok: true,
       json: () =>
         Promise.resolve({
           id_token: fakeIdToken({ email: 'new@test.com', name: 'New' }),
