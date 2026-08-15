@@ -88,7 +88,9 @@ export class LoginGoogleUseCase {
 
     const tokenParts = responseGoogle.id_token.split('.');
     if (tokenParts.length < 2) {
-      throw new UnauthorizedException('Formato de id_token de Google inválido.');
+      throw new UnauthorizedException(
+        'Formato de id_token de Google inválido.',
+      );
     }
 
     const payloadToken = JSON.parse(
