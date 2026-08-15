@@ -1,5 +1,10 @@
 export type UserRole = "ADMIN" | "SUPER_ADMIN";
 
+export const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
+  ADMIN: "/admin",
+  SUPER_ADMIN: "/superadmin",
+};
+
 export interface Session {
   name: string;
   role: UserRole;

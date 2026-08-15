@@ -119,6 +119,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
+      path: '/',
       ...(process.env.COOKIE_DOMAIN
         ? { domain: process.env.COOKIE_DOMAIN }
         : {}),
@@ -158,8 +159,11 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     });
 
-    const frontendUrl = process.env.CORS_ORIGIN ?? 'http://localhost:3000';
-    response.redirect(`${frontendUrl}/admin`);
+    const targetPath = data.role === 'SUPER_ADMIN' ? '/superadmin' : '/admin';
+    const rawOrigins = process.env.CORS_ORIGIN ?? 'http://localhost:3000';
+    const frontendUrl =
+      rawOrigins.split(',')[0].trim() || 'http://localhost:3000';
+    response.redirect(`${frontendUrl}${targetPath}`);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
