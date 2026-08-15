@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { BALANCE_MOCK } from "@/features/onboarding/model/mocks";
 import { getSession, Session, setSession } from "@/features/auth/model/session";
 import { getMe } from "@/features/auth/api/me.api";
-import { AdminSidebar} from "./components/AdminSidebar";
+import { AdminSidebar } from "./components/AdminSidebar";
 import { AdminOverviewView } from "./views/AdminOverviewView";
 import { AdminCarteraView } from "./views/AdminCarteraView";
 import { AdminPqrsView } from "./views/AdminPqrsView";
 import { AdminBroadcastsView } from "./views/AdminBroadcastsView";
-import { AdminPropertiesHubView } from "./views/AdminPropertiesHubView";
 import { ADMIN_PQRS_MOCK } from "./model/adminMocks";
 import { ADMIN_MANAGED_PROPERTIES, type ManagedProperty } from "./model/adminPropertiesMock";
 import { CompleteAdminProfileModal } from "./components/CompleteAdminProfileModal";
@@ -17,16 +16,14 @@ import { BalanceRow } from "../onboarding/model/types";
 import { AdminHeader } from "./components/AdminHeader";
 import { AdminViewMode } from "./model/types";
 
-
 export function AdminDashboard() {
   const [currentView, setCurrentView] = useState<AdminViewMode>("overview");
   const [activeProperty, setActiveProperty] = useState<ManagedProperty>(ADMIN_MANAGED_PROPERTIES[0]);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-  const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
 
-  const session : Session | null = getSession();
-  const balance : BalanceRow[] = BALANCE_MOCK;
+  const session: Session | null = getSession();
+  const balance: BalanceRow[] = BALANCE_MOCK;
   const totalBalance: number = balance.reduce((a, c) => a + c.initialBalance, 0);
   const overdue = balance.filter((c) => c.status === "En mora").length;
   const paymentPlans = balance.filter((c) => c.status === "Acuerdo de pago").length;
@@ -51,12 +48,6 @@ export function AdminDashboard() {
       });
   }, [session?.needsOnBoarding]);
 
-  function handleSelectProperty(prop: ManagedProperty) {
-    setActiveProperty(prop);
-    setCurrentView("overview");
-    setShowPropertyDropdown(false);
-  }
-
   function handleQuickAction(actionId: string) {
     if (actionId === "billing" || actionId === "cartera") setCurrentView("cartera");
     else if (actionId === "broadcast") setCurrentView("broadcasts");
@@ -66,18 +57,14 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 font-sans text-slate-900 dark:text-zinc-100 transition-colors flex flex-col">
       {/* Header Bar */}
-    
-      <AdminHeader 
-          onCloseMobile={() => setShowMobileSidebar(true)}
-          onShowPropertyDropdown={setShowPropertyDropdown}
-          showPropertyDropdown={showPropertyDropdown}
-          activeProperty={activeProperty}
-          onSelectView={setCurrentView}
-          onSelectProperty={setActiveProperty}
-          onShowCompleteModal={() => setShowCompleteModal(true)}
+      <AdminHeader
+        onCloseMobile={() => setShowMobileSidebar(true)}
+        activeProperty={activeProperty}
+        onSelectProperty={setActiveProperty}
+        onShowCompleteModal={() => setShowCompleteModal(true)}
       />
 
-      {/* Main Layout Container: Sidebar + View Content (Seamless Sticky Sidebar) */}
+      {/* Main Layout Container: Sidebar + View Content */}
       <div className="w-full flex flex-1 min-h-[calc(100vh-3.5rem)]">
         <AdminSidebar
           isMobileOpen={showMobileSidebar}
@@ -91,12 +78,6 @@ export function AdminDashboard() {
         />
 
         <main className="flex-1 px-4 sm:px-6 md:px-8 py-6 space-y-6 overflow-x-hidden">
-          {currentView === "properties" && (
-            <AdminPropertiesHubView
-              onSelectProperty={handleSelectProperty}
-            />
-          )}
-
           {currentView === "overview" && (
             <AdminOverviewView
               totalBalance={totalBalance}
