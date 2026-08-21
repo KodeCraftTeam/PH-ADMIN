@@ -7,6 +7,7 @@ import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { LoggerModule } from './shared/infrastructure/logging/logger.module';
 import { EmailModule } from './shared/infrastructure/email/email.module';
 import { CatalogModule } from './shared/catalog.module';
+import { MetricsModule } from './shared/infrastructure/metrics/metrics.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CatalogModule } from './shared/catalog.module';
     PrismaModule,
     EmailModule,
     CatalogModule,
+    MetricsModule,
     AuthModule,
     OnboardingModule,
     AdministratorsModule,

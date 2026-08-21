@@ -3,8 +3,10 @@ import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { DomainErrorFilter } from './shared/infrastructure/http/domain-error.filter';
+import { initMetrics } from './shared/infrastructure/metrics/metrics';
 
 async function bootstrap() {
+  initMetrics();
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
