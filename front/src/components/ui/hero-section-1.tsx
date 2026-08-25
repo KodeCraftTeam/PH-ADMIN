@@ -32,10 +32,10 @@ export function HeroSection() {
       <SiteHeader />
       <main className="overflow-hidden">
         <Hero />
-        <HowItWorks />
-        <Features />
-        <Testimonials />
-        <Pricing />
+        {/* <HowItWorks /> */}
+        {/* <Features /> */}
+        {/* <Testimonials /> */}
+        {/* <Pricing /> */}
         <Faq />
         <FinalCta />
       </main>
@@ -718,14 +718,7 @@ function FinalCta() {
             >
               <Link href="/login">Ingresar a mi panel</Link>
             </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="h-12 w-full rounded-xl border-white/20 bg-white/5 px-7 text-base font-normal text-white hover:bg-white/10 hover:text-white sm:w-auto"
-            >
-              <Link href="/onboarding">Comenzar onboarding</Link>
-            </Button>
+          
           </div>
         </div>
       </Reveal>
@@ -735,11 +728,13 @@ function FinalCta() {
 
 /* ─────────────── Header ─────────────── */
 
-const MENU = [
-  { name: "Panel SuperAdmin", href: "/superadmin" },
-  { name: "Dashboard Admin", href: "/admin" },
-  { name: "Onboarding", href: "/onboarding" },
-  { name: "Precios", href: "#precios" },
+type MenuItem = { name: string; href: string; };
+
+const MENU : MenuItem[] = [
+  // { name: "Panel SuperAdmin", href: "/superadmin" },
+  // { name: "Dashboard Admin", href: "/admin" },
+  // { name: "Onboarding", href: "/onboarding" },
+  // { name: "Precios", href: "#precios" },
 ];
 
 function SiteHeader() {
@@ -838,15 +833,15 @@ function SiteHeader() {
 /* ─────────────── Footer ─────────────── */
 
 const FOOTER_COLUMNS = [
-  {
-    title: "Producto",
-    links: [
-      { name: "Panel SuperAdmin", href: "/superadmin" },
-      { name: "Dashboard Admin", href: "/admin" },
-      { name: "Onboarding", href: "/onboarding" },
-      { name: "Precios", href: "#precios" },
-    ],
-  },
+  // {
+  //   title: "Producto",
+  //   links: [
+  //     // { name: "Panel SuperAdmin", href: "/superadmin" },
+  //     // { name: "Dashboard Admin", href: "/admin" },
+  //     // { name: "Onboarding", href: "/onboarding" },
+  //     // { name: "Precios", href: "#precios" },
+  //   ],
+  // },
   {
     title: "Cuenta",
     links: [
