@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { IconBuilding } from "@/components/ui";
+import { IconBuilding, ToastDemoTrigger } from "@/components/ui";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { HelpWidget } from "./components/HelpWidget";
 import { ProgressBar } from "./components/ProgressBar";
@@ -66,7 +66,8 @@ export function Wizard() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <ToastDemoTrigger />
               <ThemeToggle />
               <span className="text-xs text-slate-400 dark:text-zinc-400 hidden md:inline">
                 ¿Necesitas ayuda?{" "}

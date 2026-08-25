@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Menu } from "lucide-react";
-import { Alert, Button, IconBuilding } from "@/components/ui";
+import { Alert, Button, IconBuilding, ToastDemoTrigger } from "@/components/ui";
 import {
   PROPERTIES_MOCK,
   TICKETS_MOCK,
@@ -106,6 +106,7 @@ export function SuperAdmin() {
 
             <div className="hidden sm:block h-5 w-[1px] bg-slate-200 dark:bg-zinc-800"></div>
 
+            <ToastDemoTrigger />
             <ThemeToggle />
           </div>
         </div>

@@ -23,6 +23,7 @@ import {
 import { ApiError, API_URL } from "@/lib/http-client";
 import { login } from "@/features/auth/api/login.api";
 import { setSession } from "@/features/auth/model/session";
+import { toast } from "./toast";
 
 const DASHBOARD_BY_ROLE = {
   ADMIN: "/admin",
@@ -53,7 +54,9 @@ export function AuthPage() {
     setError("");
 
     if (!email || !password) {
-      setError("Completá email y contraseña.");
+      const msg = "Completá email y contraseña.";
+      setError(msg);
+      toast.warning("Campos obligatorios", msg);
       return;
     }
 
@@ -61,13 +64,15 @@ export function AuthPage() {
     try {
       const session = await login(email, password);
       setSession(session);
+      toast.success("¡Bienvenido!", `Iniciando sesión como ${session.name || "Usuario"}...`);
       router.push(DASHBOARD_BY_ROLE[session.role]);
     } catch (err) {
-      setError(
+      const errMsg =
         err instanceof ApiError
           ? err.message
-          : "No pudimos iniciar sesión. Intentá de nuevo."
-      );
+          : "No pudimos iniciar sesión. Intentá de nuevo.";
+      setError(errMsg);
+      toast.error("Error al iniciar sesión", errMsg);
       setLoading(false);
     }
   }

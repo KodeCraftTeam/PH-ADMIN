@@ -10,6 +10,7 @@ export class DomainErrorFilter implements ExceptionFilter {
       error: error.name,
       code: error.code ?? error.name,
       message: error.message,
+      ...(error.details !== undefined ? { details: error.details } : {}),
     });
   }
 }

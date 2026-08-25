@@ -45,7 +45,7 @@ function Confetti() {
 }
 
 export function SuccessScreen() {
-  const { property, units } = useWizardState();
+  const { property, importPreview } = useWizardState();
   const router = useRouter();
 
   return (
@@ -59,8 +59,8 @@ export function SuccessScreen() {
       </h1>
       <p className="mt-3 max-w-md text-slate-500">
         <strong>{property.name || "Tu conjunto"}</strong> quedó activado con{" "}
-        {units.length} unidades configuradas. Los propietarios recibirán su
-        invitación a la plataforma en los próximos minutos.
+        {importPreview?.totalUnits ?? 0} unidades configuradas. Los propietarios
+        recibirán su invitación a la plataforma en los próximos minutos.
       </p>
       <div className="mt-8 flex w-full max-w-xs flex-col gap-3 sm:max-w-none sm:w-auto sm:flex-row">
         <Button onClick={() => router.push("/admin")}>

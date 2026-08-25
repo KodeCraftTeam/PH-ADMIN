@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Menu } from "lucide-react";
-import { Badge, IconBuilding, IconCheck } from "@/components/ui";
+import { Badge, IconBuilding, IconCheck, ToastDemoTrigger } from "@/components/ui";
 import {
   ADMIN_MANAGED_PROPERTIES,
   type ManagedProperty,
@@ -178,6 +178,7 @@ export function AdminHeader({
 
         {/* Right side: Theme toggle and profile action */}
         <div className="flex items-center gap-2 sm:gap-3 text-xs shrink-0">
+          <ToastDemoTrigger />
           <ThemeToggle />
         </div>
       </div>

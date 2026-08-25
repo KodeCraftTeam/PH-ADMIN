@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, IconCheck } from "@/components/ui";
+import { Button, Card, IconCheck, toast } from "@/components/ui";
 import { SuccessScreen } from "../components/SuccessScreen";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
 
@@ -39,7 +39,9 @@ function SummaryCard({
 export function Step6Review() {
   const state = useWizardState();
   const dispatch = useWizardDispatch();
-  const { property, structure, units, balance, activated } = state;
+  const { property, structure, importPreview, balance, activated } = state;
+  const importedUnitsCount = importPreview?.totalUnits ?? 0;
+  const coefficientSum = importPreview?.coefficientSum ?? 0;
 
   if (activated) return <SuccessScreen />;
 
@@ -48,6 +50,11 @@ export function Step6Review() {
 
   function goTo(step: number) {
     dispatch({ type: "GO_TO_STEP", step });
+  }
+
+  function handleActivate() {
+    toast.success("¡Copropiedad activada!", "El conjunto ha sido configurado y activado satisfactoriamente.");
+    dispatch({ type: "ACTIVATE_PROPERTY" });
   }
 
   return (
@@ -73,7 +80,7 @@ export function Step6Review() {
         />
         <SummaryCard
           title="Unidades importadas"
-          detail={`${units.length} unidades · 100% validadas · coeficientes suman 100.00%`}
+          detail={`${importedUnitsCount} unidades · validadas · coeficientes suman ${coefficientSum.toFixed(2)}%`}
           step={4}
           onEdit={goTo}
         />
@@ -88,7 +95,7 @@ export function Step6Review() {
       <div className="mt-10 flex flex-col items-center">
         <Button
           className="!px-10 !py-3.5 !text-base"
-          onClick={() => dispatch({ type: "ACTIVATE_PROPERTY" })}
+          onClick={handleActivate}
         >
           Activar conjunto
         </Button>

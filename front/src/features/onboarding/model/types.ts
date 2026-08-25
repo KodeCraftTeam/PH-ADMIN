@@ -3,7 +3,6 @@
 export type PropertyType = "Residencial" | "Comercial" | "Mixto";
 export type StructureType = "Torre" | "Bloque" | "Etapa" | "Único";
 export type BalanceStatus = "Al día" | "En mora" | "Acuerdo de pago";
-export type ValidationStatus = "ok" | "error";
 
 export interface PropertyData {
   name: string;
@@ -28,18 +27,30 @@ export interface StructureRow {
 }
 
 export interface ImportedUnit {
-  id: string;
-  code: string; // e.g. T1-101
-  tower: string;
-  type: "Apartamento" | "Local" | "Parqueadero" | "Depósito";
-  area: number; // m2
-  coefficient: number; // % co-ownership
-  owner: string;
-  idNumber: string;
-  email: string;
-  phone: string;
-  status: ValidationStatus;
-  errorDetail?: string;
+  identifier: string; // e.g. Apto 501
+  type: string; // APARTAMENTO | CASA | LOCAL | PARQUEADERO | DEPOSITO
+  group: string | null; // agrupador (torre/manzana/etapa/sector)
+  floor: number | null;
+  areaM2: number;
+  coefficient: number; // % de copropiedad
+  matricula: string | null;
+  use: string | null; // RESIDENCIAL | COMERCIAL | MIXTO
+}
+
+export interface ImportRowError {
+  sheet: "Unidades" | "Personas" | "Propietarios";
+  row: number; // 0 = error transversal, no de una fila puntual
+  message: string;
+}
+
+export interface ImportResult {
+  committed: boolean;
+  totalUnits: number;
+  totalPersons: number;
+  totalOwnerships: number;
+  coefficientSum: number;
+  errors: ImportRowError[];
+  units: ImportedUnit[];
 }
 
 export interface BalanceRow {
@@ -54,22 +65,23 @@ export interface BalanceRow {
 export interface WizardState {
   step: number; // 1..6
   completedSteps: number[];
+  propertyId: string | null; // id real devuelto por el backend al guardar el paso 1
   property: PropertyData;
   structure: StructureRow[];
-  unitsUploaded: boolean; // step 3: file "uploaded"
-  unitsConfirmed: boolean; // step 3: preview confirmed
-  units: ImportedUnit[];
-  validationFixed: boolean;
+  importFile: File | null;
+  importPreview: ImportResult | null; // último resultado de preview/commit (incluye errores)
+  importCommitted: boolean; // true una vez que el commit persistió en el backend
   balance: BalanceRow[];
   balanceLoaded: boolean;
   activated: boolean;
 }
 
 export type WizardAction =
-  | { type: "GO_TO_STEP"; step: number }
+  { type: "GO_TO_STEP"; step: number }
   | { type: "NEXT" }
   | { type: "BACK" }
   | { type: "SET_PROPERTY"; field: keyof PropertyData; value: string }
+  | { type: "SET_PROPERTY_ID"; id: string }
   | { type: "ADD_STRUCTURE_ROW" }
   | { type: "REMOVE_STRUCTURE_ROW"; id: string }
   | {
@@ -78,10 +90,10 @@ export type WizardAction =
       field: keyof Omit<StructureRow, "id">;
       value: string | number;
     }
-  | { type: "UPLOAD_UNITS_FILE" }
-  | { type: "REMOVE_UNITS_FILE" }
-  | { type: "CONFIRM_IMPORT" }
-  | { type: "FIX_ERRORS" }
+  | { type: "SET_IMPORT_FILE"; file: File }
+  | { type: "SET_IMPORT_PREVIEW"; result: ImportResult }
+  | { type: "REMOVE_IMPORT_FILE" }
+  | { type: "SET_IMPORT_COMMITTED"; result: ImportResult }
   | { type: "LOAD_BALANCE" }
   | {
       type: "EDIT_BALANCE_ROW";

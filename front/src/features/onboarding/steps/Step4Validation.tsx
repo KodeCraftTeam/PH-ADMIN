@@ -1,37 +1,71 @@
 "use client";
 
-import { Alert, Badge, Button, Card, IconCheck, IconX } from "@/components/ui";
-import { sumCoefficients } from "../model/mocks";
+import { Alert, Badge, Card, IconCheck, IconX } from "@/components/ui";
 import { StepFooter } from "../components/StepFooter";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
+import { commitUnitsImport } from "../api/onboarding.api";
+import { ApiError } from "@/lib/http-client";
+import type { ImportRowError } from "../model/types";
 
 export function Step4Validation() {
-  const { units, validationFixed } = useWizardState();
+  const { propertyId, importFile, importPreview, importCommitted } = useWizardState();
   const dispatch = useWizardDispatch();
 
-  const valid = units.filter((u) => u.status === "ok").length;
-  const total = units.length;
-  const allOk = total > 0 && valid === total;
-  const sum = sumCoefficients(units);
-  const sumOk = sum === 100;
+  const errors = importPreview?.errors ?? [];
+  const hasCleanPreview = !!importPreview && errors.length === 0;
+  const sumOk = importPreview ? Math.abs(importPreview.coefficientSum - 100) < 0.01 : false;
+
+  async function handleConfirm(): Promise<boolean> {
+    if (!propertyId || !importFile) return false;
+
+    try {
+      const result = await commitUnitsImport(propertyId, importFile);
+      dispatch({ type: "SET_IMPORT_COMMITTED", result });
+      return true;
+    } catch (err) {
+      const details =
+        err instanceof ApiError && Array.isArray(err.details)
+          ? (err.details as ImportRowError[])
+          : [{ sheet: "Unidades" as const, row: 0, message: (err as Error).message }];
+      dispatch({
+        type: "SET_IMPORT_PREVIEW",
+        result: {
+          committed: false,
+          totalUnits: importPreview?.totalUnits ?? 0,
+          totalPersons: importPreview?.totalPersons ?? 0,
+          totalOwnerships: importPreview?.totalOwnerships ?? 0,
+          coefficientSum: importPreview?.coefficientSum ?? 0,
+          units: importPreview?.units ?? [],
+          errors: details,
+        },
+      });
+      return false;
+    }
+  }
 
   return (
     <div>
       <h1 className="text-xl font-semibold text-slate-900">Validación automática</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Revisamos cada fila del archivo: coeficientes, duplicados, emails y datos
-        obligatorios. Solo puedes continuar cuando todo esté en verde.
+        Revisamos las 3 hojas del archivo (unidades, personas y propietarios). Solo
+        puedes continuar cuando todo esté en verde.
       </p>
 
-      {/* Summary */}
-      <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card className="p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Unidades válidas
+            Unidades
           </p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">
-            {valid}{" "}
-            <span className="text-base font-normal text-slate-400">de {total}</span>
+            {importPreview?.totalUnits ?? 0}
+          </p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            Personas nuevas
+          </p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900">
+            {importPreview?.totalPersons ?? 0}
           </p>
         </Card>
         <Card className="p-4">
@@ -43,104 +77,66 @@ export function Step4Validation() {
               sumOk ? "text-emerald-600" : "text-red-600"
             }`}
           >
-            {sum.toFixed(2)}%
+            {(importPreview?.coefficientSum ?? 0).toFixed(2)}%
           </p>
-          <p className="text-xs text-slate-400">debe ser 100.00%</p>
         </Card>
         <Card className="p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
             Estado general
           </p>
           <div className="mt-2">
-            {allOk && sumOk ? (
+            {hasCleanPreview ? (
               <Badge tone="green">
                 <IconCheck className="h-3 w-3" /> Todo listo
               </Badge>
             ) : (
               <Badge tone="red">
-                <IconX className="h-3 w-3" /> {total - valid} errores por corregir
+                <IconX className="h-3 w-3" /> {errors.length} error(es)
               </Badge>
             )}
           </div>
         </Card>
       </div>
 
-      {!allOk && (
+      {importCommitted && (
+        <div className="mt-4">
+          <Alert tone="green" title="Importación completada">
+            Se importaron {importPreview?.totalUnits ?? 0} unidades,{" "}
+            {importPreview?.totalOwnerships ?? 0} vínculos de propiedad.
+          </Alert>
+        </div>
+      )}
+
+      {!hasCleanPreview && !importCommitted && (
         <div className="mt-4">
           <Alert tone="blue" title="¿No sabes cómo corregirlo?">
-            La mayoría de errores se resuelven ajustando el archivo y volviéndolo a
-            subir. Si el problema persiste, nuestro equipo de soporte puede revisarlo
-            contigo — escríbenos desde el chat de ayuda.
+            Corrige el Excel según los errores de abajo y vuelve a subirlo en el paso
+            anterior — mientras haya errores no se importa nada.
           </Alert>
         </div>
       )}
 
-      {allOk && validationFixed && (
-        <div className="mt-4">
-          <Alert tone="green" title="Errores corregidos">
-            Se aplicaron las correcciones sugeridas y las {total} unidades pasaron la
-            validación. La suma de coeficientes ahora es exactamente 100.00%.
-          </Alert>
-        </div>
+      {errors.length > 0 && (
+        <Card className="mt-4 overflow-hidden">
+          <div className="max-h-96 overflow-auto divide-y divide-slate-100">
+            {errors.map((e, i) => (
+              <div key={i} className="px-4 py-2.5 text-sm">
+                <span className="font-medium text-slate-700">
+                  {e.sheet}
+                  {e.row > 0 ? ` · fila ${e.row}` : ""}
+                </span>
+                <span className="ml-2 text-red-600">{e.message}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
       )}
 
-      <Card className="mt-4 overflow-hidden">
-        <div className="max-h-96 overflow-auto">
-          <table className="w-full min-w-160 text-sm">
-            <thead className="sticky top-0">
-              <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                <th className="w-24 px-4 py-2.5">Estado</th>
-                <th className="px-4 py-2.5">Unidad</th>
-                <th className="px-4 py-2.5 text-right">Coef. (%)</th>
-                <th className="px-4 py-2.5">Propietario</th>
-                <th className="px-4 py-2.5">Email</th>
-                <th className="px-4 py-2.5">Detalle</th>
-              </tr>
-            </thead>
-            <tbody>
-              {units.map((u) => (
-                <tr
-                  key={u.id}
-                  className={`border-b border-slate-100 last:border-0 ${
-                    u.status === "error" ? "bg-red-50/60" : ""
-                  }`}
-                >
-                  <td className="px-4 py-2">
-                    {u.status === "ok" ? (
-                      <Badge tone="green">
-                        <IconCheck className="h-3 w-3" /> OK
-                      </Badge>
-                    ) : (
-                      <Badge tone="red">
-                        <IconX className="h-3 w-3" /> Error
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 font-medium text-slate-800">{u.code}</td>
-                  <td className="px-4 py-2 text-right text-slate-600">
-                    {u.coefficient.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-2 text-slate-600">{u.owner}</td>
-                  <td className="px-4 py-2 text-slate-500">{u.email}</td>
-                  <td className="px-4 py-2 text-xs text-red-600">
-                    {u.errorDetail ?? ""}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {!allOk && (
-        <div className="mt-5 flex justify-center">
-          <Button onClick={() => dispatch({ type: "FIX_ERRORS" })}>
-            Corregir y reintentar
-          </Button>
-        </div>
-      )}
-
-      <StepFooter canAdvance={allOk && sumOk} nextLabel="Continuar" />
+      <StepFooter
+        canAdvance={importCommitted || hasCleanPreview}
+        nextLabel={importCommitted ? "Continuar" : "Confirmar e importar"}
+        onAdvance={importCommitted ? undefined : handleConfirm}
+      />
     </div>
   );
 }

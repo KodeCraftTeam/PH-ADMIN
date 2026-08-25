@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Alert, Badge, Button, IconBuilding, IconCheck, Input, Select } from "@/components/ui";
+import { Alert, Badge, Button, IconBuilding, IconCheck, Input, Select, toast } from "@/components/ui";
 import { getCities, registerAdministrator, type CityItem } from "../api/administrators.api";
 import { getSession } from "@/features/auth/model/session";
 
@@ -75,6 +75,9 @@ export function CompleteAdminProfileModal({ isOpen, onSuccess }: Props) {
     }
     if (!cityId) errs.cityId = "Por favor selecciona una ciudad.";
     setFieldErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.warning("Campos incompletos", "Por favor completa la información obligatoria del formulario.");
+    }
     return Object.keys(errs).length === 0;
   }
 
@@ -95,6 +98,7 @@ export function CompleteAdminProfileModal({ isOpen, onSuccess }: Props) {
           ? legalRepresentative.trim()
           : undefined,
       });
+      toast.success("¡Perfil completado con éxito!", "Tu información de administrador ha sido registrada.");
       setCompletedSuccessfully(true);
       setTimeout(() => {
         onSuccess();
@@ -102,6 +106,7 @@ export function CompleteAdminProfileModal({ isOpen, onSuccess }: Props) {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "No se pudo completar el registro del perfil. Por favor verifica los datos e intenta de nuevo.";
       setErrorMsg(message);
+      toast.error("Error al registrar perfil", message);
     } finally {
       setSubmitting(false);
     }
