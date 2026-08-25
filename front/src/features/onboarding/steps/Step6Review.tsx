@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, IconCheck } from "@/components/ui";
+import { Button, Card, IconCheck, toast } from "@/components/ui";
 import { SuccessScreen } from "../components/SuccessScreen";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
 
@@ -50,6 +50,11 @@ export function Step6Review() {
     dispatch({ type: "GO_TO_STEP", step });
   }
 
+  function handleActivate() {
+    toast.success("¡Copropiedad activada!", "El conjunto ha sido configurado y activado satisfactoriamente.");
+    dispatch({ type: "ACTIVATE_PROPERTY" });
+  }
+
   return (
     <div>
       <h1 className="text-xl font-semibold text-slate-900">Revisión y activación</h1>
@@ -88,7 +93,7 @@ export function Step6Review() {
       <div className="mt-10 flex flex-col items-center">
         <Button
           className="!px-10 !py-3.5 !text-base"
-          onClick={() => dispatch({ type: "ACTIVATE_PROPERTY" })}
+          onClick={handleActivate}
         >
           Activar conjunto
         </Button>

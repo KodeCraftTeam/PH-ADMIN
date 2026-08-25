@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { Toaster } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "KodeCraft PH — Plataforma de Administración",
@@ -14,7 +15,10 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

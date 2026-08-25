@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Select, IconX } from "@/components/ui";
+import { Button, Input, Select, IconX, toast } from "@/components/ui";
 import { type PlatformPlan, type PlatformProperty } from "../model/mocks";
 
 interface AdminForm {
@@ -54,7 +54,10 @@ export function CreateAdminModal({ isOpen, onClose, onCreate }: Props) {
       next.email = "Correo electrónico inválido";
     }
     setErrors(next);
-    if (Object.keys(next).length > 0) return;
+    if (Object.keys(next).length > 0) {
+      toast.warning("Campos incompletos", "Completa la información requerida del administrador.");
+      return;
+    }
 
     const mrrByPlan: Record<PlatformPlan, number> = {
       Starter: 550000,
@@ -82,6 +85,7 @@ export function CreateAdminModal({ isOpen, onClose, onCreate }: Props) {
     };
 
     onCreate(newProperty);
+    toast.success("Administrador creado con éxito", `Invitación comercial enviada a ${form.email}`);
     setForm(EMPTY_FORM);
     onClose();
   }

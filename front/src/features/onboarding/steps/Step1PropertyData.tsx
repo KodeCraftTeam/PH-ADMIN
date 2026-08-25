@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, Input, Select } from "@/components/ui";
+import { Card, Input, Select, toast } from "@/components/ui";
 import { StepFooter } from "../components/StepFooter";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
 import type { PropertyData } from "../model/types";
@@ -60,11 +60,18 @@ export function Step1PropertyData() {
     setErrors(next);
     const isValid = Object.keys(next).length === 0;
 
-    if (isValid) {
+    if (!isValid) {
+      toast.warning("Campos incompletos", "Completa la información obligatoria antes de continuar.");
+    } else {
       // Async persist to DB
-      saveProperty(property).catch((err) => {
-        console.error("Error guardando borrador de copropiedad en BD:", err);
-      });
+      saveProperty(property)
+        .then(() => {
+          toast.success("Borrador guardado", "Los datos del conjunto se registraron correctamente.");
+        })
+        .catch((err) => {
+          console.error("Error guardando borrador de copropiedad en BD:", err);
+          toast.error("Error de guardado", "No se pudo sincronizar el borrador en la nube.");
+        });
     }
 
     return isValid;
