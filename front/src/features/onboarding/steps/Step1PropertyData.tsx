@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, Input, Select } from "@/components/ui";
+import { Alert, Card, Input, Select } from "@/components/ui";
 import { StepFooter } from "../components/StepFooter";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
 import type { PropertyData } from "../model/types";
 import { saveProperty } from "../api/onboarding.api";
 import { getCities, type CityItem } from "@/features/admin/api/administrators.api";
+import { ApiError } from "@/lib/http-client";
 
 const REQUIRED_FIELDS: Array<{ field: keyof PropertyData; name: string }> = [
   { field: "name", name: "Nombre del conjunto" },
@@ -27,6 +28,7 @@ export function Step1PropertyData() {
     {}
   );
   const [cities, setCities] = useState<CityItem[]>([]);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     getCities()
@@ -49,8 +51,9 @@ export function Step1PropertyData() {
     if (errors.cityId) setErrors((prev) => ({ ...prev, cityId: undefined }));
   }
 
-  function handleAdvance(): boolean {
+  async function handleAdvance(): Promise<boolean> {
     const next: typeof errors = {};
+
     for (const { field } of REQUIRED_FIELDS) {
       if (!property[field].trim()) next[field] = "Este campo es obligatorio";
     }
@@ -58,16 +61,20 @@ export function Step1PropertyData() {
       next.adminEmail = "Correo inválido";
     }
     setErrors(next);
-    const isValid = Object.keys(next).length === 0;
+    if (Object.keys(next).length > 0) return false;
 
-    if (isValid) {
-      // Async persist to DB
-      saveProperty(property).catch((err) => {
-        console.error("Error guardando borrador de copropiedad en BD:", err);
-      });
+    setSaveError(null);
+    try {
+      const { id } = await saveProperty(property);
+      dispatch({ type: "SET_PROPERTY_ID", id });
+      return true;
+    } catch (err) {
+      console.error("Error guardando la copropiedad:", err);
+      setSaveError(
+        `${err instanceof ApiError ? err.message : "No se pudo guardar la copropiedad"}. Intenta de nuevo antes de continuar.`
+      );
+      return false;
     }
-
-    return isValid;
   }
 
   return (
@@ -171,6 +178,14 @@ export function Step1PropertyData() {
           />
         </div>
       </Card>
+
+      {saveError && (
+        <div className="mt-4">
+          <Alert tone="red" title="Error al guardar">
+            {saveError}
+          </Alert>
+        </div>
+      )}
 
       <StepFooter onAdvance={handleAdvance} />
     </div>

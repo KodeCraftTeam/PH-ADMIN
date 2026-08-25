@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
 
@@ -10,13 +11,21 @@ export function StepFooter({
 }: {
   canAdvance?: boolean;
   nextLabel?: string;
-  onAdvance?: () => boolean; // return false to block advancing (e.g. validation)
+  onAdvance?: () => boolean | Promise<boolean>; // return false to block advancing (e.g. validation)
 }) {
   const { step } = useWizardState();
   const dispatch = useWizardDispatch();
+  const [pending, setPending] = useState(false);
 
-  function handleNext() {
-    if (onAdvance && !onAdvance()) return;
+  async function handleNext() {
+    if (onAdvance) {
+      setPending(true);
+      try {
+        if (!(await onAdvance())) return;
+      } finally {
+        setPending(false);
+      }
+    }
     dispatch({ type: "NEXT" });
   }
 
@@ -29,8 +38,8 @@ export function StepFooter({
       >
         ← Anterior
       </Button>
-      <Button onClick={handleNext} disabled={!canAdvance}>
-        {nextLabel} →
+      <Button onClick={handleNext} disabled={!canAdvance || pending}>
+        {pending ? "Procesando…" : `${nextLabel} →`}
       </Button>
     </div>
   );

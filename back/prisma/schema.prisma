@@ -59,6 +59,8 @@ model CommunityModel {
   createdAt                DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt                DateTime?                     @updatedAt @map("updated_at")
   administratorCommunities AdministratorCommunityModel[]
+  unitGroups               UnitGroupModel[]
+  units                    UnitModel[]
 }
 
 model AdministratorCommunityModel {
@@ -70,4 +72,68 @@ model AdministratorCommunityModel {
   community       CommunityModel            @relation(fields: [communityId], references: [id])
 
   @@unique([administratorId, communityId])
+}
+
+model UnitGroupModel {
+  @@map("unit_groups")
+  id          String         @id @default(uuid())
+  communityId String         @map("community_id")
+  community   CommunityModel @relation(fields: [communityId], references: [id])
+  type        String
+  name        String
+  sortOrder   Int?           @map("sort_order")
+  units       UnitModel[]
+
+  @@unique([communityId, name])
+}
+
+model UnitModel {
+  @@map("units")
+  id                         String                    @id @default(uuid())
+  communityId                String                    @map("community_id")
+  community                  CommunityModel            @relation(fields: [communityId], references: [id])
+  groupId                    String?                   @map("group_id")
+  group                      UnitGroupModel?           @relation(fields: [groupId], references: [id])
+  identifier                 String
+  type                       String
+  floor                      Int?
+  privateAreaM2              Decimal                   @map("private_area_m2") @db.Decimal(10, 4)
+  coefficient                Decimal                   @db.Decimal(10, 4)
+  propertyRegistrationNumber String?                   @map("property_registration_number")
+  use                        String?
+  status                     String                    @default("ACTIVA")
+  createdAt                  DateTime                  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                  DateTime?                 @updatedAt @map("updated_at")
+  ownerships                 PropertyOwnershipModel[]
+
+  @@unique([communityId, identifier])
+  @@unique([communityId, propertyRegistrationNumber])
+}
+
+model PersonModel {
+  @@map("persons")
+  id                     String                   @id @default(uuid())
+  personType             String                   @map("person_type")
+  documentType           String                   @map("document_type")
+  documentNumber         String                   @unique @map("document_number")
+  fullNameOrBusinessName String                   @map("full_name_or_business_name")
+  email                  String?
+  phone                  String?
+  notificationAddress    String?                  @map("notification_address")
+  createdAt              DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  ownerships             PropertyOwnershipModel[]
+}
+
+model PropertyOwnershipModel {
+  @@map("property_ownerships")
+  id                  String      @id @default(uuid())
+  unitId              String      @map("unit_id")
+  unit                UnitModel   @relation(fields: [unitId], references: [id])
+  personId            String      @map("person_id")
+  person              PersonModel @relation(fields: [personId], references: [id])
+  ownershipPercentage Decimal     @map("ownership_percentage") @db.Decimal(6, 3)
+  startDate           DateTime    @map("start_date") @db.Date
+  endDate             DateTime?   @map("end_date") @db.Date
+  isPrimary           Boolean     @map("is_primary")
+  createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
 }

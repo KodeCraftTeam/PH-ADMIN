@@ -39,7 +39,9 @@ function SummaryCard({
 export function Step6Review() {
   const state = useWizardState();
   const dispatch = useWizardDispatch();
-  const { property, structure, units, balance, activated } = state;
+  const { property, structure, importPreview, balance, activated } = state;
+  const importedUnitsCount = importPreview?.totalUnits ?? 0;
+  const coefficientSum = importPreview?.coefficientSum ?? 0;
 
   if (activated) return <SuccessScreen />;
 
@@ -73,7 +75,7 @@ export function Step6Review() {
         />
         <SummaryCard
           title="Unidades importadas"
-          detail={`${units.length} unidades · 100% validadas · coeficientes suman 100.00%`}
+          detail={`${importedUnitsCount} unidades · validadas · coeficientes suman ${coefficientSum.toFixed(2)}%`}
           step={4}
           onEdit={goTo}
         />

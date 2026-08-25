@@ -1,13 +1,7 @@
 "use client";
 
 import { createContext, useContext, useReducer, type Dispatch } from "react";
-import {
-  BALANCE_MOCK,
-  CORRECTIONS,
-  INITIAL_STRUCTURE,
-  UNITS_MOCK,
-  newStructureRow,
-} from "./mocks";
+import { BALANCE_MOCK, INITIAL_STRUCTURE, newStructureRow } from "./mocks";
 import type { WizardAction, WizardState } from "./types";
 
 export const TOTAL_STEPS = 6;
@@ -15,6 +9,7 @@ export const TOTAL_STEPS = 6;
 const initialState: WizardState = {
   step: 1,
   completedSteps: [],
+  propertyId: null,
   property: {
     name: "",
     taxId: "",
@@ -28,10 +23,9 @@ const initialState: WizardState = {
     adminEmail: "",
   },
   structure: INITIAL_STRUCTURE,
-  unitsUploaded: false,
-  unitsConfirmed: false,
-  units: [],
-  validationFixed: false,
+  importFile: null,
+  importPreview: null,
+  importCommitted: false,
   balance: [],
   balanceLoaded: false,
   activated: false,
@@ -59,6 +53,9 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
         property: { ...state.property, [action.field]: action.value },
       };
 
+    case "SET_PROPERTY_ID":
+      return { ...state, propertyId: action.id };
+
     case "ADD_STRUCTURE_ROW":
       return {
         ...state,
@@ -85,29 +82,22 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
         }),
       };
 
-    case "UPLOAD_UNITS_FILE":
-      return { ...state, unitsUploaded: true, units: UNITS_MOCK };
+    case "SET_IMPORT_FILE":
+      return { ...state, importFile: action.file, importPreview: null };
 
-    case "REMOVE_UNITS_FILE":
+    case "SET_IMPORT_PREVIEW":
+      return { ...state, importPreview: action.result };
+
+    case "REMOVE_IMPORT_FILE":
       return {
         ...state,
-        unitsUploaded: false,
-        unitsConfirmed: false,
-        units: [],
-        validationFixed: false,
+        importFile: null,
+        importPreview: null,
+        importCommitted: false,
       };
 
-    case "CONFIRM_IMPORT":
-      return { ...state, unitsConfirmed: true };
-
-    case "FIX_ERRORS":
-      return {
-        ...state,
-        validationFixed: true,
-        units: state.units.map((u) =>
-          CORRECTIONS[u.id] ? { ...u, ...CORRECTIONS[u.id] } : u
-        ),
-      };
+    case "SET_IMPORT_COMMITTED":
+      return { ...state, importPreview: action.result, importCommitted: true };
 
     case "LOAD_BALANCE":
       return { ...state, balanceLoaded: true, balance: BALANCE_MOCK };

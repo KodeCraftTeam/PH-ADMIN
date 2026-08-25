@@ -5,17 +5,25 @@ import {
   Param,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { Request } from 'express';
 import { AuthGuard } from '../../../../../auth/infrastructure/adapters/in/http/guards/jwt-auth.guard';
 import { CreatePropertyDto } from '../../../../application/dto/create-property.dto';
-import { ImportUnitsDto } from '../../../../application/dto/import-units.dto';
 import { ActivatePropertyUseCase } from '../../../../application/use-cases/activate-property.use-case';
 import { LoadBalanceUseCase } from '../../../../application/use-cases/load-balance.use-case';
 import { CreatePropertyUseCase } from '../../../../application/use-cases/create-property.use-case';
 import { ImportUnitsUseCase } from '../../../../application/use-cases/import-units.use-case';
 import { GetAdministratorPropertiesUseCase } from '../../../../application/use-cases/get-administrator-properties.use-case';
+
+const IMPORT_FILE_INTERCEPTOR = FileInterceptor('file', {
+  storage: memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 @Controller('onboarding')
 export class OnboardingController {
@@ -43,9 +51,33 @@ export class OnboardingController {
   }
 
   @UseGuards(AuthGuard)
+  @Post('properties/:id/units/import/preview')
+  @UseInterceptors(IMPORT_FILE_INTERCEPTOR)
+  previewImport(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.importUnits.execute({
+      communityId: id,
+      fileBuffer: file.buffer,
+      originalFileName: file.originalname,
+      commit: false,
+    });
+  }
+
+  @UseGuards(AuthGuard)
   @Post('properties/:id/units/import')
-  import(@Param('id') id: string, @Body() dto: ImportUnitsDto) {
-    return this.importUnits.execute({ ...dto, propertyId: id });
+  @UseInterceptors(IMPORT_FILE_INTERCEPTOR)
+  commitImport(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.importUnits.execute({
+      communityId: id,
+      fileBuffer: file.buffer,
+      originalFileName: file.originalname,
+      commit: true,
+    });
   }
 
   @UseGuards(AuthGuard)

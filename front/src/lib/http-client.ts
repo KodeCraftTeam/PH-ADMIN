@@ -4,11 +4,13 @@ export const API_URL =
 export class ApiError extends Error {
   status: number;
   code?: string;
+  details?: unknown;
 
-  constructor(message: string, status: number, code?: string) {
+  constructor(message: string, status: number, code?: string, details?: unknown) {
     super(message);
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
@@ -23,10 +25,15 @@ export async function apiRequest<T = void>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
+  const isFormData = init?.body instanceof FormData;
+
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    headers: {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...init?.headers,
+    },
   });
 
   if (!res.ok) {
@@ -38,7 +45,7 @@ export async function apiRequest<T = void>(
 
     if (res.status === 401) onUnauthorized?.(code);
 
-    throw new ApiError(message, res.status, code);
+    throw new ApiError(message, res.status, code, body?.details);
   }
 
   if (res.status === 204) return undefined as T;

@@ -1,45 +1,107 @@
 "use client";
 
-import { useState } from "react";
-import { Badge, Button, Card } from "@/components/ui";
+import { useRef, useState } from "react";
+import { Alert, Badge, Button, Card } from "@/components/ui";
 import { StepFooter } from "../components/StepFooter";
 import { useWizardDispatch, useWizardState } from "../model/WizardContext";
+import { previewUnitsImport } from "../api/onboarding.api";
+import { ApiError } from "@/lib/http-client";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 export function Step3ImportUnits() {
-  const { unitsUploaded, units } = useWizardState();
+  const { propertyId, importFile, importPreview } = useWizardState();
   const dispatch = useWizardDispatch();
   const [dragging, setDragging] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [genericError, setGenericError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Simulates reading the Excel file: small delay to feel real
-  function simulateUpload() {
-    if (loading || unitsUploaded) return;
+  const hasFile = !!importFile;
+  const errors = importPreview?.errors ?? [];
+
+  async function handleFile(file: File) {
+    setGenericError(null);
+
+    if (!file.name.toLowerCase().endsWith(".xlsx")) {
+      setGenericError("Solo se admite formato .xlsx.");
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setGenericError("El archivo supera el tamaño máximo de 5 MB.");
+      return;
+    }
+    if (!propertyId) {
+      setGenericError(
+        "No se encontró la copropiedad. Vuelve al paso 1 y guarda los datos del conjunto."
+      );
+      return;
+    }
+
+    dispatch({ type: "SET_IMPORT_FILE", file });
     setLoading(true);
-    setTimeout(() => {
-      dispatch({ type: "UPLOAD_UNITS_FILE" });
+    try {
+      const result = await previewUnitsImport(propertyId, file);
+      dispatch({ type: "SET_IMPORT_PREVIEW", result });
+    } catch (err) {
+      dispatch({ type: "REMOVE_IMPORT_FILE" });
+      setGenericError(
+        err instanceof ApiError ? err.message : "No se pudo leer el archivo."
+      );
+    } finally {
       setLoading(false);
-    }, 900);
+    }
+  }
+
+  function openFilePicker() {
+    if (loading || hasFile) return;
+    inputRef.current?.click();
+  }
+
+  function removeFile() {
+    dispatch({ type: "REMOVE_IMPORT_FILE" });
+    setGenericError(null);
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   return (
     <div>
       <h1 className="text-xl font-semibold text-slate-900">Importar unidades</h1>
       <p className="mt-1 text-sm text-slate-500">
-        Sube el archivo con las unidades, coeficientes y propietarios. Usa nuestra
-        plantilla para evitar errores de formato.
+        Sube el archivo con unidades, personas y propietarios. Usa nuestra plantilla
+        para evitar errores de formato.
       </p>
 
       <div className="mt-3">
         <a
-          href="#"
-          onClick={(e) => e.preventDefault()}
+          href="/templates/plantilla-carga-copropiedad.xlsx"
+          download
           className="text-sm font-medium text-ph-700 underline-offset-2 hover:underline"
         >
-          Descargar plantilla (plantilla_unidades.xlsx)
+          Descargar plantilla (plantilla-carga-copropiedad.xlsx)
         </a>
       </div>
 
-      {!unitsUploaded ? (
+      {genericError && (
+        <div className="mt-4">
+          <Alert tone="red" title="No se pudo procesar el archivo">
+            {genericError}
+          </Alert>
+        </div>
+      )}
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".xlsx"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+        }}
+      />
+
+      {!hasFile ? (
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -49,9 +111,10 @@ export function Step3ImportUnits() {
           onDrop={(e) => {
             e.preventDefault();
             setDragging(false);
-            simulateUpload();
+            const file = e.dataTransfer.files?.[0];
+            if (file) handleFile(file);
           }}
-          onClick={simulateUpload}
+          onClick={openFilePicker}
           className={`mt-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-14 text-center transition-colors ${
             dragging
               ? "border-ph-500 bg-ph-50"
@@ -62,7 +125,7 @@ export function Step3ImportUnits() {
             <>
               <div className="h-10 w-10 animate-spin rounded-full border-4 border-ph-200 border-t-ph-600" />
               <p className="mt-4 text-sm font-medium text-slate-700">
-                Leyendo unidades_altos_virrey.xlsx…
+                Leyendo y validando el archivo…
               </p>
             </>
           ) : (
@@ -74,7 +137,7 @@ export function Step3ImportUnits() {
                 Arrastra tu archivo aquí, o{" "}
                 <span className="text-ph-700">selecciona un archivo</span>
               </p>
-              <p className="mt-1 text-xs text-slate-400">.xlsx o .csv — máx. 5 MB</p>
+              <p className="mt-1 text-xs text-slate-400">Solo .xlsx — máx. 5 MB</p>
             </>
           )}
         </div>
@@ -85,68 +148,102 @@ export function Step3ImportUnits() {
               <span className="text-xl">📄</span>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-slate-800">
-                  unidades_altos_virrey.xlsx
+                  {importFile!.name}
                 </p>
                 <p className="text-xs text-slate-400">
-                  24 KB · {units.length} filas detectadas
+                  {(importFile!.size / 1024).toFixed(0)} KB
+                  {importPreview
+                    ? ` · ${importPreview.units.length} unidades detectadas`
+                    : ""}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Badge tone="blue">Vista previa</Badge>
-              <Button
-                variant="ghost"
-                onClick={() => dispatch({ type: "REMOVE_UNITS_FILE" })}
-              >
+              {importPreview && (
+                <Badge tone={errors.length === 0 ? "green" : "red"}>
+                  {errors.length === 0
+                    ? "Vista previa OK"
+                    : `${errors.length} error(es)`}
+                </Badge>
+              )}
+              <Button variant="ghost" onClick={removeFile}>
                 Quitar archivo
               </Button>
             </div>
           </Card>
 
-          <Card className="mt-4 overflow-hidden">
-            <div className="max-h-80 overflow-auto">
-              <table className="w-full min-w-180 text-sm">
-                <thead className="sticky top-0">
-                  <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
-                    <th className="px-4 py-2.5">Unidad</th>
-                    <th className="px-4 py-2.5">Torre</th>
-                    <th className="px-4 py-2.5">Tipo</th>
-                    <th className="px-4 py-2.5 text-right">Área (m²)</th>
-                    <th className="px-4 py-2.5 text-right">Coef. (%)</th>
-                    <th className="px-4 py-2.5">Propietario</th>
-                    <th className="px-4 py-2.5">Email</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {units.map((u) => (
-                    <tr key={u.id} className="border-b border-slate-100 last:border-0">
-                      <td className="px-4 py-2 font-medium text-slate-800">{u.code}</td>
-                      <td className="px-4 py-2 text-slate-600">{u.tower}</td>
-                      <td className="px-4 py-2 text-slate-600">{u.type}</td>
-                      <td className="px-4 py-2 text-right text-slate-600">
-                        {u.area.toFixed(1)}
-                      </td>
-                      <td className="px-4 py-2 text-right text-slate-600">
-                        {u.coefficient.toFixed(2)}
-                      </td>
-                      <td className="px-4 py-2 text-slate-600">{u.owner}</td>
-                      <td className="px-4 py-2 text-slate-500">{u.email}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          {errors.length > 0 && (
+            <div className="mt-4">
+              <Alert tone="red" title="El archivo tiene errores">
+                Corrígelos en el Excel y vuelve a subirlo — mientras haya errores no se
+                importa nada.
+              </Alert>
             </div>
-          </Card>
+          )}
+
+          {errors.length > 0 && (
+            <Card className="mt-4 overflow-hidden">
+              <div className="max-h-80 overflow-auto divide-y divide-slate-100">
+                {errors.map((e, i) => (
+                  <div key={i} className="px-4 py-2.5 text-sm">
+                    <span className="font-medium text-slate-700">
+                      {e.sheet}
+                      {e.row > 0 ? ` · fila ${e.row}` : ""}
+                    </span>
+                    <span className="ml-2 text-red-600">{e.message}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {importPreview && errors.length === 0 && (
+            <Card className="mt-4 overflow-hidden">
+              <div className="max-h-80 overflow-auto">
+                <table className="w-full min-w-160 text-sm">
+                  <thead className="sticky top-0">
+                    <tr className="border-b border-slate-200 bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+                      <th className="px-4 py-2.5">Unidad</th>
+                      <th className="px-4 py-2.5">Agrupador</th>
+                      <th className="px-4 py-2.5">Tipo</th>
+                      <th className="px-4 py-2.5 text-right">Área (m²)</th>
+                      <th className="px-4 py-2.5 text-right">Coef. (%)</th>
+                      <th className="px-4 py-2.5">Matrícula</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importPreview.units.map((u) => (
+                      <tr
+                        key={u.identifier}
+                        className="border-b border-slate-100 last:border-0"
+                      >
+                        <td className="px-4 py-2 font-medium text-slate-800">
+                          {u.identifier}
+                        </td>
+                        <td className="px-4 py-2 text-slate-600">{u.group ?? "—"}</td>
+                        <td className="px-4 py-2 text-slate-600">{u.type}</td>
+                        <td className="px-4 py-2 text-right text-slate-600">
+                          {u.areaM2.toFixed(1)}
+                        </td>
+                        <td className="px-4 py-2 text-right text-slate-600">
+                          {u.coefficient.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-2 text-slate-500">
+                          {u.matricula ?? "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          )}
         </>
       )}
 
       <StepFooter
-        canAdvance={unitsUploaded}
-        nextLabel="Confirmar e importar"
-        onAdvance={() => {
-          dispatch({ type: "CONFIRM_IMPORT" });
-          return true;
-        }}
+        canAdvance={!!importPreview && errors.length === 0}
+        nextLabel="Continuar a validación"
       />
     </div>
   );
