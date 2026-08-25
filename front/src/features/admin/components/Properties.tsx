@@ -1,5 +1,5 @@
 'use client';
-import { Badge, Button, Card, IconBuilding, IconCheck, IconChevronRight, IconSearch } from "@/components/ui";
+import { Badge, Button, Card, IconBuilding, IconCheck, IconChevronRight, IconSearch, toast } from "@/components/ui";
 import { getAdministratorProperties, PropertyListItem } from "@/features/onboarding/api/onboarding.api";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -79,7 +79,21 @@ export default function Properties() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex flex-wrap items-center gap-3 shrink-0">
+                <Button
+                  variant="secondary"
+                  onClick={() => toast.error("Error en la operación", "No se pudo sincronizar la información con el servidor. Revisa tu conexión.")}
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs py-2 px-3 cursor-pointer shadow-sm"
+                >
+                  🔴 Probar Toast Error
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => toast.success("¡Operación exitosa!", "La copropiedad ha sido configurada y guardada correctamente.")}
+                  className="bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs py-2 px-3 cursor-pointer shadow-sm"
+                >
+                  🟢 Probar Éxito
+                </Button>
                 <Link href="/register-coproperty">
                   <Button className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-2.5 shadow-lg shadow-emerald-500/20 border-0 cursor-pointer">
                     + Registrar Nueva Copropiedad
@@ -112,43 +126,40 @@ export default function Properties() {
             </div>
           </div>
 
-          {/* Control Bar: Search & View Options */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-xl border border-slate-200 dark:border-zinc-800 shadow-xs">
-            <div className="relative flex-1 max-w-md w-full">
-              <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          {/* Search and Filters Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="relative flex-1 max-w-md">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <IconSearch className="h-4 w-4" />
+              </div>
               <input
                 type="text"
                 placeholder="Buscar por conjunto, ciudad o NIT..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-xs rounded-lg border border-slate-300 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800 text-slate-800 dark:text-zinc-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full pl-9 pr-4 py-2 rounded-xl text-xs bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 dark:focus:ring-zinc-700 transition-all shadow-xs"
               />
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="text-xs font-semibold text-slate-500">
-                Total en BD: <span className="text-slate-900 dark:text-zinc-100 font-bold">{properties.length}</span>
-              </div>
-
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-zinc-800 p-1 rounded-lg text-xs">
+            <div className="flex items-center gap-2 self-end sm:self-auto text-xs text-slate-500 dark:text-zinc-400">
+              <span>Total: <strong>{filtered.length}</strong></span>
+              <div className="flex items-center rounded-lg border border-slate-200 dark:border-zinc-800 p-0.5 bg-slate-100 dark:bg-zinc-800/60">
                 <button
-                  type="button"
                   onClick={() => setViewMode("grid")}
-                  className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
                     viewMode === "grid"
                       ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-xs"
-                      : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
+                      : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200"
                   }`}
                 >
                   Tarjetas
                 </button>
                 <button
-                  type="button"
                   onClick={() => setViewMode("table")}
-                  className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors cursor-pointer ${
                     viewMode === "table"
                       ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 shadow-xs"
-                      : "text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100"
+                      : "text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200"
                   }`}
                 >
                   Lista
@@ -183,12 +194,26 @@ export default function Properties() {
               <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400 max-w-sm mx-auto">
                 Registra tu primera copropiedad para comenzar a administrarla en el panel.
               </p>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                 <Link href="/register-coproperty">
                   <Button className="bg-slate-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs">
                     + Registrar Nueva Copropiedad
                   </Button>
                 </Link>
+                <Button
+                  variant="secondary"
+                  onClick={() => toast.error("Error en la operación", "Ejemplo de toast de error: se congelará si colocas el mouse encima.")}
+                  className="text-xs font-semibold"
+                >
+                  🔴 Probar Toast Error
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => toast.success("¡Operación exitosa!", "Ejemplo de toast de éxito con barra de tiempo.")}
+                  className="text-xs font-semibold"
+                >
+                  🟢 Probar Toast Éxito
+                </Button>
               </div>
             </Card>
           )}

@@ -26,6 +26,7 @@ import {
   startRegistration,
   verifyRegistrationCode,
 } from "@/features/auth/api/register.api";
+import { toast } from "./toast";
 
 type Step = "email" | "code" | "profile" | "done";
 
@@ -77,7 +78,9 @@ export function RegisterPage() {
     e.preventDefault();
     setError("");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError("Ingresá un email válido.");
+      const msg = "Ingresá un email válido.";
+      setError(msg);
+      toast.warning("Email inválido", msg);
       return;
     }
     setBusy(true);
@@ -85,12 +88,14 @@ export function RegisterPage() {
       await startRegistration(email);
       setStep("code");
       setResendIn(RESEND_SECONDS);
+      toast.info("Código enviado", `Revisa tu correo ${email} para continuar.`);
     } catch (err) {
-      setError(
+      const msg =
         err instanceof ApiError
           ? err.message
-          : "No pudimos enviar el código. Intentá de nuevo."
-      );
+          : "No pudimos enviar el código. Intentá de nuevo.";
+      setError(msg);
+      toast.error("Error al enviar código", msg);
     } finally {
       setBusy(false);
     }
@@ -99,17 +104,20 @@ export function RegisterPage() {
   async function submitCode(value: string) {
     setError("");
     if (value.length < CODE_LENGTH) {
-      setError(`El código tiene ${CODE_LENGTH} dígitos.`);
+      const msg = `El código tiene ${CODE_LENGTH} dígitos.`;
+      setError(msg);
+      toast.warning("Código incompleto", msg);
       return;
     }
     setBusy(true);
     try {
       await verifyRegistrationCode(email, value);
       setStep("profile");
+      toast.success("Código verificado", "Ahora completa los datos de tu cuenta.");
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : "Código inválido. Intentá de nuevo."
-      );
+      const msg = err instanceof ApiError ? err.message : "Código inválido. Intentá de nuevo.";
+      setError(msg);
+      toast.error("Código incorrecto", msg);
     } finally {
       setBusy(false);
     }
@@ -119,23 +127,29 @@ export function RegisterPage() {
     e.preventDefault();
     setError("");
     if (!name.trim()) {
-      setError("Ingresá tu nombre.");
+      const msg = "Ingresá tu nombre.";
+      setError(msg);
+      toast.warning("Campo requerido", msg);
       return;
     }
     if (password.length < 8) {
-      setError("La contraseña necesita al menos 8 caracteres.");
+      const msg = "La contraseña necesita al menos 8 caracteres.";
+      setError(msg);
+      toast.warning("Contraseña corta", msg);
       return;
     }
     setBusy(true);
     try {
       await completeRegistration(email, name, password);
       setStep("done");
+      toast.success("¡Cuenta creada!", "Tu registro ha sido exitoso.");
     } catch (err) {
-      setError(
+      const msg =
         err instanceof ApiError
           ? err.message
-          : "No pudimos crear la cuenta. Intentá de nuevo."
-      );
+          : "No pudimos crear la cuenta. Intentá de nuevo.";
+      setError(msg);
+      toast.error("Error al crear cuenta", msg);
     } finally {
       setBusy(false);
     }
