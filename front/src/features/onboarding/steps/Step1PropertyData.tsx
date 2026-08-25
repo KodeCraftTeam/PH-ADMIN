@@ -66,29 +66,22 @@ export function Step1PropertyData() {
 
     if (!isValid) {
       toast.warning("Campos incompletos", "Completa la información obligatoria antes de continuar.");
-    } else {
-      // Async persist to DB
-      saveProperty(property)
-        .then(() => {
-          toast.success("Borrador guardado", "Los datos del conjunto se registraron correctamente.");
-        })
-        .catch((err) => {
-          console.error("Error guardando borrador de copropiedad en BD:", err);
-          toast.error("Error de guardado", "No se pudo sincronizar el borrador en la nube.");
-        });
+      return false;
     }
-
-    return isValid;
     setSaveError(null);
     try {
       const { id } = await saveProperty(property);
       dispatch({ type: "SET_PROPERTY_ID", id });
+      toast.success("Borrador guardado", "Los datos del conjunto se registraron correctamente.");
+
       return true;
     } catch (err) {
       console.error("Error guardando la copropiedad:", err);
       setSaveError(
         `${err instanceof ApiError ? err.message : "No se pudo guardar la copropiedad"}. Intenta de nuevo antes de continuar.`
       );
+      toast.error("Error de guardado", "No se pudo sincronizar el borrador en la nube.");
+
       return false;
     }
   }
