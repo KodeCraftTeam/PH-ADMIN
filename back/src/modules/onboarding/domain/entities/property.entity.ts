@@ -1,10 +1,19 @@
 import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { InvalidActivationStateError } from '../errors/invalid-activation-state.error';
+import { CoefficientsNotCompleteError } from '../errors/coefficients-not-complete.error';
+import { Coefficient } from '../value-objects/coefficient.vo';
 
 export type PropertyType = 'RESIDENCIAL' | 'COMERCIAL' | 'MIXTO';
 export type PropertyStatus =
   'EN_CONFIGURACION' | 'PENDIENTE_REVISION' | 'ACTIVO';
 
+/**
+ * Aggregate root: Property (comunidad). Invariante que cruza entidades:
+ * la suma de Coefficient de todas sus Unit debe ser 100%. Cualquier
+ * escritura que afecte coeficientes debe pasar por este método; el resto
+ * de los campos de Unit (piso, estado, matrícula...) no participan de
+ * la invariante y pueden escribirse por fuera del aggregate.
+ */
 export class Property {
   constructor(
     public readonly id: string,
@@ -26,5 +35,13 @@ export class Property {
 
   get currentStatus(): PropertyStatus {
     return this.status;
+  }
+
+  static assertCoefficientsComplete(coefficients: Coefficient[]): void {
+    if (coefficients.length === 0) return;
+    if (!Coefficient.sumIsHundred(coefficients)) {
+      const sum = coefficients.reduce((acc, c) => acc + c.percentage, 0);
+      throw new CoefficientsNotCompleteError(sum);
+    }
   }
 }

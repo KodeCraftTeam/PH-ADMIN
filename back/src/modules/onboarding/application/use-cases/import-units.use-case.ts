@@ -16,7 +16,13 @@ import {
   type ImportBatchRepository,
   type ImportBatchContext,
 } from '../../domain/ports/out/import-batch.repository';
-import { Unit, UnitType, UnitUse } from '../../domain/entities/unit.entity';
+import {
+  Unit,
+  UnitType,
+  UnitUse,
+  UnitOwnershipRow,
+} from '../../domain/entities/unit.entity';
+import { Property } from '../../domain/entities/property.entity';
 import {
   UnitGroup,
   UnitGroupType,
@@ -173,18 +179,10 @@ export class ImportUnitsUseCase {
       ...context.existingUnits.map((u) => u.coefficient),
       ...units.map((u) => u.coefficient),
     ];
-    if (
-      allCoefficients.length > 0 &&
-      !Coefficient.sumIsHundred(allCoefficients)
-    ) {
-      const sum = allCoefficients.reduce((acc, c) => acc + c.percentage, 0);
-      errors.push(
-        rowError(
-          'Unidades',
-          0,
-          `La suma de coeficientes de la copropiedad debe ser 100% (actual: ${sum.toFixed(2)}%)`,
-        ),
-      );
+    try {
+      Property.assertCoefficientsComplete(allCoefficients);
+    } catch (e) {
+      errors.push(rowError('Unidades', 0, (e as Error).message));
     }
 
     const pendingPersons = this.parsePersonRows(workbook.personas, errors);
@@ -693,40 +691,20 @@ export class ImportUnitsUseCase {
     for (const [unitIdentifier, list] of byUnit) {
       const existing =
         context.existingOwnershipsByUnitIdentifier.get(unitIdentifier) ?? [];
-      const allPercentages = [
-        ...existing.map((e) => OwnershipPercentage.create(e.percentage)),
-        ...list.map((o) => o.percentage),
+      const allOwnerships: UnitOwnershipRow[] = [
+        ...existing.map((e) => ({
+          percentage: OwnershipPercentage.create(e.percentage),
+          isPrimary: e.isPrimary,
+        })),
+        ...list.map((o) => ({
+          percentage: o.percentage,
+          isPrimary: o.isPrimary,
+        })),
       ];
-      if (!OwnershipPercentage.sumIsHundred(allPercentages)) {
-        const sum = allPercentages.reduce((acc, p) => acc + p.percentage, 0);
-        errors.push(
-          rowError(
-            'Propietarios',
-            0,
-            `La suma de porcentaje_propiedad para la unidad '${unitIdentifier}' debe ser 100% (actual: ${sum.toFixed(2)}%)`,
-          ),
-        );
-      }
-
-      const principalCount =
-        existing.filter((e) => e.isPrimary).length +
-        list.filter((o) => o.isPrimary).length;
-      if (principalCount === 0) {
-        errors.push(
-          rowError(
-            'Propietarios',
-            0,
-            `La unidad '${unitIdentifier}' no tiene ningún propietario marcado como es_principal`,
-          ),
-        );
-      } else if (principalCount > 1) {
-        errors.push(
-          rowError(
-            'Propietarios',
-            0,
-            `La unidad '${unitIdentifier}' tiene más de un propietario marcado como es_principal`,
-          ),
-        );
+      try {
+        Unit.assertOwnershipsComplete(unitIdentifier, allOwnerships);
+      } catch (e) {
+        errors.push(rowError('Propietarios', 0, (e as Error).message));
       }
     }
 
