@@ -99,7 +99,6 @@ export function AdminSidebar({
 
   return (
     <>
-      {/* Mobile backdrop */}
       {isMobileOpen && (
         <div
           onClick={onCloseMobile}
@@ -177,7 +176,7 @@ export function AdminSidebar({
                   </p>
                   <p className="text-[10px] text-slate-400 dark:text-zinc-500">
                     {activeProperty
-                      ? `${activeProperty.unitsCount} Uds • Plan ${activeProperty.plan}`
+                      ? `${activeProperty.unitsCount} Uds${activeProperty.plan ? ` • Plan ${activeProperty.plan}` : ""}`
                       : "18 Unidades • Plan Enterprise"}
                   </p>
                 </div>

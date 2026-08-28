@@ -38,4 +38,4 @@ async function bootstrap() {
   app.useGlobalFilters(new DomainErrorFilter());
   await app.listen(process.env.PORT ?? 4000);
 }
-bootstrap();
+void bootstrap();

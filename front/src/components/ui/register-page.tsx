@@ -3,9 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeftIcon,
   AtSignIcon,
-  CheckIcon,
   EyeIcon,
   EyeOffIcon,
   Loader2Icon,

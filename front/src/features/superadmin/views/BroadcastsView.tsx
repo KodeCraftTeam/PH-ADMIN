@@ -65,7 +65,7 @@ export function BroadcastsView() {
             <Select
               label="Audiencia Objetivo"
               value={audience}
-              onChange={(e) => setAudience(e.target.value as any)}
+              onChange={(e) => setAudience(e.target.value as GlobalBroadcast["targetAudience"])}
             >
               <option value="Todos los administradores">Todos los Administradores</option>
               <option value="Planes Pro & Enterprise">Planes Pro & Enterprise</option>

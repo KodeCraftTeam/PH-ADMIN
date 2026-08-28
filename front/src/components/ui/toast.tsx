@@ -2,7 +2,6 @@
 
 import React, {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -47,7 +46,7 @@ type ToastInput =
       description?: React.ReactNode;
     });
 
-// Event listener mechanism for calling toast from outside React tree
+// Mecanismo de listeners para disparar toasts desde fuera del árbol de React
 type ToastListener = (toasts: ToastItem[]) => void;
 let activeToasts: ToastItem[] = [];
 const listeners = new Set<ToastListener>();
@@ -95,8 +94,8 @@ function addToast(type: ToastType, titleOrOptions: ToastInput, extraOptions?: Om
     createdAt: Date.now(),
   };
 
-  // Replace if same id, or prepend (newest on top)
-  activeToasts = [newToast, ...activeToasts.filter((t) => t.id !== id)].slice(0, 5); // keep max 5 toasts
+  // Reemplaza si es el mismo id, o antepone (el más nuevo arriba)
+  activeToasts = [newToast, ...activeToasts.filter((t) => t.id !== id)].slice(0, 5); // máximo 5 toasts
   notifyListeners();
   return id;
 }
@@ -184,7 +183,7 @@ function ToastCard({ toast: item, onDismiss }: ToastCardProps) {
 
   const [isPaused, setIsPaused] = useState(false);
   const remainingTimeRef = useRef(duration);
-  const startTimeRef = useRef(Date.now());
+  const startTimeRef = useRef(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -303,10 +302,9 @@ function ToastCard({ toast: item, onDismiss }: ToastCardProps) {
 }
 
 export function Toaster() {
-  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [toasts, setToasts] = useState<ToastItem[]>(() => activeToasts);
 
   useEffect(() => {
-    setToasts(activeToasts);
     const listener: ToastListener = (nextToasts) => {
       setToasts(nextToasts);
     };

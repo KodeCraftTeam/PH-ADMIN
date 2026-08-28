@@ -21,7 +21,6 @@ function unitRow(overrides: Partial<RawSheetRow> = {}): RawSheetRow {
     agrupador_tipo: null,
     piso: 1,
     'area_privada_m2*': 50,
-    coeficiente: null,
     matricula_inmobiliaria: null,
     uso: 'residencial',
     ...overrides,
@@ -56,9 +55,9 @@ function workbook(
   overrides: Partial<ParsedImportWorkbook> = {},
 ): ParsedImportWorkbook {
   return {
-    unidades: [unitRow()],
-    personas: [personRow()],
-    propietarios: [ownershipRow()],
+    units: [unitRow()],
+    people: [personRow()],
+    ownerships: [ownershipRow()],
     ...overrides,
   };
 }
@@ -77,7 +76,11 @@ describe('ImportUnitsUseCase', () => {
   let useCase: ImportUnitsUseCase;
 
   beforeEach(() => {
-    reader = { parseImportWorkbook: jest.fn() };
+    reader = {
+      parseImportWorkbook: jest.fn(),
+      parseCoefficientsWorkbook: jest.fn(),
+      parseBalancesWorkbook: jest.fn(),
+    };
     repo = {
       loadContext: jest.fn(),
       findPersonsByDocumentNumbers: jest.fn(),
@@ -114,7 +117,6 @@ describe('ImportUnitsUseCase', () => {
     expect(result.totalUnits).toBe(1);
     expect(result.totalPersons).toBe(1);
     expect(result.totalOwnerships).toBe(1);
-    expect(result.coefficientSum).toBeCloseTo(100, 2);
     expect(repo.persist).not.toHaveBeenCalled();
   });
 
@@ -146,7 +148,7 @@ describe('ImportUnitsUseCase', () => {
 
   it('collects a row error when a required unit field is missing, and does not persist', async () => {
     reader.parseImportWorkbook.mockResolvedValue(
-      workbook({ unidades: [unitRow({ 'area_privada_m2*': null })] }),
+      workbook({ units: [unitRow({ 'area_privada_m2*': null })] }),
     );
 
     const result = await useCase.execute(baseCommand({ commit: false }));
@@ -163,9 +165,9 @@ describe('ImportUnitsUseCase', () => {
   it('rejects a duplicate identificador within the same sheet', async () => {
     reader.parseImportWorkbook.mockResolvedValue(
       workbook({
-        unidades: [
-          unitRow({ 'area_privada_m2*': 25, coeficiente: 50 }),
-          unitRow({ 'area_privada_m2*': 25, coeficiente: 50 }),
+        units: [
+          unitRow({ 'area_privada_m2*': 25 }),
+          unitRow({ 'area_privada_m2*': 25 }),
         ],
       }),
     );
@@ -176,40 +178,10 @@ describe('ImportUnitsUseCase', () => {
     ).toBe(true);
   });
 
-  it('rejects when coefficients do not sum to 100%', async () => {
-    reader.parseImportWorkbook.mockResolvedValue(
-      workbook({
-        unidades: [
-          unitRow({
-            'identificador*': 'Apto 101',
-            'area_privada_m2*': 25,
-            coeficiente: 30,
-          }),
-          unitRow({
-            'identificador*': 'Apto 102',
-            'area_privada_m2*': 25,
-            coeficiente: 30,
-          }),
-        ],
-        propietarios: [
-          ownershipRow({ 'identificador_unidad*': 'Apto 101' }),
-          ownershipRow({ 'identificador_unidad*': 'Apto 102' }),
-        ],
-      }),
-    );
-
-    const result = await useCase.execute(baseCommand({ commit: false }));
-    expect(
-      result.errors.some(
-        (e) => e.row === 0 && e.message.includes('coeficientes'),
-      ),
-    ).toBe(true);
-  });
-
   it('rejects a Propietarios row referencing an unknown unit identifier', async () => {
     reader.parseImportWorkbook.mockResolvedValue(
       workbook({
-        propietarios: [ownershipRow({ 'identificador_unidad*': 'No Existe' })],
+        ownerships: [ownershipRow({ 'identificador_unidad*': 'No Existe' })],
       }),
     );
 
@@ -224,7 +196,7 @@ describe('ImportUnitsUseCase', () => {
   it('rejects a Propietarios row referencing an unknown person document number', async () => {
     reader.parseImportWorkbook.mockResolvedValue(
       workbook({
-        propietarios: [ownershipRow({ 'numero_documento_persona*': '999' })],
+        ownerships: [ownershipRow({ 'numero_documento_persona*': '999' })],
       }),
     );
 
@@ -240,11 +212,11 @@ describe('ImportUnitsUseCase', () => {
   it('rejects when ownership percentages for a unit do not sum to 100%', async () => {
     reader.parseImportWorkbook.mockResolvedValue(
       workbook({
-        personas: [
+        people: [
           personRow({ 'numero_documento*': '123' }),
           personRow({ 'numero_documento*': '456' }),
         ],
-        propietarios: [
+        ownerships: [
           ownershipRow({
             'numero_documento_persona*': '123',
             'porcentaje_propiedad*': 40,

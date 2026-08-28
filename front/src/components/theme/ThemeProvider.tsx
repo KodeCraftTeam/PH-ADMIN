@@ -18,10 +18,11 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>("light");
   const [accent, setAccentState] = useState<ThemeAccent>("zinc");
-  const [mounted, setMounted] = useState(false);
 
+  // Hidrata el estado desde localStorage/preferencias del sistema tras el montaje
+  // (evita mismatch de hidratación con el render inicial del servidor).
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setMounted(true);
     if (typeof window === "undefined") return;
 
     const savedTheme = localStorage.getItem("ph_theme") as ThemeMode | null;
@@ -37,9 +38,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setAccentState(savedAccent);
     }
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
-    if (!mounted || typeof document === "undefined") return;
+    if (typeof document === "undefined") return;
 
     const root = document.documentElement;
 
@@ -55,7 +57,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("ph_theme", theme);
       localStorage.setItem("ph_accent", accent);
     } catch {}
-  }, [theme, accent, mounted]);
+  }, [theme, accent]);
 
   function setTheme(t: ThemeMode) {
     setThemeState(t);

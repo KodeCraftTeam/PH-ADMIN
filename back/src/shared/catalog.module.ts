@@ -5,7 +5,7 @@ import { CitiesController } from './infrastructure/http/cities.controller';
 import { PrismaCityQueryRepository } from './infrastructure/persistence/prisma-city-query.repository';
 
 /**
- * Cross-cutting reference-data catalog (not owned by any single business module).
+ * Catálogo de datos de referencia transversal (no pertenece a ningún módulo de negocio en particular).
  */
 @Module({
   controllers: [CitiesController],

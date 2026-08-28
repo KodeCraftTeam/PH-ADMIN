@@ -6,13 +6,11 @@ import { Alert, Button, Card, Input, Select } from "@/components/ui";
 export function SettingsView() {
   const [savedAlert, setSavedAlert] = useState<string | null>(null);
 
-  // Form State
   const [wompiPublicKey, setWompiPublicKey] = useState("pub_prod_wompi_890123");
   const [wompiPrivateKey, setWompiPrivateKey] = useState("prv_prod_wompi_998877");
   const [dianNit, setDianNit] = useState("901.888.777-5");
   const [dianResolution, setDianResolution] = useState("1876400012389");
   const [smtpServer, setSmtpServer] = useState("smtp.resend.com");
-  const [webhooksEnabled, setWebhooksEnabled] = useState(true);
 
   function handleSave() {
     setSavedAlert("Configuración de pasarelas y DIAN guardada correctamente.");

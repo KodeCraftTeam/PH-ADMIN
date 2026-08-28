@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useReducer, type Dispatch } from "react";
-import { BALANCE_MOCK, INITIAL_STRUCTURE, newStructureRow } from "./mocks";
 import type { WizardAction, WizardState } from "./types";
 
 export const TOTAL_STEPS = 6;
@@ -18,16 +17,19 @@ const initialState: WizardState = {
     cityId: "",
     type: "",
     totalUnits: "",
-    totalTowers: "",
     adminName: "",
     adminEmail: "",
   },
-  structure: INITIAL_STRUCTURE,
   importFile: null,
   importPreview: null,
   importCommitted: false,
-  balance: [],
-  balanceLoaded: false,
+  coefficientsFile: null,
+  coefficientsPreview: null,
+  coefficientsCommitted: false,
+  balanceFile: null,
+  balancePreview: null,
+  balanceCommitted: false,
+  status: null,
   activated: false,
 };
 
@@ -56,32 +58,6 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
     case "SET_PROPERTY_ID":
       return { ...state, propertyId: action.id };
 
-    case "ADD_STRUCTURE_ROW":
-      return {
-        ...state,
-        structure: [...state.structure, newStructureRow(state.structure.length + 1)],
-      };
-
-    case "REMOVE_STRUCTURE_ROW":
-      return {
-        ...state,
-        structure: state.structure.filter((f) => f.id !== action.id),
-      };
-
-    case "EDIT_STRUCTURE_ROW":
-      return {
-        ...state,
-        structure: state.structure.map((f) => {
-          if (f.id !== action.id) return f;
-          const edited = { ...f, [action.field]: action.value };
-          // floors × unitsPerFloor recalculates the total automatically
-          if (action.field === "floors" || action.field === "unitsPerFloor") {
-            edited.totalUnits = edited.floors * edited.unitsPerFloor;
-          }
-          return edited;
-        }),
-      };
-
     case "SET_IMPORT_FILE":
       return { ...state, importFile: action.file, importPreview: null };
 
@@ -99,16 +75,46 @@ function reducer(state: WizardState, action: WizardAction): WizardState {
     case "SET_IMPORT_COMMITTED":
       return { ...state, importPreview: action.result, importCommitted: true };
 
-    case "LOAD_BALANCE":
-      return { ...state, balanceLoaded: true, balance: BALANCE_MOCK };
+    case "SET_COEFFICIENTS_FILE":
+      return { ...state, coefficientsFile: action.file, coefficientsPreview: null };
 
-    case "EDIT_BALANCE_ROW":
+    case "SET_COEFFICIENTS_PREVIEW":
+      return { ...state, coefficientsPreview: action.result };
+
+    case "REMOVE_COEFFICIENTS_FILE":
       return {
         ...state,
-        balance: state.balance.map((c) =>
-          c.id === action.id ? { ...c, [action.field]: action.value } : c
-        ),
+        coefficientsFile: null,
+        coefficientsPreview: null,
+        coefficientsCommitted: false,
       };
+
+    case "SET_COEFFICIENTS_COMMITTED":
+      return {
+        ...state,
+        coefficientsPreview: action.result,
+        coefficientsCommitted: true,
+      };
+
+    case "SET_BALANCE_FILE":
+      return { ...state, balanceFile: action.file, balancePreview: null };
+
+    case "SET_BALANCE_PREVIEW":
+      return { ...state, balancePreview: action.result };
+
+    case "REMOVE_BALANCE_FILE":
+      return {
+        ...state,
+        balanceFile: null,
+        balancePreview: null,
+        balanceCommitted: false,
+      };
+
+    case "SET_BALANCE_COMMITTED":
+      return { ...state, balancePreview: action.result, balanceCommitted: true };
+
+    case "SET_STATUS":
+      return { ...state, status: action.status };
 
     case "ACTIVATE_PROPERTY":
       return { ...state, activated: true };

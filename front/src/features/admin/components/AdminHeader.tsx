@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronDown, Menu } from "lucide-react";
-import { Badge, IconBuilding, IconCheck, ToastDemoTrigger } from "@/components/ui";
+import { Badge, IconBuilding, IconCheck } from "@/components/ui";
 import {
   ADMIN_MANAGED_PROPERTIES,
   type ManagedProperty,
@@ -26,7 +26,6 @@ export function AdminHeader({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -47,7 +46,6 @@ export function AdminHeader({
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md transition-colors h-14 w-full flex-shrink-0">
       <div className="w-full flex h-full items-center justify-between gap-3 px-3 sm:px-6 md:px-8">
-        {/* Mobile menu button */}
         <button
           type="button"
           onClick={onCloseMobile}
@@ -57,7 +55,6 @@ export function AdminHeader({
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* Left: Direct Back Button + Dropdown Selector */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {/* Botón directo de regreso a Mis Copropiedades */}
           <Link
@@ -113,7 +110,6 @@ export function AdminHeader({
               </div>
             </button>
 
-            {/* Dropdown Menu Overlay */}
             {showDropdown && (
               <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 rounded-2xl bg-white dark:bg-zinc-900 p-3 shadow-2xl border border-slate-200 dark:border-zinc-800 z-50 animate-pop-in">
                 <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 dark:border-zinc-800 mb-2">
@@ -129,7 +125,7 @@ export function AdminHeader({
                   </Link>
                 </div>
 
-                <div className="space-y-1 max-h-60 overflow-y-auto">
+                <div className="space-y-1 max-h-60 overflow-y-auto scrollbar-thin">
                   {propertiesList.map((prop) => (
                     <button
                       key={prop.id}
@@ -176,9 +172,7 @@ export function AdminHeader({
           </div>
         </div>
 
-        {/* Right side: Theme toggle and profile action */}
         <div className="flex items-center gap-2 sm:gap-3 text-xs shrink-0">
-          <ToastDemoTrigger />
           <ThemeToggle />
         </div>
       </div>

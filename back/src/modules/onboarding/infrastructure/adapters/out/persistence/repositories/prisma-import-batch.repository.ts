@@ -20,7 +20,10 @@ import {
   Person,
   PersonType,
 } from '../../../../../domain/entities/person.entity';
-import { Coefficient } from '../../../../../domain/value-objects/coefficient.vo';
+import {
+  Coefficient,
+  CoefficientOrigin,
+} from '../../../../../domain/value-objects/coefficient.vo';
 
 @Injectable()
 export class PrismaImportBatchRepository implements ImportBatchRepository {
@@ -44,7 +47,12 @@ export class PrismaImportBatchRepository implements ImportBatchRepository {
           u.identifier,
           u.type as UnitType,
           Number(u.privateAreaM2),
-          Coefficient.create(Number(u.coefficient)),
+          u.coefficient === null
+            ? null
+            : Coefficient.create(
+                Number(u.coefficient),
+                (u.coefficientOrigin as CoefficientOrigin) ?? 'CALCULADO',
+              ),
           u.groupId,
           u.floor,
           u.propertyRegistrationNumber,
@@ -130,7 +138,8 @@ export class PrismaImportBatchRepository implements ImportBatchRepository {
           type: u.type,
           floor: u.floor ?? undefined,
           privateAreaM2: u.privateAreaM2,
-          coefficient: u.coefficient.percentage,
+          coefficient: u.coefficient?.percentage ?? null,
+          coefficientOrigin: u.coefficient?.origin ?? null,
           propertyRegistrationNumber: u.propertyRegistrationNumber ?? undefined,
           use: u.use ?? undefined,
           status: u.status,

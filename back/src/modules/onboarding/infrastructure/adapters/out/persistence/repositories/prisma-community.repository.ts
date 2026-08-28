@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   Property,
+  PropertyStatus,
   PropertyType,
 } from '../../../../../domain/entities/property.entity';
 import { PropertyRepository } from '../../../../../domain/ports/out/property.repository';
@@ -13,15 +14,7 @@ import { NotFoundError } from '../../../../../../../shared/domain/errors/not-fou
 export class PrismaCommunityRepository implements PropertyRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async save(property: Property, userId: string): Promise<void> {
-    const adminProfile = await this.prisma.administratorProfileModel.findUnique(
-      {
-        where: { userId },
-      },
-    );
-
-    if (!adminProfile) throw new NotFoundError('AdministratorProfile', userId);
-
+  async save(property: Property, userId?: string): Promise<void> {
     await this.prisma.communityModel.upsert({
       where: { id: property.id },
       create: {
@@ -32,6 +25,7 @@ export class PrismaCommunityRepository implements PropertyRepository {
         cityId: property.cityId,
         type: property.type,
         totalUnits: property.declaredTotalUnits,
+        status: property.currentStatus,
       },
       update: {
         name: property.name,
@@ -40,8 +34,23 @@ export class PrismaCommunityRepository implements PropertyRepository {
         cityId: property.cityId,
         type: property.type,
         totalUnits: property.declaredTotalUnits,
+        status: property.currentStatus,
       },
     });
+
+    // El vínculo administrador-copropiedad solo se (re)establece cuando el
+    // caller trae userId (creación/edición desde el propio administrador).
+    // ActivatePropertyUseCase llama a save() sin userId porque solo cambia
+    // el status — el vínculo ya existe desde la creación.
+    if (!userId) return;
+
+    const adminProfile = await this.prisma.administratorProfileModel.findUnique(
+      {
+        where: { userId },
+      },
+    );
+
+    if (!adminProfile) throw new NotFoundError('AdministratorProfile', userId);
 
     await this.prisma.administratorCommunityModel.upsert({
       where: {
@@ -74,6 +83,7 @@ export class PrismaCommunityRepository implements PropertyRepository {
       record.cityId,
       record.type as PropertyType,
       record.totalUnits,
+      record.status as PropertyStatus,
     );
   }
 }

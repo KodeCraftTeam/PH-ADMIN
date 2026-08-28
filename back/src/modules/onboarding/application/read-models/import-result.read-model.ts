@@ -8,7 +8,6 @@ export interface ImportPreviewRow {
   group: string | null;
   floor: number | null;
   areaM2: number;
-  coefficient: number;
   matricula: string | null;
   use: string | null;
 }
@@ -18,7 +17,6 @@ export interface ImportResult {
   totalUnits: number;
   totalPersons: number;
   totalOwnerships: number;
-  coefficientSum: number;
   errors: ImportRowError[];
   units: ImportPreviewRow[];
 }

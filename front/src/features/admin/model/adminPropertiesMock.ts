@@ -6,7 +6,7 @@ export interface ManagedProperty {
   type: "Residencial" | "Comercial" | "Mixto";
   unitsCount: number;
   status: "Activo" | "En Onboarding" | "En Mora" | "Configuración";
-  plan: "Starter" | "Pro" | "Enterprise";
+  plan: "Starter" | "Pro" | "Enterprise" | null; // null = sin módulo de planes/billing todavía
   pendingBalance: number; // Pending balance
   collectionPercentage: number; // % collected this month
   overdueUnits: number; // Number of overdue units

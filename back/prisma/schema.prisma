@@ -56,6 +56,7 @@ model CommunityModel {
   city                     CityModel                     @relation(fields: [cityId], references: [id])
   type                     String                        @default("RESIDENCIAL")
   totalUnits               Int                           @map("total_units")
+  status                   String                        @default("EN_CONFIGURACION")
   createdAt                DateTime                      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt                DateTime?                     @updatedAt @map("updated_at")
   administratorCommunities AdministratorCommunityModel[]
@@ -98,16 +99,30 @@ model UnitModel {
   type                       String
   floor                      Int?
   privateAreaM2              Decimal                   @map("private_area_m2") @db.Decimal(10, 4)
-  coefficient                Decimal                   @db.Decimal(10, 4)
+  coefficient                Decimal?                  @db.Decimal(10, 4)
+  coefficientOrigin          String?                   @map("coefficient_origin")
   propertyRegistrationNumber String?                   @map("property_registration_number")
   use                        String?
   status                     String                    @default("ACTIVA")
   createdAt                  DateTime                  @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt                  DateTime?                 @updatedAt @map("updated_at")
   ownerships                 PropertyOwnershipModel[]
+  initialBalance             InitialBalanceModel?
 
   @@unique([communityId, identifier])
   @@unique([communityId, propertyRegistrationNumber])
+}
+
+model InitialBalanceModel {
+  @@map("initial_balances")
+  id         String    @id @default(uuid())
+  unitId     String    @unique @map("unit_id")
+  unit       UnitModel @relation(fields: [unitId], references: [id])
+  balanceCOP Decimal   @map("balance_cop") @db.Decimal(14, 2)
+  cutoffDate DateTime  @map("cutoff_date") @db.Date
+  status     String
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime? @updatedAt @map("updated_at")
 }
 
 model PersonModel {

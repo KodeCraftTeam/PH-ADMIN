@@ -36,7 +36,6 @@ describe('CreatePropertyUseCase', () => {
     cityId: 'city-1',
     type: 'RESIDENCIAL',
     totalUnits: 20,
-    totalTowers: 1,
     adminName: 'Juan Perez',
     adminEmail: 'juan@example.com',
   };

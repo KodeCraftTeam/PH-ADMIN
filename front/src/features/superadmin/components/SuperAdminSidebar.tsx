@@ -4,10 +4,8 @@ import { ReactNode } from "react";
 import { LogOutIcon } from "lucide-react";
 import {
   IconBuilding,
-  IconChart,
   IconUsers,
   IconDollar,
-  IconSparkles,
 } from "@/components/ui";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 

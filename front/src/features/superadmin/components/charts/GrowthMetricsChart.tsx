@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, IconBuilding, IconTrendingUp } from "@/components/ui";
+import { Card, IconBuilding } from "@/components/ui";
 
 interface MonthlyGrowth {
   month: string;

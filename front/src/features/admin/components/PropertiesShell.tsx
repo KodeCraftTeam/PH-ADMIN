@@ -2,7 +2,7 @@
 
 import { ReactNode, useState } from "react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { IconBuilding, ToastDemoTrigger } from "@/components/ui";
+import { IconBuilding } from "@/components/ui";
 import { getSession } from "@/features/auth/model/session";
 import { PropertiesSidebar } from "./PropertiesSidebar";
 
@@ -39,7 +39,6 @@ export function PropertiesShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <ToastDemoTrigger />
             <ThemeToggle />
           </div>
         </div>

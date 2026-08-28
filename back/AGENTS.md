@@ -91,6 +91,35 @@ Nunca `throw new Error('texto')` ni excepciones de Nest (`ConflictException`, `U
 
 **Nunca** crear una excepción por módulo que sepa de HTTP. **Nunca** hacer que el filter compartido conozca clases de error de un módulo puntual — el dato (`httpStatus`) viaja en el propio error, no al revés.
 
+## Aggregates (DDD, enfoque pragmático — no purista)
+
+Un **Aggregate** se define exclusivamente por la existencia de una **invariante**: una regla de negocio que solo se puede validar viendo varias entidades juntas (nunca una validación de un solo campo aislado, eso es un VO). Si no hay invariante que cruce entidades, **no fuerces** estructura de agregado — entidades independientes, cada una con su propio repositorio, está bien.
+
+Todo Aggregate ES una Entity, pero no toda Entity es un Aggregate. Un Aggregate puede ser una sola Entity sin hijos, mientras tenga su propio repositorio y ciclo de vida independiente (ej: `Property` ya calificaba como root antes de tener invariante — repo propio + lifecycle `activate()`).
+
+**Regla clave — el Aggregate Root es dueño de la REGLA, no necesariamente de la colección viva de hijos.** Evitá el anti-patrón de "large aggregate" (Vernon): si los hijos que participan de la invariante pueden ser cientos/miles (ej: `Unit` dentro de `Property`), NO los embebas como array en memoria del root (`property.units: Unit[]`) — cargarías el agregado completo para escrituras triviales que ni tocan la invariante (renombrar `Property`, cambiar `floor` de una `Unit`). En su lugar:
+
+- El Aggregate Root expone un método (puede ser `static` si no depende de su propio estado) que recibe SOLO los valores mínimos que participan de la invariante y tira un `DomainError` propio si se viola.
+- El use-case es quien junta esos valores (vía el repo/query que corresponda) y llama al método antes de persistir.
+- Los campos de las entidades hijas que NO participan de la invariante tienen su propio repositorio/escritura libre, sin pasar por el root.
+
+**Una entidad "hija" de una invariante no deja de ser entidad normal para todo lo demás.** `Unit` participa de la invariante de `Property` (coeficientes) y ES ELLA MISMA root de su propia invariante (ownership) — pero eso NO significa que toda escritura sobre `Unit` deba pasar por `Property`. Ejemplo: un use-case futuro `UpdateUnitFloorUseCase` o `DeactivateUnitUseCase` edita `Unit` directo, con su propio repo, sin cargar ni tocar `Property` para nada — porque `floor`/`status` no participan de ninguna invariante. Solo el use-case que específicamente crea/cambia el `coefficient` de una `Unit` tiene que consultar `Property.assertCoefficientsComplete(...)` antes de persistir. Regla general: **la invariante decide QUÉ escritura puntual pasa por el root, no CUÁL entidad "pertenece" al agregado para siempre.** Forzar todo por el root (aunque no toque la invariante) es justamente el large-aggregate que querés evitar.
+
+Ejemplo real en [modules/onboarding](src/modules/onboarding):
+- `Property.assertCoefficientsComplete(coefficients: Coefficient[])` en [domain/entities/property.entity.ts](src/modules/onboarding/domain/entities/property.entity.ts) — invariante: suma de `Coefficient` de todas las `Unit` de la comunidad = 100%. No recibe `Unit[]`, solo los `Coefficient` ya extraídos.
+- `Unit.assertOwnershipsComplete(unitIdentifier, ownerships)` en [domain/entities/unit.entity.ts](src/modules/onboarding/domain/entities/unit.entity.ts) — invariante: suma de `OwnershipPercentage` de una `Unit` = 100% + exactamente un propietario primario.
+- Ambos métodos son llamados desde [application/use-cases/import-units.use-case.ts](src/modules/onboarding/application/use-cases/import-units.use-case.ts), que atrapa el `DomainError` y lo traduce a error de fila para el preview — el use-case no reimplementa la regla, solo la invoca.
+
+**No Event Sourcing** salvo que auditoría histórica sea requisito explícito de negocio — persistencia relacional normal con foreign keys alcanza. **Datos derivados de una invariante (sumas, totales) se calculan al vuelo** en el método de invariante o en un read model — nunca se guardan duplicados en la tabla del root.
+
+**No crear repositorio nuevo preventivo** para una entidad hija solo porque "podría ser un aggregate": mientras ningún use-case necesite cargar/mutar esa entidad fuera de un flujo batch existente (ej: `ImportBatchRepository`), ese port ad-hoc de aplicación alcanza. Separar el repo del Aggregate Root cuando un use-case nuevo realmente necesite reconstituir esa entidad para operar sobre ella.
+
+### Cómo detectar un Aggregate Root a nivel de código (NO es "tiene repo propio")
+
+Tener `domain/ports/out/<x>.repository.ts` dedicado **no es** el requisito — es señal opcional que puede faltar. Ejemplo real: `Unit` es Aggregate Root de la invariante de ownership y **no tiene** `unit.repository.ts` propio; se escribe hoy vía `ImportBatchRepository` (compartido, del flujo batch), porque ningún use-case necesita todavía reconstituir un `Unit` suelto fuera de ese flujo. Si mañana aparece un use-case que sí lo necesita (ej: transferir propiedad de una unidad), ahí se crea `unit.repository.ts` — no antes.
+
+La señal que SÍ es confiable, y no depende de infraestructura: **la entidad misma expone el método que enforcea la invariante**, marcado con doc-comment `/** Aggregate root: ... */` arriba de la clase (ver `Property` y `Unit`). Eso es lo que hace a algo Aggregate Root — no dónde ni cómo se persiste. Repo dedicado es un detalle de infraestructura que puede llegar después o nunca, según lo pida un use-case real.
+
 ## Cómo extender sin romper el aislamiento
 
 **Caso A — misma entidad, acción nueva** (ej: actualizar una Property que ya existe onboarding):

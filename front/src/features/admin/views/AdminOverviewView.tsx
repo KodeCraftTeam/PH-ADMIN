@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, IconBuilding, IconChart, IconCheck, IconDollar, IconUsers } from "@/components/ui";
+import { Card, IconBuilding, IconCheck, IconDollar } from "@/components/ui";
 
 const copFormat = new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -9,16 +9,22 @@ const copFormat = new Intl.NumberFormat("es-CO", {
 });
 
 interface Props {
-  totalBalance: number;
-  overdue: number;
-  paymentPlans: number;
+  pendingBalanceTotal: number;
+  unitsWithBalance: number;
+  overdueUnits: number;
+  paymentPlanUnits: number;
+  totalUnits: number;
+  unitsBreakdownLabel: string;
   onQuickAction: (action: string) => void;
 }
 
 export function AdminOverviewView({
-  totalBalance,
-  overdue,
-  paymentPlans,
+  pendingBalanceTotal,
+  unitsWithBalance,
+  overdueUnits,
+  paymentPlanUnits,
+  totalUnits,
+  unitsBreakdownLabel,
   onQuickAction,
 }: Props) {
   const QUICK_ACTIONS = [
@@ -30,7 +36,6 @@ export function AdminOverviewView({
 
   return (
     <div className="space-y-6 animate-pop-in">
-      {/* High-Impact Metric Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-5 border border-slate-200 dark:border-zinc-800 shadow-xs">
           <div className="flex items-center justify-between">
@@ -42,24 +47,28 @@ export function AdminOverviewView({
             </span>
           </div>
           <p className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
-            {copFormat.format(totalBalance)}
+            {copFormat.format(pendingBalanceTotal)}
           </p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">7 unidades con saldo acumulado</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">
+            {unitsWithBalance} unidad(es) con saldo pendiente
+          </p>
         </Card>
 
         <Card className="p-5 border border-slate-200 dark:border-zinc-800 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-400">
-              Recaudo del Mes (Julio)
+              Recaudo del Mes
             </span>
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400">
               <IconCheck className="h-4 w-4" />
             </span>
           </div>
-          <p className="mt-2 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tracking-tight">
-            82%
+          <p className="mt-2 text-2xl font-extrabold text-slate-400 dark:text-zinc-500 tracking-tight">
+            —
           </p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">Meta comercial: <strong>90% de recaudo</strong></p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">
+            Disponible cuando actives facturación
+          </p>
         </Card>
 
         <Card className="p-5 border border-slate-200 dark:border-zinc-800 shadow-xs">
@@ -72,9 +81,11 @@ export function AdminOverviewView({
             </span>
           </div>
           <p className="mt-2 text-2xl font-extrabold text-red-600 dark:text-red-400 tracking-tight">
-            {overdue}
+            {overdueUnits}
           </p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">+ {paymentPlans} con acuerdo de pago activo</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">
+            + {paymentPlanUnits} con acuerdo de pago activo
+          </p>
         </Card>
 
         <Card className="p-5 border border-slate-200 dark:border-zinc-800 shadow-xs">
@@ -87,13 +98,14 @@ export function AdminOverviewView({
             </span>
           </div>
           <p className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-zinc-100 tracking-tight">
-            18
+            {totalUnits}
           </p>
-          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">16 aptos • 2 locales comerciales</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">
+            {unitsBreakdownLabel || "Sin unidades cargadas"}
+          </p>
         </Card>
       </div>
 
-      {/* Quick Actions */}
       <div>
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-400 mb-3">
           Acciones Rápidas de Operación

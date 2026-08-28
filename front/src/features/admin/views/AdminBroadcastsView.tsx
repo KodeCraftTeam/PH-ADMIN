@@ -65,7 +65,7 @@ export function AdminBroadcastsView() {
             <Select
               label="Categoría"
               value={category}
-              onChange={(e) => setCategory(e.target.value as any)}
+              onChange={(e) => setCategory(e.target.value as AdminBroadcast["category"])}
             >
               <option value="Circular General">Circular General</option>
               <option value="Mantenimiento">Mantenimiento</option>

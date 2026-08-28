@@ -16,7 +16,12 @@ import {
   type ImportBatchRepository,
   type ImportBatchContext,
 } from '../../domain/ports/out/import-batch.repository';
-import { Unit, UnitType, UnitUse } from '../../domain/entities/unit.entity';
+import {
+  Unit,
+  UnitType,
+  UnitUse,
+  UnitOwnershipRow,
+} from '../../domain/entities/unit.entity';
 import {
   UnitGroup,
   UnitGroupType,
@@ -27,7 +32,6 @@ import {
   DocumentType,
 } from '../../domain/entities/person.entity';
 import { PropertyOwnership } from '../../domain/entities/property-ownership.entity';
-import { Coefficient } from '../../domain/value-objects/coefficient.vo';
 import { OwnershipPercentage } from '../../domain/value-objects/ownership-percentage.vo';
 import { ImportValidationError } from '../../domain/errors/import-validation.error';
 import { UnsupportedFileTypeError } from '../../domain/errors/unsupported-file-type.error';
@@ -103,7 +107,6 @@ interface PendingUnitRow {
   type: UnitType;
   floor: number | null;
   area: number;
-  coefficientInput: number | null;
   matricula: string | null;
   use: UnitUse | null;
   groupName: string | null;
@@ -132,7 +135,7 @@ interface PendingOwnershipRow {
 
 /**
  * Use case: importación masiva de Unidades, Personas y Propietarios
- * (pasos 3-4 del onboarding). Valida las 3 hojas del Excel de punta a punta
+ * (pasos 2-3 del onboarding). Valida las 3 hojas del Excel de punta a punta
  * y, si commit=true y no hay errores, persiste todo en una única transacción
  * (regla del negocio: si cualquier hoja falla, no se inserta nada).
  */
@@ -154,7 +157,7 @@ export class ImportUnitsUseCase {
     const context = await this.repo.loadContext(command.communityId);
     const errors: ImportRowError[] = [];
 
-    const pendingUnits = this.parseUnitRows(workbook.unidades, context, errors);
+    const pendingUnits = this.parseUnitRows(workbook.units, context, errors);
     const { groupsToCreate, groupNameToId } = this.resolveGroups(
       command.communityId,
       pendingUnits,
@@ -164,30 +167,10 @@ export class ImportUnitsUseCase {
     const { units, preview } = this.buildUnits(
       command.communityId,
       pendingUnits,
-      context,
       groupNameToId,
-      errors,
     );
 
-    const allCoefficients = [
-      ...context.existingUnits.map((u) => u.coefficient),
-      ...units.map((u) => u.coefficient),
-    ];
-    if (
-      allCoefficients.length > 0 &&
-      !Coefficient.sumIsHundred(allCoefficients)
-    ) {
-      const sum = allCoefficients.reduce((acc, c) => acc + c.percentage, 0);
-      errors.push(
-        rowError(
-          'Unidades',
-          0,
-          `La suma de coeficientes de la copropiedad debe ser 100% (actual: ${sum.toFixed(2)}%)`,
-        ),
-      );
-    }
-
-    const pendingPersons = this.parsePersonRows(workbook.personas, errors);
+    const pendingPersons = this.parsePersonRows(workbook.people, errors);
     const dbPersons = await this.repo.findPersonsByDocumentNumbers(
       pendingPersons.map((p) => p.documentNumber),
     );
@@ -222,7 +205,7 @@ export class ImportUnitsUseCase {
       personIdByDocument.set(p.documentNumber, p.id);
 
     const pendingOwnerships = this.parseOwnershipRows(
-      workbook.propietarios,
+      workbook.ownerships,
       errors,
       unitIdByIdentifier,
       personIdByDocument,
@@ -239,11 +222,6 @@ export class ImportUnitsUseCase {
           o.startDate,
           o.isPrimary,
         ),
-    );
-
-    const coefficientSum = allCoefficients.reduce(
-      (acc, c) => acc + c.percentage,
-      0,
     );
 
     if (command.commit) {
@@ -263,7 +241,6 @@ export class ImportUnitsUseCase {
       totalUnits: units.length,
       totalPersons: personsToCreate.length,
       totalOwnerships: ownerships.length,
-      coefficientSum: Number(coefficientSum.toFixed(2)),
       errors,
       units: preview,
     };
@@ -294,7 +271,6 @@ export class ImportUnitsUseCase {
       const groupTypeRaw = asString(raw['agrupador_tipo']);
       const floor = asInt(raw['piso']);
       const area = asNumber(raw['area_privada_m2*']);
-      const coefficientInput = asNumber(raw['coeficiente']);
       const matricula = asString(raw['matricula_inmobiliaria']);
       const useRaw = asString(raw['uso']);
 
@@ -399,7 +375,6 @@ export class ImportUnitsUseCase {
         type,
         floor,
         area,
-        coefficientInput,
         matricula,
         use,
         groupName,
@@ -451,54 +426,37 @@ export class ImportUnitsUseCase {
   private buildUnits(
     communityId: string,
     pending: PendingUnitRow[],
-    context: ImportBatchContext,
     groupNameToId: Map<string, string>,
-    errors: ImportRowError[],
   ): { units: Unit[]; preview: ImportPreviewRow[] } {
-    const existingAreaTotal = context.existingUnits.reduce(
-      (sum, u) => sum + u.privateAreaM2,
-      0,
-    );
-    const batchAreaTotal = pending.reduce((sum, r) => sum + r.area, 0);
-    const totalArea = existingAreaTotal + batchAreaTotal;
-
     const units: Unit[] = [];
     const preview: ImportPreviewRow[] = [];
 
     for (const r of pending) {
-      const coefficientValue =
-        r.coefficientInput ?? (totalArea > 0 ? (r.area / totalArea) * 100 : 0);
-      try {
-        const coefficient = Coefficient.create(coefficientValue);
-        const groupId = r.groupName
-          ? (groupNameToId.get(r.groupName) ?? null)
-          : null;
-        const unit = new Unit(
-          randomUUID(),
-          communityId,
-          r.identifier,
-          r.type,
-          r.area,
-          coefficient,
-          groupId,
-          r.floor,
-          r.matricula,
-          r.use,
-        );
-        units.push(unit);
-        preview.push({
-          identifier: unit.identifier,
-          type: unit.type,
-          group: r.groupName,
-          floor: unit.floor,
-          areaM2: unit.privateAreaM2,
-          coefficient: unit.coefficient.percentage,
-          matricula: unit.propertyRegistrationNumber,
-          use: unit.use,
-        });
-      } catch (e) {
-        errors.push(rowError('Unidades', r.row, (e as Error).message));
-      }
+      const groupId = r.groupName
+        ? (groupNameToId.get(r.groupName) ?? null)
+        : null;
+      const unit = new Unit(
+        randomUUID(),
+        communityId,
+        r.identifier,
+        r.type,
+        r.area,
+        null,
+        groupId,
+        r.floor,
+        r.matricula,
+        r.use,
+      );
+      units.push(unit);
+      preview.push({
+        identifier: unit.identifier,
+        type: unit.type,
+        group: r.groupName,
+        floor: unit.floor,
+        areaM2: unit.privateAreaM2,
+        matricula: unit.propertyRegistrationNumber,
+        use: unit.use,
+      });
     }
 
     return { units, preview };
@@ -693,40 +651,20 @@ export class ImportUnitsUseCase {
     for (const [unitIdentifier, list] of byUnit) {
       const existing =
         context.existingOwnershipsByUnitIdentifier.get(unitIdentifier) ?? [];
-      const allPercentages = [
-        ...existing.map((e) => OwnershipPercentage.create(e.percentage)),
-        ...list.map((o) => o.percentage),
+      const allOwnerships: UnitOwnershipRow[] = [
+        ...existing.map((e) => ({
+          percentage: OwnershipPercentage.create(e.percentage),
+          isPrimary: e.isPrimary,
+        })),
+        ...list.map((o) => ({
+          percentage: o.percentage,
+          isPrimary: o.isPrimary,
+        })),
       ];
-      if (!OwnershipPercentage.sumIsHundred(allPercentages)) {
-        const sum = allPercentages.reduce((acc, p) => acc + p.percentage, 0);
-        errors.push(
-          rowError(
-            'Propietarios',
-            0,
-            `La suma de porcentaje_propiedad para la unidad '${unitIdentifier}' debe ser 100% (actual: ${sum.toFixed(2)}%)`,
-          ),
-        );
-      }
-
-      const principalCount =
-        existing.filter((e) => e.isPrimary).length +
-        list.filter((o) => o.isPrimary).length;
-      if (principalCount === 0) {
-        errors.push(
-          rowError(
-            'Propietarios',
-            0,
-            `La unidad '${unitIdentifier}' no tiene ningún propietario marcado como es_principal`,
-          ),
-        );
-      } else if (principalCount > 1) {
-        errors.push(
-          rowError(
-            'Propietarios',
-            0,
-            `La unidad '${unitIdentifier}' tiene más de un propietario marcado como es_principal`,
-          ),
-        );
+      try {
+        Unit.assertOwnershipsComplete(unitIdentifier, allOwnerships);
+      } catch (e) {
+        errors.push(rowError('Propietarios', 0, (e as Error).message));
       }
     }
 

@@ -6,9 +6,9 @@ import type { NotificationPort } from '../../domain/ports/out/notification.port'
 import { NotFoundError } from '../../../../shared/domain/errors/not-found.error';
 
 /**
- * Use case: step 6 — final activation of the property.
- * TODO: verify full checklist (structure, 100% valid units,
- * balance loaded) before activating and inviting owners.
+ * Use case: activación final de la copropiedad.
+ * TODO: validar el checklist completo (unidades cargadas, coeficientes al
+ * 100%, sin propietarios faltantes) antes de activar e invitar propietarios.
  */
 @Injectable()
 export class ActivatePropertyUseCase {

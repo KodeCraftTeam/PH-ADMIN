@@ -8,6 +8,8 @@ import {
 import { InvalidWorkbookStructureError } from '../../../../domain/errors/invalid-workbook-structure.error';
 
 const REQUIRED_SHEETS = ['Unidades', 'Personas', 'Propietarios'] as const;
+const REQUIRED_COEFFICIENTS_SHEETS = ['Coeficientes'] as const;
+const REQUIRED_BALANCES_SHEETS = ['Saldos'] as const;
 
 type CellPrimitive = string | number | boolean | Date | null;
 
@@ -39,46 +41,63 @@ function stringifyCell(value: CellPrimitive): string | null {
 @Injectable()
 export class ExceljsSpreadsheetReaderAdapter implements SpreadsheetReaderPort {
   async parseImportWorkbook(fileBuffer: Buffer): Promise<ParsedImportWorkbook> {
+    const workbook = await this.load(fileBuffer, REQUIRED_SHEETS);
+
+    return {
+      units: this.readSheet(workbook, 'Unidades'),
+      people: this.readSheet(workbook, 'Personas'),
+      ownerships: this.readSheet(workbook, 'Propietarios'),
+    };
+  }
+
+  async parseCoefficientsWorkbook(fileBuffer: Buffer): Promise<RawSheetRow[]> {
+    const workbook = await this.load(fileBuffer, REQUIRED_COEFFICIENTS_SHEETS);
+    return this.readSheet(workbook, 'Coeficientes');
+  }
+
+  async parseBalancesWorkbook(fileBuffer: Buffer): Promise<RawSheetRow[]> {
+    const workbook = await this.load(fileBuffer, REQUIRED_BALANCES_SHEETS);
+    return this.readSheet(workbook, 'Saldos');
+  }
+
+  private async load(
+    fileBuffer: Buffer,
+    requiredSheets: readonly string[],
+  ): Promise<Workbook> {
     const workbook = new Workbook();
     await workbook.xlsx.load(fileBuffer as unknown as ArrayBuffer);
 
-    const missingSheets = REQUIRED_SHEETS.filter(
+    const missingSheets = requiredSheets.filter(
       (name) => !workbook.getWorksheet(name),
     );
     if (missingSheets.length > 0) {
       throw new InvalidWorkbookStructureError([...missingSheets]);
     }
 
-    const readSheet = (name: string): RawSheetRow[] => {
-      const worksheet = workbook.getWorksheet(name)!;
-      const headers: Array<string | null> = [];
-      worksheet
-        .getRow(1)
-        .eachCell({ includeEmpty: true }, (cell, colNumber) => {
-          headers[colNumber] = stringifyCell(normalizeCellValue(cell.value));
-        });
+    return workbook;
+  }
 
-      const rows: RawSheetRow[] = [];
-      for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
-        const row = worksheet.getRow(rowNumber);
-        const record: RawSheetRow = {};
-        let hasValue = false;
-        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-          const header = headers[colNumber];
-          if (!header) return;
-          const value = normalizeCellValue(cell.value);
-          record[header] = value;
-          if (value !== null) hasValue = true;
-        });
-        if (hasValue) rows.push(record);
-      }
-      return rows;
-    };
+  private readSheet(workbook: Workbook, name: string): RawSheetRow[] {
+    const worksheet = workbook.getWorksheet(name)!;
+    const headers: Array<string | null> = [];
+    worksheet.getRow(1).eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      headers[colNumber] = stringifyCell(normalizeCellValue(cell.value));
+    });
 
-    return {
-      unidades: readSheet('Unidades'),
-      personas: readSheet('Personas'),
-      propietarios: readSheet('Propietarios'),
-    };
+    const rows: RawSheetRow[] = [];
+    for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
+      const row = worksheet.getRow(rowNumber);
+      const record: RawSheetRow = {};
+      let hasValue = false;
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const header = headers[colNumber];
+        if (!header) return;
+        const value = normalizeCellValue(cell.value);
+        record[header] = value;
+        if (value !== null) hasValue = true;
+      });
+      if (hasValue) rows.push(record);
+    }
+    return rows;
   }
 }

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "communities" ADD COLUMN "status" TEXT NOT NULL DEFAULT 'EN_CONFIGURACION';

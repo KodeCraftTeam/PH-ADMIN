@@ -16,7 +16,6 @@ const REQUIRED_FIELDS: Array<{ field: keyof PropertyData; name: string }> = [
   { field: "cityId", name: "Ciudad" },
   { field: "type", name: "Tipo de conjunto" },
   { field: "totalUnits", name: "Número total de unidades" },
-  { field: "totalTowers", name: "Número de torres/bloques" },
   { field: "adminName", name: "Nombre del administrador" },
   { field: "adminEmail", name: "Correo del administrador" },
 ];
@@ -88,8 +87,8 @@ export function Step1PropertyData() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-slate-900">Datos del conjunto</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-xl font-semibold text-slate-900 dark:text-zinc-100">Datos del conjunto</h1>
+      <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">
         Información básica de la copropiedad. Estos datos aparecerán en facturas y
         comunicados.
       </p>
@@ -146,28 +145,16 @@ export function Step1PropertyData() {
             {/* <option value="Comercial">Comercial</option>
             <option value="Mixto">Mixto</option> */}
           </Select>
-          <div className="grid grid-cols-2 gap-5">
-            <Input
-              label="Total de unidades"
-              type="number"
-              min={1}
-              placeholder="18"
-              value={property.totalUnits}
-              onChange={set("totalUnits")}
-              error={errors.totalUnits}
-              required
-            />
-            <Input
-              label="Torres / bloques"
-              type="number"
-              min={1}
-              placeholder="3"
-              value={property.totalTowers}
-              onChange={set("totalTowers")}
-              error={errors.totalTowers}
-              required
-            />
-          </div>
+          <Input
+            label="Total de unidades"
+            type="number"
+            min={1}
+            placeholder="18"
+            value={property.totalUnits}
+            onChange={set("totalUnits")}
+            error={errors.totalUnits}
+            required
+          />
           <Input
             label="Nombre del administrador"
             placeholder="Diana Carolina Herrera"

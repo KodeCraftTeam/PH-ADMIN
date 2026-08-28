@@ -1,6 +1,6 @@
 /**
- * Outbound port: notifications (email to owners on activation,
- * alert to support when validation keeps failing).
+ * Port de salida: notificaciones (correo a propietarios al activar,
+ * alerta a soporte cuando la validación sigue fallando).
  */
 export interface NotificationPort {
   inviteOwners(propertyId: string): Promise<void>;

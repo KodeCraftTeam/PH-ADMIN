@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { IconBuilding, ToastDemoTrigger } from "@/components/ui";
+import { IconBuilding } from "@/components/ui";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { HelpWidget } from "./components/HelpWidget";
 import { ProgressBar } from "./components/ProgressBar";
 import { WizardProvider, useWizardState } from "./model/WizardContext";
 import { Step1PropertyData } from "./steps/Step1PropertyData";
-import { Step2Structure } from "./steps/Step2Structure";
-import { Step3ImportUnits } from "./steps/Step3ImportUnits";
-import { Step4Validation } from "./steps/Step4Validation";
+import { Step2ImportUnits } from "./steps/Step2ImportUnits";
+import { Step3Validation } from "./steps/Step3Validation";
+import { Step4Coefficients } from "./steps/Step4Coefficients";
 import { Step5InitialBalance } from "./steps/Step5InitialBalance";
 import { Step6Review } from "./steps/Step6Review";
 
@@ -20,11 +20,11 @@ function CurrentStep() {
     case 1:
       return <Step1PropertyData />;
     case 2:
-      return <Step2Structure />;
+      return <Step2ImportUnits />;
     case 3:
-      return <Step3ImportUnits />;
+      return <Step3Validation />;
     case 4:
-      return <Step4Validation />;
+      return <Step4Coefficients />;
     case 5:
       return <Step5InitialBalance />;
     case 6:
@@ -38,7 +38,6 @@ export function Wizard() {
   return (
     <WizardProvider>
       <div className="min-h-screen bg-slate-50/70 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 transition-colors flex flex-col">
-        {/* Sticky Header Bar with Back Button */}
         <header className="sticky top-0 z-40 border-b border-slate-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md transition-colors h-14 w-full flex-shrink-0">
           <div className="mx-auto flex h-full max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
             <div className="flex items-center gap-3">
@@ -67,7 +66,6 @@ export function Wizard() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <ToastDemoTrigger />
               <ThemeToggle />
               <span className="text-xs text-slate-400 dark:text-zinc-400 hidden md:inline">
                 ¿Necesitas ayuda?{" "}
