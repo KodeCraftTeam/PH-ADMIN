@@ -118,13 +118,13 @@ export function Badge({
   children: ReactNode;
 }) {
   const tones = {
-    green: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
-    red: "bg-red-50 text-red-700 ring-red-600/20",
-    amber: "bg-amber-50 text-amber-800 ring-amber-600/20",
-    gray: "bg-slate-100 text-slate-600 ring-slate-500/20",
-    blue: "bg-sky-50 text-sky-700 ring-sky-600/20",
-    purple: "bg-purple-50 text-purple-700 ring-purple-600/20",
-    indigo: "bg-indigo-50 text-indigo-700 ring-indigo-600/20",
+    green: "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 ring-emerald-600/20 dark:ring-emerald-500/30",
+    red: "bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-400 ring-red-600/20 dark:ring-red-500/30",
+    amber: "bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400 ring-amber-600/20 dark:ring-amber-500/30",
+    gray: "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-zinc-400 ring-slate-500/20 dark:ring-zinc-500/20",
+    blue: "bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-400 ring-sky-600/20 dark:ring-sky-500/30",
+    purple: "bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400 ring-purple-600/20 dark:ring-purple-500/30",
+    indigo: "bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 ring-indigo-600/20 dark:ring-indigo-500/30",
   };
   return (
     <span
@@ -149,10 +149,10 @@ export function Alert({
   children: ReactNode;
 }) {
   const tones = {
-    amber: "border-amber-300 bg-amber-50 text-amber-900",
-    green: "border-emerald-200 bg-emerald-50 text-emerald-900",
-    red: "border-red-300 bg-red-50 text-red-900",
-    blue: "border-sky-300 bg-sky-50 text-sky-900",
+    amber: "border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300",
+    green: "border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-300",
+    red: "border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-900 dark:text-red-300",
+    blue: "border-sky-300 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-300",
   };
   return (
     <div className={cn("rounded-lg border px-4 py-3 text-sm", tones[tone])}>

@@ -1,6 +1,7 @@
 import { TaxId } from '../../../../shared/domain/value-objects/tax-id.vo';
 import { InvalidActivationStateError } from '../errors/invalid-activation-state.error';
 import { CoefficientsNotCompleteError } from '../errors/coefficients-not-complete.error';
+import { CoefficientsNotAssignedError } from '../errors/coefficients-not-assigned.error';
 import { Coefficient } from '../value-objects/coefficient.vo';
 
 export type PropertyType = 'RESIDENCIAL' | 'COMERCIAL' | 'MIXTO';
@@ -37,10 +38,19 @@ export class Property {
     return this.status;
   }
 
-  static assertCoefficientsComplete(coefficients: Coefficient[]): void {
+  static assertCoefficientsComplete(
+    coefficients: Array<Coefficient | null>,
+  ): void {
     if (coefficients.length === 0) return;
-    if (!Coefficient.sumIsHundred(coefficients)) {
-      const sum = coefficients.reduce((acc, c) => acc + c.percentage, 0);
+
+    const missing = coefficients.filter((c) => c === null).length;
+    if (missing > 0) {
+      throw new CoefficientsNotAssignedError(missing);
+    }
+
+    const assigned = coefficients as Coefficient[];
+    if (!Coefficient.sumIsHundred(assigned)) {
+      const sum = assigned.reduce((acc, c) => acc + c.percentage, 0);
       throw new CoefficientsNotCompleteError(sum);
     }
   }

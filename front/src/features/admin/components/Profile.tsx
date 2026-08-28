@@ -15,7 +15,7 @@ export default function Profile() {
         if (user) setLocalSession(user);
       })
       .catch(() => {
-        // keep whatever was already in local storage
+        // se conserva lo que ya había en el almacenamiento local
       });
   }, []);
 

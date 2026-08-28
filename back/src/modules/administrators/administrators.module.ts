@@ -6,8 +6,8 @@ import { AdministratorsController } from './infrastructure/adapters/in/http/admi
 import { PrismaAdministratorProfileRepository } from './infrastructure/adapters/out/persistence/prisma-administrator-profile.repository';
 
 /**
- * Hexagonal module: use cases depend on ports (interfaces);
- * concrete adapters are wired here.
+ * Módulo hexagonal: los use cases dependen de ports (interfaces);
+ * los adapters concretos se conectan acá.
  */
 @Module({
   imports: [AuthModule],

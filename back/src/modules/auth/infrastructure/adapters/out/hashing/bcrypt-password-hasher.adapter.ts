@@ -5,7 +5,7 @@ import { PasswordHasherPort } from '../../../../domain/ports/out/password-hasher
 const SALT_ROUNDS = 10;
 
 /**
- * Outbound (driven) adapter: password hashing via bcrypt.
+ * Adapter de salida (driven): hashing de contraseñas vía bcrypt.
  */
 @Injectable()
 export class BcryptPasswordHasherAdapter implements PasswordHasherPort {

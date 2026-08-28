@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, Sparkles, ChevronDown, CheckCircle2, AlertCircle, AlertTriangle, Info } from "lucide-react";
+import { Bell, ChevronDown, CheckCircle2, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { toast } from "./toast";
 
 export function ToastDemoTrigger() {

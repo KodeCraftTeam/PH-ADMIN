@@ -1,7 +1,7 @@
 "use client";
 
-import { Badge, Button, Card, IconUsers } from "@/components/ui";
-import { TEAM_MEMBERS_MOCK, TeamMember } from "../model/mocks";
+import { Badge, Button, Card } from "@/components/ui";
+import { TEAM_MEMBERS_MOCK } from "../model/mocks";
 
 export function TeamView() {
   const members = TEAM_MEMBERS_MOCK;

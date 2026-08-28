@@ -27,7 +27,7 @@ export class Unit {
     public readonly identifier: string,
     public readonly type: UnitType,
     public readonly privateAreaM2: number,
-    public readonly coefficient: Coefficient,
+    public readonly coefficient: Coefficient | null,
     public readonly groupId: string | null = null,
     public readonly floor: number | null = null,
     public readonly propertyRegistrationNumber: string | null = null,

@@ -1,6 +1,7 @@
-import type { BalanceRow, StructureRow } from "./types";
+import type { BalanceRow } from "./types";
 
-// Initial balance mock: generated from the already-corrected units.
+// Solo la usa la vista mock de facturación admin (AdminBillingView.tsx), no
+// el wizard de onboarding, que carga saldos reales vía /balance/import.
 export const BALANCE_MOCK: BalanceRow[] = [
   { id: "c01", code: "T1-101", owner: "María Fernanda Rojas", initialBalance: 0, cutoffDate: "2026-06-30", status: "Al día" },
   { id: "c02", code: "T1-102", owner: "Carlos Andrés Peña", initialBalance: 486000, cutoffDate: "2026-06-30", status: "En mora" },
@@ -21,18 +22,3 @@ export const BALANCE_MOCK: BalanceRow[] = [
   { id: "c17", code: "L-001", owner: "Inversiones El Nogal S.A.S.", initialBalance: 0, cutoffDate: "2026-06-30", status: "Al día" },
   { id: "c18", code: "L-002", owner: "Panadería La Espiga Dorada", initialBalance: 128000, cutoffDate: "2026-06-30", status: "En mora" },
 ];
-
-export const INITIAL_STRUCTURE: StructureRow[] = [
-  { id: "e1", name: "Torre 1", type: "Torre", floors: 3, unitsPerFloor: 2, totalUnits: 6 },
-];
-
-export function newStructureRow(n: number): StructureRow {
-  return {
-    id: `e${Date.now()}`,
-    name: `Torre ${n}`,
-    type: "Torre",
-    floors: 1,
-    unitsPerFloor: 1,
-    totalUnits: 1,
-  };
-}

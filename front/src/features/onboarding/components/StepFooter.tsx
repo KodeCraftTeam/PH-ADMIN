@@ -11,7 +11,7 @@ export function StepFooter({
 }: {
   canAdvance?: boolean;
   nextLabel?: string;
-  onAdvance?: () => boolean | Promise<boolean>; // return false to block advancing (e.g. validation)
+  onAdvance?: () => boolean | Promise<boolean>; // retorna false para bloquear el avance (ej. validación)
 }) {
   const { step } = useWizardState();
   const dispatch = useWizardDispatch();
@@ -30,7 +30,7 @@ export function StepFooter({
   }
 
   return (
-    <div className="mt-8 flex items-center justify-between border-t border-slate-200 pt-6">
+    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 dark:border-zinc-800 pt-6">
       <Button
         variant="secondary"
         onClick={() => dispatch({ type: "BACK" })}

@@ -11,7 +11,7 @@ const copFormat = new Intl.NumberFormat("es-CO", {
 });
 
 export function AdminBillingView() {
-  const [balance, setBalance] = useState(BALANCE_MOCK);
+  const balance = BALANCE_MOCK;
   const [filterStatus, setFilterStatus] = useState<string>("Todos");
   const [searchTerm, setSearchTerm] = useState("");
   const [noticeAlert, setNoticeAlert] = useState<string | null>(null);

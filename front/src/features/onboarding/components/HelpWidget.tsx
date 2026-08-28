@@ -14,27 +14,27 @@ const HELP_BY_STEP: Record<number, { title: string; tips: string[] }> = {
     ],
   },
   2: {
-    title: "Estructura",
-    tips: [
-      "Si tu conjunto no tiene torres, usa el tipo \"Único\" con una sola fila.",
-      "El total de unidades se calcula automáticamente: pisos × unidades por piso.",
-      "La suma debe coincidir con lo declarado en el paso 1 para poder activar.",
-    ],
-  },
-  3: {
     title: "Importar unidades",
     tips: [
       "Descarga la plantilla y no cambies los nombres de las columnas.",
-      "Los coeficientes están en el reglamento de propiedad horizontal.",
+      "El archivo trae unidades, personas y propietarios en 3 hojas.",
       "Puedes quitar el archivo y volver a subirlo las veces que necesites.",
     ],
   },
-  4: {
+  3: {
     title: "Validación",
     tips: [
       "Cada error indica la fila exacta y cómo corregirlo.",
-      "La suma de coeficientes debe dar exactamente 100%.",
+      "Mientras haya errores no se importa nada — corrige y vuelve a subir.",
       "Si un error persiste después de dos intentos, escríbenos — lo revisamos contigo.",
+    ],
+  },
+  4: {
+    title: "Coeficientes",
+    tips: [
+      "Los coeficientes están en el reglamento de propiedad horizontal.",
+      "La suma de todas las unidades debe dar exactamente 100%.",
+      "Marca \"Reglamento\" cuando el valor venga del documento notarial, no de un cálculo.",
     ],
   },
   5: {
@@ -42,7 +42,7 @@ const HELP_BY_STEP: Record<number, { title: string; tips: string[] }> = {
     tips: [
       "Usa el saldo a la fecha de corte, no el histórico completo.",
       "Una unidad al día se registra con saldo 0.",
-      "Puedes ajustar la cartera con soporte antes de la primera facturación.",
+      "Este paso es opcional — puedes activar el conjunto y cargarlo después.",
     ],
   },
   6: {
@@ -63,19 +63,19 @@ export function HelpWidget() {
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
       {open && (
-        <div className="w-[calc(100vw-2rem)] max-w-80 rounded-xl border border-zinc-200 bg-white p-5 shadow-xl shadow-zinc-900/10">
+        <div className="w-[calc(100vw-2rem)] max-w-80 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 shadow-xl shadow-zinc-900/10">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
                 Ayuda — paso {step}
               </p>
-              <p className="mt-0.5 text-sm font-semibold text-zinc-900">
+              <p className="mt-0.5 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                 {help.title}
               </p>
             </div>
             <button
               onClick={() => setOpen(false)}
-              className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+              className="rounded-md p-1 text-zinc-400 dark:text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-600 dark:hover:text-zinc-300"
               aria-label="Cerrar ayuda"
             >
               <IconX />
@@ -83,21 +83,21 @@ export function HelpWidget() {
           </div>
           <ul className="mt-3 space-y-2.5">
             {help.tips.map((tip) => (
-              <li key={tip} className="flex gap-2 text-sm text-zinc-600">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ph-500" />
+              <li key={tip} className="flex gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ph-500 dark:bg-ph-300" />
                 {tip}
               </li>
             ))}
           </ul>
-          <div className="mt-4 border-t border-zinc-100 pt-3">
+          <div className="mt-4 border-t border-zinc-100 dark:border-zinc-800 pt-3">
             <a
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="text-sm font-medium text-ph-600 hover:text-ph-700"
+              className="text-sm font-medium text-ph-600 dark:text-ph-300 hover:text-ph-700 dark:hover:text-ph-200"
             >
               Hablar con soporte →
             </a>
-            <p className="mt-1 text-xs text-zinc-400">
+            <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
               Respondemos en menos de 10 minutos en horario hábil.
             </p>
           </div>

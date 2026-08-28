@@ -1,7 +1,13 @@
 import { InitialBalance } from '../../entities/balance.entity';
 
+export interface UnitIdentifierRow {
+  id: string;
+  identifier: string;
+}
+
 export interface BalanceRepository {
-  saveBatch(balances: InitialBalance[]): Promise<void>;
+  loadUnitIdentifiers(communityId: string): Promise<UnitIdentifierRow[]>;
+  upsertBatch(balances: InitialBalance[]): Promise<void>;
   listByProperty(propertyId: string): Promise<InitialBalance[]>;
 }
 

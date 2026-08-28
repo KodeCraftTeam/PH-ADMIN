@@ -1,5 +1,11 @@
 import { apiRequest } from "@/lib/http-client";
-import type { ImportResult, PropertyData } from "../model/types";
+import type {
+  BalanceImportResult,
+  CoefficientImportResult,
+  ImportResult,
+  OnboardingStatus,
+  PropertyData,
+} from "../model/types";
 
 export interface PropertyListItem {
   id: string;
@@ -23,7 +29,6 @@ export function saveProperty(data: PropertyData & { id?: string }) {
       cityId: data.cityId,
       type: (data.type || "Residencial").toUpperCase(),
       totalUnits: Number(data.totalUnits) || 1,
-      totalTowers: Number(data.totalTowers) || 1,
       adminName: data.adminName,
       adminEmail: data.adminEmail,
     }),
@@ -40,6 +45,12 @@ export function activateProperty(id: string) {
   });
 }
 
+export function getOnboardingStatus(propertyId: string) {
+  return apiRequest<OnboardingStatus>(
+    `/onboarding/properties/${propertyId}/status`
+  );
+}
+
 export function previewUnitsImport(propertyId: string, file: File) {
   const body = new FormData();
   body.append("file", file);
@@ -54,6 +65,42 @@ export function commitUnitsImport(propertyId: string, file: File) {
   body.append("file", file);
   return apiRequest<ImportResult>(
     `/onboarding/properties/${propertyId}/units/import`,
+    { method: "POST", body }
+  );
+}
+
+export function previewCoefficientsImport(propertyId: string, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return apiRequest<CoefficientImportResult>(
+    `/onboarding/properties/${propertyId}/coefficients/import/preview`,
+    { method: "POST", body }
+  );
+}
+
+export function commitCoefficientsImport(propertyId: string, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return apiRequest<CoefficientImportResult>(
+    `/onboarding/properties/${propertyId}/coefficients/import`,
+    { method: "POST", body }
+  );
+}
+
+export function previewBalanceImport(propertyId: string, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return apiRequest<BalanceImportResult>(
+    `/onboarding/properties/${propertyId}/balance/import/preview`,
+    { method: "POST", body }
+  );
+}
+
+export function commitBalanceImport(propertyId: string, file: File) {
+  const body = new FormData();
+  body.append("file", file);
+  return apiRequest<BalanceImportResult>(
+    `/onboarding/properties/${propertyId}/balance/import`,
     { method: "POST", body }
   );
 }

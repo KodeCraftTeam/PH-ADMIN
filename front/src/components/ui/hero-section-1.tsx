@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -172,7 +173,7 @@ function Hero() {
                 app.kodecraftph.com/superadmin
               </span>
             </div>
-            <img
+            <Image
               className="block w-full object-cover"
               src="/dashboard-preview.png"
               alt="Panel SuperAdmin de KodeCraft PH"
@@ -207,7 +208,7 @@ const STEPS = [
   },
 ];
 
-function HowItWorks() {
+export function HowItWorks() {
   return (
     <section className="border-t py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -278,7 +279,7 @@ const TESTIMONIALS = [
   },
 ];
 
-function Testimonials() {
+export function Testimonials() {
   return (
     <section className="border-t py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -385,7 +386,7 @@ const PLANS = [
   },
 ];
 
-function Pricing() {
+export function Pricing() {
   return (
     <section id="precios" className="border-t py-24">
       <div className="mx-auto max-w-7xl px-6">
@@ -583,7 +584,7 @@ const FEATURES = [
 /** Entrada alternada por columna: izquierda / abajo / derecha. */
 const COLUMN_DIRECTION = ["left", "up", "right"] as const;
 
-function Features() {
+export function Features() {
   return (
     <section className="border-t py-24">
       <div className="mx-auto max-w-7xl px-6">

@@ -69,32 +69,4 @@ describe('VerifyCodeUseCase', () => {
       useCase.execute({ email: 'admin@test.com', code: '123456' }),
     ).rejects.toThrow(InvalidVerificationCodeError);
   });
-
-  // it('should be change status to onboarding', async () => {
-  //   userRepo.findByEmail.mockResolvedValue(
-  //     new User(
-  //       'existing-id',
-  //       'admin@test.com',
-  //       '',
-  //       '',
-  //       'ADMIN',
-  //       'PENDING',
-  //       '123456',
-  //     ),
-  //   );
-
-  //   hashCode.compare.mockResolvedValue(true);
-
-  //   await useCase.execute({ email: 'admin@test.com', code: '123456' });
-
-  //   expect(userRepo.save).toHaveBeenCalledWith(
-  //     expect.objectContaining({
-  //       email: 'admin@test.com',
-  //       passwordHash: '',
-  //       role: 'ADMIN',
-  //       status: 'ONBOARDING',
-  //       code: undefined,
-  //     }),
-  //   );
-  // });
 });

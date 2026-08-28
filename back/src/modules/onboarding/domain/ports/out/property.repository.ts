@@ -1,8 +1,8 @@
 import { Property } from '../../entities/property.entity';
 
 /**
- * Outbound (driven) port: persistence for the Property aggregate.
- * Implemented by infrastructure (Postgres, in-memory…).
+ * Port de salida (driven): persistencia del aggregate Property.
+ * Implementado por infraestructura (Postgres, en memoria…).
  */
 export interface PropertyRepository {
   save(property: Property, userId?: string): Promise<void>;

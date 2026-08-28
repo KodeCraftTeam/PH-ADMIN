@@ -36,7 +36,7 @@ export class PrismaPropertyQueryRepository implements PropertyQueryPort {
       city: link.community.city.name,
       type: link.community.type as PropertyType,
       totalUnits: link.community.totalUnits,
-      status: 'EN_CONFIGURACION',
+      status: link.community.status,
     }));
   }
 }

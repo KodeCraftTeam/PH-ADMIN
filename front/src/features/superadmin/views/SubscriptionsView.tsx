@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Badge, Button, Card, IconCreditCard, IconDollar } from "@/components/ui";
+import { Alert, Button, Card, IconCreditCard } from "@/components/ui";
 import { PlatformProperty } from "../model/mocks";
 import { formatCOP } from "../components/charts/RevenueTrendChart";
 

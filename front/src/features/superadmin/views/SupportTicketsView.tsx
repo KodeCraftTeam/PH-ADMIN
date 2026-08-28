@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, Badge, Button, Card } from "@/components/ui";
+import { Badge, Button, Card } from "@/components/ui";
 import { TICKETS_MOCK, SupportTicket } from "../model/mocks";
 
 export function SupportTicketsView() {

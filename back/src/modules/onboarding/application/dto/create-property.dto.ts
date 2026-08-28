@@ -23,9 +23,6 @@ export class CreatePropertyDto {
   @IsNumber()
   totalUnits!: number;
 
-  @IsNumber()
-  totalTowers!: number;
-
   @IsString()
   @IsNotEmpty()
   adminName!: string;
