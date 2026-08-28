@@ -111,7 +111,7 @@ export function AdminHeader({
             </button>
 
             {showDropdown && (
-              <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 rounded-2xl bg-white dark:bg-zinc-900 p-3 shadow-2xl border border-slate-200 dark:border-zinc-800 z-50 animate-pop-in">
+              <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:top-full sm:left-0 sm:mt-2 w-auto sm:w-80 rounded-2xl bg-white dark:bg-zinc-900 p-3 shadow-2xl border border-slate-200 dark:border-zinc-800 z-50 animate-pop-in">
                 <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100 dark:border-zinc-800 mb-2">
                   <span className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                     Mis Copropiedades
